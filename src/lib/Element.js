@@ -20,7 +20,7 @@ export default class Element extends HTMLElement {
                     const oldV = prop;
                     prop = v;
                     this.propertyChangedCallback(p, oldV, prop);
-                    this.render();
+                    if (this.isConnected) this.render();
 
                     return v;
                 },

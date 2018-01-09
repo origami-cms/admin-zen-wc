@@ -40,12 +40,23 @@ class Sidebar extends Element {
         this.apps = [
             {
                 icon: 'page',
-                color: 'main',
+                color: 'red',
                 to: '/pages'
             },
             {
+                icon: 'dollar',
+                color: 'green',
+                to: '/app/engagement'
+            },
+            {
                 icon: 'messages',
-                color: 'orange'
+                color: 'orange',
+                to: '/app/engagement'
+            },
+            {
+                icon: 'user',
+                color: 'blue',
+                to: '/users'
             }
         ];
     }

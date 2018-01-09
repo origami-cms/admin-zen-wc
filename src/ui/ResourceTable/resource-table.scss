@@ -1,0 +1,59 @@
+@import '~origami-css/import';
+
+:host {
+    display: block;
+    width: 100%;
+    overflow: hidden;
+    margin-left: -2rem;
+    width: calc(100% + 4rem);
+
+    .table {
+        display: flex;
+        flex-flow: column nowrap;
+        flex: 1 1 auto;
+        padding: 2rem;
+
+
+        & > div.header {
+            display: none;
+
+            & > span {
+                white-space: normal;
+                justify-content: center;
+            }
+        }
+
+        & > div {
+            width: 100%;
+            display: flex;
+            flex-flow: row nowrap;
+            background-color: color('white');
+            height: 5rem;
+            line-height: 5rem;
+            margin-bottom: size('tiny');
+
+            @extend %shadow-shade-1;
+            @extend %rounded;
+
+
+
+            & > span {
+                flex-flow: row nowrap;
+                flex-grow: 1;
+                flex-basis: 0;
+                word-break: break-word;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+                padding: 0 size('small');
+                min-width: 0;
+
+                &.check {
+                    flex-grow: 0;
+                }
+            }
+        }
+    }
+
+
+}

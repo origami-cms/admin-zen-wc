@@ -2,6 +2,8 @@ import {Element} from 'lib';
 import HTML from './form.html';
 import CSS from './form.scss';
 
+import './Checkbox';
+
 window.customElements.define('zen-ui-form', class ZenForm extends Element {
     constructor() {
         super();

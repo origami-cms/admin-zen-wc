@@ -13,6 +13,8 @@ class Pages extends Element {
         super();
         this.html = HTML;
         this.css = CSS.toString();
+
+        this.table = this.shadowRoot.querySelector('zen-ui-resource-table');
     }
 
     connectedCallback() {
@@ -23,21 +25,12 @@ class Pages extends Element {
         return ['pages'];
     }
 
-    // connectedCallback() {
-    //     if (this.auth.token && !this.auth.loggedIn) this.trigger('verify', this.auth.token);
-    // }
-
     propertyChangedCallback(prop, oldV, newV) {
         switch (prop) {
             case 'pages':
+                this.table.data = newV.pages;
         }
     }
-    //             if (!newV.loggedIn && !newV.token) document.querySelector('wc-router').replace('/login');
-    //             if (newV.loggedIn && newV.token) this.trigger('getMe');
-
-    //             break;
-    //     }
-    // }
 }
 
 
