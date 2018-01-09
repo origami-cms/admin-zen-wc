@@ -1,0 +1,22 @@
+@import "~origami-css/variables";
+@import "~origami-css/helpers";
+@import "~styles/lib/extenders";
+
+:host {
+    @extend %page;
+    background-image: url('~images/patterns/waves.svg');
+
+
+    // form {
+    //     @extend .center;
+    // }
+    .logo, form {
+        width: 100%;
+    }
+    .center {
+        text-align: center;
+        background-color: #fff;
+        width: 32rem;
+        border: 1px solid color('main-soft-extra');
+    }
+}

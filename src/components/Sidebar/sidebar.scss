@@ -1,0 +1,137 @@
+@import "~origami-css/variables";
+@import "~origami-css/helpers";
+@import "~styles/lib/extenders";
+
+:host {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    left: 0;
+    width: 30rem;
+    background-color: color('white');
+    z-index: 1;
+    padding: 0 size('main');
+
+    wc-link.top-link {
+        height: size('super');
+        line-height: size('super');
+        text-align: center;
+    }
+
+    img.logo {
+        vertical-align: middle;
+    }
+
+    img.logo-text {
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        margin: size('main') auto;
+        // opacity: 0.4;
+    }
+
+    ul.apps {
+        $padding: 4rem;
+        margin-top: 3rem;
+        font-size: 0;
+        li {
+            display: inline-block;
+            width: calc(50% - #{$padding} / 2);
+            margin-bottom: $padding;
+            text-align: center;
+            &:nth-child(2n) {
+                margin-left: $padding;
+            }
+
+            &:after {
+                content: '';
+                display: block;
+                padding-bottom: 100%;
+            }
+        }
+    }
+
+    // .tabs {
+    //     .tab {
+    //         padding: 0;
+    //         &.active {
+    //             position: relative;
+    //             background-color: color('white-off');
+    //             box-shadow: 0 0rem 0.7rem rgba(color('main'), 0.25);
+    //             &:after {
+    //                 content: '';
+    //                 position: absolute;
+    //                 left: 0;
+    //                 right: 0;
+    //                 bottom: -0.4rem;
+    //                 height: 0.4rem;
+    //                 background-color: color('white-off');
+    //             }
+    //         }
+    //         &:not(.active) a {
+    //             color: color('shade-3');
+    //         }
+    //         a {
+    //             display: block;
+    //             height: 4rem;
+    //             line-height: 4rem;
+    //             padding: 0 size('small');
+    //         }
+    //     }
+    // }
+    // .jewel {
+    //     position: absolute;
+    //     left: 50%;
+    //     $size: 6rem;
+    //     margin-left: $size / -2;
+    //     height: $size;
+    //     width: $size;
+    //     line-height: $size;
+    //     transform: translateY(#{1/6 * $size});
+    //     background-color: color('white');
+    //     border-radius: 50%; // border: $border-soft-extra;
+    //     text-align: center;
+    //     box-shadow: 0 0.3rem 0.3rem rgba(color('main-dark'), 0.075);
+    //     transition: all $transition-time;
+    //     cursor: pointer;
+    //     img {
+    //         width: 1/2 * $size;
+    //         vertical-align: middle;
+    //     }
+    //     &:before {
+    //         content: '';
+    //         position: absolute;
+    //         left: 0;
+    //         top: 0;
+    //         height: 100%;
+    //         width: 100%;
+    //         border-radius: 50%;
+    //         transition: all $transition-time;
+    //     }
+    //     &:hover:before {
+    //         background-color: color('main-softest');
+    //     }
+    //     &.active {
+    //         background: $gradient-main;
+    //         img {
+    //             filter: brightness(100);
+    //         }
+    //     }
+    //     a {
+    //         display: none;
+    //         width: size('hero');
+    //         height: size('hero');
+    //         line-height: size('hero');
+    //     }
+    //     &.active a {
+    //         display: block;
+    //     }
+    // }
+    // .user {
+    //     padding: 0 size('large');
+    //     height: 4rem;
+    //     line-height: 4rem;
+    //     border-left: 1px solid color('shade-1');
+    // }
+}
