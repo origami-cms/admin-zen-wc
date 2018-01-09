@@ -12,9 +12,7 @@ import actions from 'actions';
 
 class Sidebar extends Element {
     constructor() {
-        super();
-        this.html = HTML;
-        this.css = CSS.toString();
+        super(HTML, CSS.toString());
 
         this.search = [
             {

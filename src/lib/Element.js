@@ -1,4 +1,5 @@
 import query from 'json-query';
+import deepequal from 'deepequal';
 export default class Element extends HTMLElement {
     constructor(html, css) {
         super();
@@ -21,11 +22,12 @@ export default class Element extends HTMLElement {
                 Object.defineProperty(this, p, {
                     get: () => prop,
                     set: async v => {
-                        if (prop === v) return v;
+                        if (deepequal(prop, v)) return v;
                         const oldV = prop;
                         prop = v;
                         this.propertyChangedCallback(p, oldV, prop);
-                        if (this.isConnected) this.render();
+                        await this.ready();
+                        this.render();
 
                         return v;
                     },

@@ -8,6 +8,9 @@ import store from 'store';
 import actions from 'actions';
 
 
+import './Edit';
+
+
 class Pages extends Element {
     constructor() {
         super();

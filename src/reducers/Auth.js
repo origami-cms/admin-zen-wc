@@ -70,7 +70,7 @@ export default (state = intitialState, action) => {
 
 
         case AUTH_LOGIN_FAILED:
-            return state.setIn(['errors', 'loggingIn'], message);
+            return state.setIn(['errors', 'loggingIn'], action.message);
 
         case AUTH_VERIFIED_FAILED:
             let {message} = action;
@@ -79,7 +79,7 @@ export default (state = intitialState, action) => {
                 message = 'You were logged out due to inactivity';
             }
 
-            return state.setIn(['errors', 'verify'], action.message);
+            return state.setIn(['errors', 'verify'], message);
 
 
         default:

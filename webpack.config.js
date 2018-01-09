@@ -15,7 +15,8 @@ module.exports = {
     },
     output: {
         path: PATH_DIST,
-        filename: '[name]'
+        filename: '[name]',
+        publicPath: '/admin/'
     },
     // Devtool: 'eval-source-map',
     devServer: {

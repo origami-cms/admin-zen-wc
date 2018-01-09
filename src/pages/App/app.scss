@@ -4,3 +4,12 @@ main {
     margin-left: 30rem;
     padding: size('main');
 }
+
+
+zen-sidebar {
+    opacity: 1;
+    transition: all 10s;
+    &:unresolved {
+        opacity: 0;
+    }
+}

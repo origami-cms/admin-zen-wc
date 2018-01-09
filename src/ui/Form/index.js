@@ -65,7 +65,7 @@ window.customElements.define('zen-ui-form', class ZenForm extends Element {
             const v = this.values[f.name] || '';
             if (existing) {
                 existing.value = v;
-                if (f.type == 'submit') existing.value = f.value;
+                if (f.type == 'submit') existing.value = f.value || 'Submit';
 
                 return;
             }
@@ -111,8 +111,9 @@ window.customElements.define('zen-ui-form', class ZenForm extends Element {
                 break;
 
             case 'submit':
+                console.log('hereee', f.value || 'Submit');
                 field.type = f.type;
-                field.value = f.value;
+                field.value = f.value || 'Submit';
                 break;
         }
 
