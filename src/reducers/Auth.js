@@ -70,14 +70,15 @@ export default (state = intitialState, action) => {
 
 
         case AUTH_LOGIN_FAILED:
+            return state.setIn(['errors', 'loggingIn'], message);
+
+        case AUTH_VERIFIED_FAILED:
             let {message} = action;
+
             if (action.message.includes('Supplied JWT has expired')) {
                 message = 'You were logged out due to inactivity';
             }
 
-            return state.setIn(['errors', 'loggingIn'], message);
-
-        case AUTH_VERIFIED_FAILED:
             return state.setIn(['errors', 'verify'], action.message);
 
 

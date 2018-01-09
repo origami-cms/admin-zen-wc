@@ -7,7 +7,7 @@ import logoText from 'images/logo-text.svg';
 
 import {connect} from 'lib/ConnectedElement.mixin.js';
 import store from 'store';
-// import actions from 'actions';
+import actions from 'actions';
 
 
 class Sidebar extends Element {
@@ -37,37 +37,17 @@ class Sidebar extends Element {
         this.form.fields = this.search;
         this.appsList = this.shadowRoot.querySelector('ul.apps');
 
-        this.apps = [
-            {
-                icon: 'page',
-                color: 'red',
-                to: '/pages'
-            },
-            {
-                icon: 'dollar',
-                color: 'green',
-                to: '/app/engagement'
-            },
-            {
-                icon: 'messages',
-                color: 'orange',
-                to: '/app/engagement'
-            },
-            {
-                icon: 'user',
-                color: 'blue',
-                to: '/users'
-            }
-        ];
+        this.trigger('sidebar-items-get');
     }
 
     static get boundProps() {
-        return ['me', 'apps'];
+        return ['me', 'sidebar'];
     }
 
-    propertyChangedCallback(prop, oldV, newV) {
+    async propertyChangedCallback(prop, oldV, newV) {
         switch (prop) {
-            case 'apps':
+            case 'sidebar':
+                await this.ready();
                 this.renderApps();
                 break;
         }
@@ -81,7 +61,7 @@ class Sidebar extends Element {
 
         this.appsList.innerHTML = '';
 
-        this.apps.forEach(a => {
+        this.sidebar.items.forEach(a => {
             const _li = li.cloneNode(true);
             _li.querySelector('wc-link').to = a.to;
             _li.querySelector('zen-ui-icon').type = a.icon;
@@ -96,7 +76,13 @@ class Sidebar extends Element {
 class ConnectedSidebar extends connect(store, Sidebar) {
     _mapStateToProps(state) {
         return {
-            me: state.Me
+            me: state.Me,
+            sidebar: state.App.sidebar
+        };
+    }
+    _mapDispatchToEvents(dispatch) {
+        return {
+            'sidebar-items-get': actions.App.getSidebarItems(dispatch)
         };
     }
 }

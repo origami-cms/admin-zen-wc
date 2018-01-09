@@ -32,10 +32,11 @@ window.customElements.define('zen-ui-checkbox', class Icon extends Element {
         }
     }
 
-    propertyChangedCallback(prop, oldV, newV) {
+    async propertyChangedCallback(prop, oldV, newV) {
         switch (prop) {
             case 'checked':
-                if (this.isConnected) this.input.checked = newV;
+                await this.ready();
+                this.input.checked = newV;
                 break;
         }
     }

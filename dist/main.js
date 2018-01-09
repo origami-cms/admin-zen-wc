@@ -222,10 +222,11 @@ var AUTH_LOGIN_FAILED = exports.AUTH_LOGIN_FAILED = 'AUTH_LOGIN_FAILED';
 var AUTH_LOGOUT = exports.AUTH_LOGOUT = 'AUTH_LOGOUT';
 
 // ------------------------------------------------------------------------- App
-var APP_JEWEL_ITEMS_SET = exports.APP_JEWEL_ITEMS_SET = 'APP_JEWEL_ITEMS_SET';
+var APP_SIDEBAR_ITEMS_SET = exports.APP_SIDEBAR_ITEMS_SET = 'APP_JEWEL_ITEMS_SET';
 var APP_TABS_NEW = exports.APP_TABS_NEW = 'APP_TABS_NEW';
 var APP_TABS_CLOSE = exports.APP_TABS_CLOSE = 'APP_TABS_CLOSE';
 var APP_TABS_NAME = exports.APP_TABS_NAME = 'APP_TABS_NAME';
+var APP_TITLE_SET = exports.APP_TITLE_SET = 'APP_TITLE_SET';
 
 // -------------------------------------------------------------------------- Me
 var ME_SET = exports.ME_SET = 'ME_SET';
@@ -1978,6 +1979,7 @@ var SERVER_API = exports.SERVER_API = '/api/v1';
 var BASE_URI = exports.BASE_URI = '/admin=';
 var LS_JWT = exports.LS_JWT = 'token';
 var LS_EMAIL = exports.LS_EMAIL = 'email';
+var TITLE_PREFIX = exports.TITLE_PREFIX = 'Origami - ';
 
 /***/ }),
 /* 38 */
@@ -2238,52 +2240,72 @@ Object.setPrototypeOf(_CustomElement, HTMLElement);
 var Element = function (_CustomElement2) {
     (0, _inherits3.default)(Element, _CustomElement2);
 
-    function Element() {
+    function Element(html, css) {
         (0, _classCallCheck3.default)(this, Element);
 
         var _this = (0, _possibleConstructorReturn3.default)(this, (Element.__proto__ || Object.getPrototypeOf(Element)).call(this));
 
-        _this.templates = {};
-        _this._textNodeMap = new Map();
-
-        _this.attachShadow({ mode: 'open' });
-
-        _this.css = '@import "/admin/origami.css";';
-
-        _this.constructor.boundProps.forEach(function (p) {
-            var prop = void 0;
-
-            Object.defineProperty(_this, p, {
-                get: function get() {
-                    return prop;
-                },
-                set: function set(v) {
-                    if (prop === v) return v;
-                    var oldV = prop;
-                    prop = v;
-                    _this.propertyChangedCallback(p, oldV, prop);
-                    if (_this.isConnected) _this.render();
-
-                    return v;
-                },
-                configurable: true
-            });
-
-            _this[p] = _this.constructor.defaultProps[p];
-        });
-
-        _this._updateTemplates();
+        _this._readyPromise = new Promise(_this.init(html, css));
         return _this;
     }
 
     (0, _createClass3.default)(Element, [{
+        key: 'init',
+        value: function init(html, css) {
+            var _this2 = this;
+
+            return function (res, rej) {
+                _this2.templates = {};
+                _this2._textNodeMap = new Map();
+
+                _this2.attachShadow({ mode: 'open' });
+
+                _this2.css = '@import "/admin/origami.css"; ' + (css || '');
+
+                _this2.constructor.boundProps.forEach(function (p) {
+                    var prop = void 0;
+
+                    Object.defineProperty(_this2, p, {
+                        get: function get() {
+                            return prop;
+                        },
+                        set: async function set(v) {
+                            if (prop === v) return v;
+                            var oldV = prop;
+                            prop = v;
+                            _this2.propertyChangedCallback(p, oldV, prop);
+                            if (_this2.isConnected) _this2.render();
+
+                            return v;
+                        },
+                        configurable: true
+                    });
+                });
+
+                if (_this2.constructor.defaultProps) {
+                    Object.entries(_this2.constructor.defaultProps).forEach(function (_ref) {
+                        var _ref2 = (0, _slicedToArray3.default)(_ref, 2),
+                            k = _ref2[0],
+                            v = _ref2[1];
+
+                        _this2[k] = v;
+                    });
+                }
+
+                if (html) _this2.html = html;
+                _this2._updateTemplates();
+
+                res();
+            };
+        }
+    }, {
         key: '_updateTemplates',
         value: function _updateTemplates() {
-            var _this2 = this;
+            var _this3 = this;
 
             var ts = Array.from(this.shadowRoot.querySelectorAll('template'));
             ts.forEach(function (t) {
-                if (t.id) _this2.templates[t.id] = t.content;
+                if (t.id) _this3.templates[t.id] = t.content;
             });
         }
     }, {
@@ -2292,7 +2314,7 @@ var Element = function (_CustomElement2) {
     }, {
         key: 'render',
         value: function render() {
-            var _this3 = this;
+            var _this4 = this;
 
             var existing = Array.from(this._textNodeMap);
             var _iteratorNormalCompletion = true;
@@ -2309,7 +2331,7 @@ var Element = function (_CustomElement2) {
 
                     var replace = template;
                     words.forEach(function (w) {
-                        var _query = (0, _jsonQuery2.default)(w, { data: _this3 }),
+                        var _query = (0, _jsonQuery2.default)(w, { data: _this4 }),
                             replacement = _query.value;
 
                         if (replacement == undefined) replacement = '';
@@ -2346,6 +2368,11 @@ var Element = function (_CustomElement2) {
                 bubbles: true,
                 detail: detail
             }));
+        }
+    }, {
+        key: 'ready',
+        value: function ready() {
+            return this._readyPromise;
         }
     }, {
         key: '_updateTextNodeMap',
@@ -21039,7 +21066,7 @@ exports = module.exports = __webpack_require__(7)(undefined);
 
 
 // module
-exports.push([module.i, "* {\n  box-sizing: border-box;\n  -webkit-appearance: none;\n  -moz-appearance: none; }\n\nhtml, body, div, span, applet, object, iframe,\nh1, h2, h3, h4, h5, h6, p, blockquote, pre,\na, abbr, acronym, address, big, cite, code,\ndel, dfn, em, img, ins, kbd, q, s, samp,\nsmall, strike, strong, sub, sup, tt, var,\nb, u, i, center,\ndl, dt, dd, ol, ul, li,\nfieldset, form, label, legend,\ntable, caption, tbody, tfoot, thead, tr, th, td,\narticle, aside, canvas, details, figcaption, figure,\nfooter, header, hgroup, menu, nav, section, summary,\ntime, mark, audio, video {\n  margin: 0;\n  padding: 0;\n  border: 0;\n  outline: 0;\n  font-size: 100%;\n  font: inherit;\n  vertical-align: baseline; }\n\n/* HTML5 display-role reset for older browsers */\narticle, aside, details, figcaption, figure,\nfooter, header, hgroup, menu, nav, section {\n  display: block; }\n\nbody {\n  line-height: 1; }\n\nol, ul {\n  list-style: none; }\n\nblockquote, q {\n  quotes: none; }\n\nblockquote:before, blockquote:after,\nq:before, q:after {\n  content: '';\n  content: none; }\n\n/* remember to define visible focus styles! */\n*:focus {\n  outline: none; }\n\n/* remember to highlight inserts somehow! */\nins {\n  text-decoration: none; }\n\ndel {\n  text-decoration: line-through; }\n\ntable {\n  border-collapse: collapse;\n  border-spacing: 0; }\n\n.hide {\n  display: none !important; }\n\n.round {\n  border-radius: 50%; }\n\n.rounded, table tr, .modal-overlay .modal {\n  border-radius: 1rem; }\n\n.no-select {\n  user-select: none; }\n\n.color-main {\n  color: #693a91; }\n\n.background-main {\n  background-color: #693a91; }\n\n.color-main-softest {\n  color: #f8f8ff; }\n\n.background-main-softest {\n  background-color: #f8f8ff; }\n\n.color-alt {\n  color: #ff791f; }\n\n.background-alt {\n  background-color: #ff791f; }\n\n.color-accent {\n  color: #23a8e6; }\n\n.background-accent {\n  background-color: #23a8e6; }\n\n.color-error {\n  color: #ff5554; }\n\n.background-error {\n  background-color: #ff5554; }\n\n.color-accent-dark {\n  color: #168ac0; }\n\n.background-accent-dark {\n  background-color: #168ac0; }\n\n.color-success {\n  color: #28c787; }\n\n.background-success {\n  background-color: #28c787; }\n\n.color-white {\n  color: #ffffff; }\n\n.background-white {\n  background-color: #ffffff; }\n\n.color-black {\n  color: #3e3e3e; }\n\n.background-black {\n  background-color: #3e3e3e; }\n\n.color-white-0 {\n  color: rgba(255, 255, 255, 0.1); }\n\n.background-white-0 {\n  background-color: rgba(255, 255, 255, 0.1); }\n\n.color-white-off {\n  color: #f7f6f8; }\n\n.background-white-off {\n  background-color: #f7f6f8; }\n\n.color-shade-0 {\n  color: #f8f8ff; }\n\n.background-shade-0 {\n  background-color: #f8f8ff; }\n\n.color-shade-1 {\n  color: rgba(105, 58, 145, 0.1); }\n\n.background-shade-1 {\n  background-color: rgba(105, 58, 145, 0.1); }\n\n.color-shade-2 {\n  color: rgba(105, 58, 145, 0.3); }\n\n.background-shade-2 {\n  background-color: rgba(105, 58, 145, 0.3); }\n\n.color-shade-3 {\n  color: #d0c6db; }\n\n.background-shade-3 {\n  background-color: #d0c6db; }\n\n.color-shade-4 {\n  color: #b5aabf; }\n\n.background-shade-4 {\n  background-color: #b5aabf; }\n\n.color-shade-5 {\n  color: #693a91; }\n\n.background-shade-5 {\n  background-color: #693a91; }\n\n.color-main-dark {\n  color: #4f2b6d; }\n\n.background-main-dark {\n  background-color: #4f2b6d; }\n\n.color-main-light {\n  color: #8349b5; }\n\n.background-main-light {\n  background-color: #8349b5; }\n\n.color-main-soft {\n  color: rgba(105, 58, 145, 0.5); }\n\n.background-main-soft {\n  background-color: rgba(105, 58, 145, 0.5); }\n\n.color-main-soft-extra {\n  color: rgba(105, 58, 145, 0.2); }\n\n.background-main-soft-extra {\n  background-color: rgba(105, 58, 145, 0.2); }\n\n.color-main-softest-dark {\n  color: #c5c5ff; }\n\n.background-main-softest-dark {\n  background-color: #c5c5ff; }\n\n.color-main-softest-light {\n  color: white; }\n\n.background-main-softest-light {\n  background-color: white; }\n\n.color-main-softest-soft {\n  color: rgba(248, 248, 255, 0.5); }\n\n.background-main-softest-soft {\n  background-color: rgba(248, 248, 255, 0.5); }\n\n.color-main-softest-soft-extra {\n  color: rgba(248, 248, 255, 0.2); }\n\n.background-main-softest-soft-extra {\n  background-color: rgba(248, 248, 255, 0.2); }\n\n.color-alt-dark {\n  color: #eb5e00; }\n\n.background-alt-dark {\n  background-color: #eb5e00; }\n\n.color-alt-light {\n  color: #ff9852; }\n\n.background-alt-light {\n  background-color: #ff9852; }\n\n.color-alt-soft {\n  color: rgba(255, 121, 31, 0.5); }\n\n.background-alt-soft {\n  background-color: rgba(255, 121, 31, 0.5); }\n\n.color-alt-soft-extra {\n  color: rgba(255, 121, 31, 0.2); }\n\n.background-alt-soft-extra {\n  background-color: rgba(255, 121, 31, 0.2); }\n\n.color-accent-light {\n  color: #51baeb; }\n\n.background-accent-light {\n  background-color: #51baeb; }\n\n.color-accent-soft {\n  color: rgba(35, 168, 230, 0.5); }\n\n.background-accent-soft {\n  background-color: rgba(35, 168, 230, 0.5); }\n\n.color-accent-soft-extra {\n  color: rgba(35, 168, 230, 0.2); }\n\n.background-accent-soft-extra {\n  background-color: rgba(35, 168, 230, 0.2); }\n\n.color-error-dark {\n  color: #ff2221; }\n\n.background-error-dark {\n  background-color: #ff2221; }\n\n.color-error-light {\n  color: #ff8887; }\n\n.background-error-light {\n  background-color: #ff8887; }\n\n.color-error-soft {\n  color: rgba(255, 85, 84, 0.5); }\n\n.background-error-soft {\n  background-color: rgba(255, 85, 84, 0.5); }\n\n.color-error-soft-extra {\n  color: rgba(255, 85, 84, 0.2); }\n\n.background-error-soft-extra {\n  background-color: rgba(255, 85, 84, 0.2); }\n\n.color-accent-dark-dark {\n  color: #a46f09; }\n\n.background-accent-dark-dark {\n  background-color: #a46f09; }\n\n.color-accent-dark-light {\n  color: #f2ab21; }\n\n.background-accent-dark-light {\n  background-color: #f2ab21; }\n\n.color-accent-dark-soft {\n  color: rgba(212, 144, 12, 0.5); }\n\n.background-accent-dark-soft {\n  background-color: rgba(212, 144, 12, 0.5); }\n\n.color-accent-dark-soft-extra {\n  color: rgba(212, 144, 12, 0.2); }\n\n.background-accent-dark-soft-extra {\n  background-color: rgba(212, 144, 12, 0.2); }\n\n.color-success-dark {\n  color: #1f9d6a; }\n\n.background-success-dark {\n  background-color: #1f9d6a; }\n\n.color-success-light {\n  color: #48da9f; }\n\n.background-success-light {\n  background-color: #48da9f; }\n\n.color-success-soft {\n  color: rgba(40, 199, 135, 0.5); }\n\n.background-success-soft {\n  background-color: rgba(40, 199, 135, 0.5); }\n\n.color-success-soft-extra {\n  color: rgba(40, 199, 135, 0.2); }\n\n.background-success-soft-extra {\n  background-color: rgba(40, 199, 135, 0.2); }\n\n.color-white-dark {\n  color: #e6e6e6; }\n\n.background-white-dark {\n  background-color: #e6e6e6; }\n\n.color-white-light {\n  color: white; }\n\n.background-white-light {\n  background-color: white; }\n\n.color-white-soft {\n  color: rgba(255, 255, 255, 0.5); }\n\n.background-white-soft {\n  background-color: rgba(255, 255, 255, 0.5); }\n\n.color-white-soft-extra {\n  color: rgba(255, 255, 255, 0.2); }\n\n.background-white-soft-extra {\n  background-color: rgba(255, 255, 255, 0.2); }\n\n.color-black-dark {\n  color: #252525; }\n\n.background-black-dark {\n  background-color: #252525; }\n\n.color-black-light {\n  color: #585858; }\n\n.background-black-light {\n  background-color: #585858; }\n\n.color-black-soft {\n  color: rgba(62, 62, 62, 0.5); }\n\n.background-black-soft {\n  background-color: rgba(62, 62, 62, 0.5); }\n\n.color-black-soft-extra {\n  color: rgba(62, 62, 62, 0.2); }\n\n.background-black-soft-extra {\n  background-color: rgba(62, 62, 62, 0.2); }\n\n.color-white-0-dark {\n  color: rgba(230, 230, 230, 0.1); }\n\n.background-white-0-dark {\n  background-color: rgba(230, 230, 230, 0.1); }\n\n.color-white-0-light {\n  color: rgba(255, 255, 255, 0.1); }\n\n.background-white-0-light {\n  background-color: rgba(255, 255, 255, 0.1); }\n\n.color-white-0-soft {\n  color: rgba(255, 255, 255, 0.5); }\n\n.background-white-0-soft {\n  background-color: rgba(255, 255, 255, 0.5); }\n\n.color-white-0-soft-extra {\n  color: rgba(255, 255, 255, 0.2); }\n\n.background-white-0-soft-extra {\n  background-color: rgba(255, 255, 255, 0.2); }\n\n.color-white-off-dark {\n  color: #ded9e2; }\n\n.background-white-off-dark {\n  background-color: #ded9e2; }\n\n.color-white-off-light {\n  color: white; }\n\n.background-white-off-light {\n  background-color: white; }\n\n.color-white-off-soft {\n  color: rgba(247, 246, 248, 0.5); }\n\n.background-white-off-soft {\n  background-color: rgba(247, 246, 248, 0.5); }\n\n.color-white-off-soft-extra {\n  color: rgba(247, 246, 248, 0.2); }\n\n.background-white-off-soft-extra {\n  background-color: rgba(247, 246, 248, 0.2); }\n\n.color-shade-0-dark {\n  color: #c5c5ff; }\n\n.background-shade-0-dark {\n  background-color: #c5c5ff; }\n\n.color-shade-0-light {\n  color: white; }\n\n.background-shade-0-light {\n  background-color: white; }\n\n.color-shade-0-soft {\n  color: rgba(248, 248, 255, 0.5); }\n\n.background-shade-0-soft {\n  background-color: rgba(248, 248, 255, 0.5); }\n\n.color-shade-0-soft-extra {\n  color: rgba(248, 248, 255, 0.2); }\n\n.background-shade-0-soft-extra {\n  background-color: rgba(248, 248, 255, 0.2); }\n\n.color-shade-1-dark {\n  color: rgba(79, 43, 109, 0.1); }\n\n.background-shade-1-dark {\n  background-color: rgba(79, 43, 109, 0.1); }\n\n.color-shade-1-light {\n  color: rgba(131, 73, 181, 0.1); }\n\n.background-shade-1-light {\n  background-color: rgba(131, 73, 181, 0.1); }\n\n.color-shade-1-soft {\n  color: rgba(105, 58, 145, 0.5); }\n\n.background-shade-1-soft {\n  background-color: rgba(105, 58, 145, 0.5); }\n\n.color-shade-1-soft-extra {\n  color: rgba(105, 58, 145, 0.2); }\n\n.background-shade-1-soft-extra {\n  background-color: rgba(105, 58, 145, 0.2); }\n\n.color-shade-2-dark {\n  color: rgba(79, 43, 109, 0.3); }\n\n.background-shade-2-dark {\n  background-color: rgba(79, 43, 109, 0.3); }\n\n.color-shade-2-light {\n  color: rgba(131, 73, 181, 0.3); }\n\n.background-shade-2-light {\n  background-color: rgba(131, 73, 181, 0.3); }\n\n.color-shade-2-soft {\n  color: rgba(105, 58, 145, 0.5); }\n\n.background-shade-2-soft {\n  background-color: rgba(105, 58, 145, 0.5); }\n\n.color-shade-2-soft-extra {\n  color: rgba(105, 58, 145, 0.2); }\n\n.background-shade-2-soft-extra {\n  background-color: rgba(105, 58, 145, 0.2); }\n\n.color-shade-3-dark {\n  color: #b6a7c7; }\n\n.background-shade-3-dark {\n  background-color: #b6a7c7; }\n\n.color-shade-3-light {\n  color: #eae5ef; }\n\n.background-shade-3-light {\n  background-color: #eae5ef; }\n\n.color-shade-3-soft {\n  color: rgba(208, 198, 219, 0.5); }\n\n.background-shade-3-soft {\n  background-color: rgba(208, 198, 219, 0.5); }\n\n.color-shade-3-soft-extra {\n  color: rgba(208, 198, 219, 0.2); }\n\n.background-shade-3-soft-extra {\n  background-color: rgba(208, 198, 219, 0.2); }\n\n.color-shade-4-dark {\n  color: #9c8da9; }\n\n.background-shade-4-dark {\n  background-color: #9c8da9; }\n\n.color-shade-4-light {\n  color: #cec7d5; }\n\n.background-shade-4-light {\n  background-color: #cec7d5; }\n\n.color-shade-4-soft {\n  color: rgba(181, 170, 191, 0.5); }\n\n.background-shade-4-soft {\n  background-color: rgba(181, 170, 191, 0.5); }\n\n.color-shade-4-soft-extra {\n  color: rgba(181, 170, 191, 0.2); }\n\n.background-shade-4-soft-extra {\n  background-color: rgba(181, 170, 191, 0.2); }\n\n.color-shade-5-dark {\n  color: #4f2b6d; }\n\n.background-shade-5-dark {\n  background-color: #4f2b6d; }\n\n.color-shade-5-light {\n  color: #8349b5; }\n\n.background-shade-5-light {\n  background-color: #8349b5; }\n\n.color-shade-5-soft {\n  color: rgba(105, 58, 145, 0.5); }\n\n.background-shade-5-soft {\n  background-color: rgba(105, 58, 145, 0.5); }\n\n.color-shade-5-soft-extra {\n  color: rgba(105, 58, 145, 0.2); }\n\n.background-shade-5-soft-extra {\n  background-color: rgba(105, 58, 145, 0.2); }\n\n.color-text {\n  color: #b5aabf; }\n\n.background-text {\n  background-color: #b5aabf; }\n\n.color-text-dark {\n  color: #734b86; }\n\n.background-text-dark {\n  background-color: #734b86; }\n\n.color-bg {\n  color: #ffffff; }\n\n.background-bg {\n  background-color: #ffffff; }\n\n.error {\n  color: #ff5554; }\n\n.gradient-main {\n  background: linear-gradient(to bottom right, #b155ba, #693a91); }\n\n.gradient-orange {\n  background: linear-gradient(to bottom right, #FF9B54, #C95A54); }\n\n.gradient-red {\n  background: linear-gradient(to bottom right, #FF5554, #C92954); }\n\n.gradient-green {\n  background: linear-gradient(to bottom right, #84D59A, #00BED0); }\n\n.gradient-blue {\n  background: linear-gradient(to bottom right, #008CBA, #6146C8); }\n\n.display-ib {\n  display: inline-block; }\n\n.display-b {\n  display: block; }\n\n.position-r {\n  position: relative; }\n\n.position-a {\n  position: absolute; }\n\n.center, .modal-overlay .modal {\n  position: absolute;\n  left: 50%;\n  top: 50%;\n  transform: translate(-50%, -50%); }\n\n.center-v {\n  position: absolute;\n  top: 50%;\n  transform: translateY(-50%); }\n\n.center-h {\n  position: absolute;\n  left: 50%;\n  transform: translateX(-50%); }\n\n.float-left {\n  float: left; }\n\n.float-right {\n  float: right; }\n\n.width-10 {\n  width: 10%; }\n\n.width-20 {\n  width: 20%; }\n\n.width-30 {\n  width: 30%; }\n\n.width-40 {\n  width: 40%; }\n\n.width-50 {\n  width: 50%; }\n\n.width-60 {\n  width: 60%; }\n\n.width-70 {\n  width: 70%; }\n\n.width-80 {\n  width: 80%; }\n\n.width-90 {\n  width: 90%; }\n\n.width-100 {\n  width: 100%; }\n\n.cover, .modal-overlay {\n  position: absolute;\n  top: 0;\n  left: 0;\n  width: 100%;\n  height: 100%; }\n\n.margin-tiny {\n  margin: 1rem; }\n\n.margin-v-tiny {\n  margin-top: 1rem;\n  margin-bottom: 1rem; }\n\n.margin-h-tiny {\n  margin-left: 1rem;\n  margin-right: 1rem; }\n\n.margin-t-tiny {\n  margin-top: 1rem; }\n\n.margin-l-tiny {\n  margin-left: 1rem; }\n\n.margin-b-tiny {\n  margin-bottom: 1rem; }\n\n.margin-r-tiny {\n  margin-rights: 1rem; }\n\n.margin-small {\n  margin: 2rem; }\n\n.margin-v-small {\n  margin-top: 2rem;\n  margin-bottom: 2rem; }\n\n.margin-h-small {\n  margin-left: 2rem;\n  margin-right: 2rem; }\n\n.margin-t-small {\n  margin-top: 2rem; }\n\n.margin-l-small {\n  margin-left: 2rem; }\n\n.margin-b-small {\n  margin-bottom: 2rem; }\n\n.margin-r-small {\n  margin-rights: 2rem; }\n\n.margin-main {\n  margin: 4rem; }\n\n.margin-v-main {\n  margin-top: 4rem;\n  margin-bottom: 4rem; }\n\n.margin-h-main {\n  margin-left: 4rem;\n  margin-right: 4rem; }\n\n.margin-t-main {\n  margin-top: 4rem; }\n\n.margin-l-main {\n  margin-left: 4rem; }\n\n.margin-b-main {\n  margin-bottom: 4rem; }\n\n.margin-r-main {\n  margin-rights: 4rem; }\n\n.margin-large {\n  margin: 6rem; }\n\n.margin-v-large {\n  margin-top: 6rem;\n  margin-bottom: 6rem; }\n\n.margin-h-large {\n  margin-left: 6rem;\n  margin-right: 6rem; }\n\n.margin-t-large {\n  margin-top: 6rem; }\n\n.margin-l-large {\n  margin-left: 6rem; }\n\n.margin-b-large {\n  margin-bottom: 6rem; }\n\n.margin-r-large {\n  margin-rights: 6rem; }\n\n.margin-huge {\n  margin: 8rem; }\n\n.margin-v-huge {\n  margin-top: 8rem;\n  margin-bottom: 8rem; }\n\n.margin-h-huge {\n  margin-left: 8rem;\n  margin-right: 8rem; }\n\n.margin-t-huge {\n  margin-top: 8rem; }\n\n.margin-l-huge {\n  margin-left: 8rem; }\n\n.margin-b-huge {\n  margin-bottom: 8rem; }\n\n.margin-r-huge {\n  margin-rights: 8rem; }\n\n.margin-super {\n  margin: 12rem; }\n\n.margin-v-super {\n  margin-top: 12rem;\n  margin-bottom: 12rem; }\n\n.margin-h-super {\n  margin-left: 12rem;\n  margin-right: 12rem; }\n\n.margin-t-super {\n  margin-top: 12rem; }\n\n.margin-l-super {\n  margin-left: 12rem; }\n\n.margin-b-super {\n  margin-bottom: 12rem; }\n\n.margin-r-super {\n  margin-rights: 12rem; }\n\n.margin-hero {\n  margin: 24rem; }\n\n.margin-v-hero {\n  margin-top: 24rem;\n  margin-bottom: 24rem; }\n\n.margin-h-hero {\n  margin-left: 24rem;\n  margin-right: 24rem; }\n\n.margin-t-hero {\n  margin-top: 24rem; }\n\n.margin-l-hero {\n  margin-left: 24rem; }\n\n.margin-b-hero {\n  margin-bottom: 24rem; }\n\n.margin-r-hero {\n  margin-rights: 24rem; }\n\n.padding-tiny {\n  padding: 1rem; }\n\n.padding-v-tiny {\n  padding-top: 1rem;\n  padding-bottom: 1rem; }\n\n.padding-h-tiny {\n  padding-left: 1rem;\n  padding-right: 1rem; }\n\n.padding-t-tiny {\n  padding-top: 1rem; }\n\n.padding-l-tiny {\n  padding-left: 1rem; }\n\n.padding-b-tiny {\n  padding-bottom: 1rem; }\n\n.padding-r-tiny {\n  padding-rights: 1rem; }\n\n.padding-small {\n  padding: 2rem; }\n\n.padding-v-small {\n  padding-top: 2rem;\n  padding-bottom: 2rem; }\n\n.padding-h-small {\n  padding-left: 2rem;\n  padding-right: 2rem; }\n\n.padding-t-small {\n  padding-top: 2rem; }\n\n.padding-l-small {\n  padding-left: 2rem; }\n\n.padding-b-small {\n  padding-bottom: 2rem; }\n\n.padding-r-small {\n  padding-rights: 2rem; }\n\n.padding-main {\n  padding: 4rem; }\n\n.padding-v-main {\n  padding-top: 4rem;\n  padding-bottom: 4rem; }\n\n.padding-h-main {\n  padding-left: 4rem;\n  padding-right: 4rem; }\n\n.padding-t-main {\n  padding-top: 4rem; }\n\n.padding-l-main {\n  padding-left: 4rem; }\n\n.padding-b-main {\n  padding-bottom: 4rem; }\n\n.padding-r-main {\n  padding-rights: 4rem; }\n\n.padding-large {\n  padding: 6rem; }\n\n.padding-v-large {\n  padding-top: 6rem;\n  padding-bottom: 6rem; }\n\n.padding-h-large {\n  padding-left: 6rem;\n  padding-right: 6rem; }\n\n.padding-t-large {\n  padding-top: 6rem; }\n\n.padding-l-large {\n  padding-left: 6rem; }\n\n.padding-b-large {\n  padding-bottom: 6rem; }\n\n.padding-r-large {\n  padding-rights: 6rem; }\n\n.padding-huge {\n  padding: 8rem; }\n\n.padding-v-huge {\n  padding-top: 8rem;\n  padding-bottom: 8rem; }\n\n.padding-h-huge {\n  padding-left: 8rem;\n  padding-right: 8rem; }\n\n.padding-t-huge {\n  padding-top: 8rem; }\n\n.padding-l-huge {\n  padding-left: 8rem; }\n\n.padding-b-huge {\n  padding-bottom: 8rem; }\n\n.padding-r-huge {\n  padding-rights: 8rem; }\n\n.padding-super {\n  padding: 12rem; }\n\n.padding-v-super {\n  padding-top: 12rem;\n  padding-bottom: 12rem; }\n\n.padding-h-super {\n  padding-left: 12rem;\n  padding-right: 12rem; }\n\n.padding-t-super {\n  padding-top: 12rem; }\n\n.padding-l-super {\n  padding-left: 12rem; }\n\n.padding-b-super {\n  padding-bottom: 12rem; }\n\n.padding-r-super {\n  padding-rights: 12rem; }\n\n.padding-hero {\n  padding: 24rem; }\n\n.padding-v-hero {\n  padding-top: 24rem;\n  padding-bottom: 24rem; }\n\n.padding-h-hero {\n  padding-left: 24rem;\n  padding-right: 24rem; }\n\n.padding-t-hero {\n  padding-top: 24rem; }\n\n.padding-l-hero {\n  padding-left: 24rem; }\n\n.padding-b-hero {\n  padding-bottom: 24rem; }\n\n.padding-r-hero {\n  padding-rights: 24rem; }\n\n.width-tiny {\n  width: 1rem; }\n\n.width-small {\n  width: 2rem; }\n\n.width-main {\n  width: 4rem; }\n\n.width-large {\n  width: 6rem; }\n\n.width-huge {\n  width: 8rem; }\n\n.width-super {\n  width: 12rem; }\n\n.width-hero {\n  width: 24rem; }\n\n.height-tiny {\n  height: 1rem; }\n\n.height-small {\n  height: 2rem; }\n\n.height-main {\n  height: 4rem; }\n\n.height-large {\n  height: 6rem; }\n\n.height-huge {\n  height: 8rem; }\n\n.height-super {\n  height: 12rem; }\n\n.height-hero {\n  height: 24rem; }\n\n.size-tiny {\n  width: 1rem;\n  height: 1rem; }\n\n.size-small {\n  width: 2rem;\n  height: 2rem; }\n\n.size-main {\n  width: 4rem;\n  height: 4rem; }\n\n.size-large {\n  width: 6rem;\n  height: 6rem; }\n\n.size-huge {\n  width: 8rem;\n  height: 8rem; }\n\n.size-super {\n  width: 12rem;\n  height: 12rem; }\n\n.size-hero {\n  width: 24rem;\n  height: 24rem; }\n\n.uppercase {\n  text-transform: uppercase; }\n\n.text-left {\n  text-align: left; }\n\n.text-center {\n  text-align: center; }\n\n.text-right {\n  text-align: right; }\n\n.shadow-shade-1, table tr {\n  box-shadow: 0 1rem 2rem rgba(105, 58, 145, 0.1); }\n\n.font-tiny {\n  font-size: 1.2rem; }\n\n.font-small {\n  font-size: 1.6rem; }\n\n.font-main {\n  font-size: 1.8rem; }\n\n.font-large {\n  font-size: 2.4rem; }\n\n.font-huge {\n  font-size: 3.6rem; }\n\n.font-super {\n  font-size: 4.8rem; }\n\n.font-hero {\n  font-size: 6rem; }\n\nh1 {\n  font-size: 6rem;\n  color: #693a91;\n  font-weight: 700; }\n\nh2 {\n  font-size: 2.4rem;\n  color: #ff791f; }\n\na {\n  text-decoration: none;\n  color: #ff791f; }\n\nsmall {\n  font-size: 1.6rem; }\n\nstrong {\n  font-weight: 700;\n  letter-spacing: 1px; }\n\nbutton, .button, input[type='submit'] {\n  text-transform: uppercase;\n  font-weight: 600;\n  letter-spacing: 1px;\n  border: none;\n  height: 6rem;\n  line-height: 6rem;\n  padding: 0 2rem;\n  border-radius: 1rem;\n  color: #ffffff;\n  transition: all 0.15s;\n  user-select: none;\n  background: linear-gradient(to bottom right, #b155ba, #693a91);\n  cursor: pointer; }\n  button:hover, .button:hover, input[type='submit']:hover {\n    filter: brightness(1.1); }\n  button:focus, .button:focus, input[type='submit']:focus {\n    border: none;\n    filter: brightness(0.9); }\n  button.round, .button.round, input[type='submit'].round {\n    padding: 0;\n    border-radius: 50%; }\n  button.has-icon, .button.has-icon, input[type='submit'].has-icon {\n    padding-left: 2rem; }\n    button.has-icon .i, .button.has-icon .i, input[type='submit'].has-icon .i {\n      vertical-align: top;\n      margin-right: 2rem; }\n    button.has-icon .loader, .button.has-icon .loader, input[type='submit'].has-icon .loader {\n      margin-top: 1rem; }\n  button.no-text, .button.no-text, input[type='submit'].no-text {\n    padding: 0; }\n    button.no-text .i, .button.no-text .i, input[type='submit'].no-text .i {\n      margin: 0; }\n  button:disabled, .button:disabled, input[type='submit']:disabled {\n    opacity: 0.5;\n    pointer-events: none; }\n\n.button-group button, .button-group .button {\n  margin-right: 1rem; }\n\n.button-group.float-right button, .button-group.float-right .button {\n  margin-right: 0;\n  margin-left: 1rem; }\n\nform input, form select, form textarea {\n  color: #693a91;\n  background-color: #f8f8ff;\n  height: 6rem;\n  padding: 0 2rem;\n  border-radius: 1rem;\n  border: none;\n  width: 100%;\n  border: 2px solid transparent; }\n  form input:focus, form select:focus, form textarea:focus {\n    border: 2px solid rgba(105, 58, 145, 0.3); }\n  form input::placeholder, form select::placeholder, form textarea::placeholder {\n    color: #d0c6db; }\n  form input:disabled, form select:disabled, form textarea:disabled {\n    opacity: 0.5;\n    user-select: none; }\n\nform textarea {\n  min-height: 12rem;\n  max-width: 100%; }\n\nform select {\n  padding-right: 4rem;\n  background-image: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz48c3ZnIHZlcnNpb249IjEuMSIgaWQ9IkxheWVyXzEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHg9IjBweCIgeT0iMHB4IiB2aWV3Qm94PSIwIDAgNDAgNDAiIHN0eWxlPSJlbmFibGUtYmFja2dyb3VuZDpuZXcgMCAwIDQwIDQwOyIgeG1sOnNwYWNlPSJwcmVzZXJ2ZSI+PGcgZmlsbD0icmdiYSgxMDUsIDU4LCAxNDUsIDAuNSkiPjxwYXRoIGQ9Ik0yMCwyNC4zYy0wLjYsMC0xLjMtMC4yLTEuOC0wLjdsLTcuMS03LjFjLTAuMi0wLjItMC4yLTAuNSwwLTAuN3MwLjUtMC4yLDAuNywwbDcuMSw3LjFjMC42LDAuNiwxLjUsMC42LDIuMSwwbDcuMS03LjFjMC4yLTAuMiwwLjUtMC4yLDAuNywwczAuMiwwLjUsMCwwLjdsLTcuMSw3LjFDMjEuMywyNC4xLDIwLjYsMjQuMywyMCwyNC4zeiIvPjwvZz48L3N2Zz4=);\n  background-repeat: no-repeat;\n  background-position: right center; }\n\nform .form-row {\n  display: block;\n  margin-bottom: 1rem;\n  position: relative; }\n  form .form-row > span {\n    margin-top: 6rem;\n    margin-bottom: 2rem;\n    display: block;\n    text-transform: uppercase;\n    font-weight: bold; }\n  form .form-row > .i,\n  form .form-row > zen-ui-icon {\n    position: absolute;\n    margin: 1rem; }\n    form .form-row > .i + input,\n    form .form-row > zen-ui-icon + input {\n      padding-left: 6rem; }\n  form .form-row label {\n    display: flex; }\n    form .form-row label input {\n      flex: 2; }\n  form .form-row button {\n    flex-basis: 6rem;\n    padding: 0;\n    margin-left: 2rem; }\n  form .form-row.disabled .i {\n    opacity: 0.5; }\n\nform.full-field-width {\n  width: 100%; }\n  form.full-field-width .form-group, form.full-field-width input, form.full-field-width button, form.full-field-width select, form.full-field-width textarea {\n    width: 100%; }\n\nform fieldset legend {\n  font-size: 2.4rem;\n  color: #ff791f;\n  padding-top: 2rem;\n  width: 100%; }\n\nform fieldset + fieldset {\n  margin-top: 24rem; }\n  form fieldset + fieldset legend {\n    padding-top: 24rem;\n    border-top: 1px solid rgba(105, 58, 145, 0.2); }\n\n.checkbox {\n  position: relative; }\n  .checkbox input {\n    visibility: hidden;\n    position: absolute;\n    left: 0;\n    top: 0; }\n    .checkbox input:checked + span {\n      background-color: #693a91;\n      border-color: #693a91;\n      background-image: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz48c3ZnIHZlcnNpb249IjEuMSIgaWQ9IkxheWVyXzEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHg9IjBweCIgeT0iMHB4IiB2aWV3Qm94PSIwIDAgNDAgNDAiIHN0eWxlPSJlbmFibGUtYmFja2dyb3VuZDpuZXcgMCAwIDQwIDQwOyIgeG1sOnNwYWNlPSJwcmVzZXJ2ZSI+PHN0eWxlIHR5cGU9InRleHQvY3NzIj4uc3Qwe2ZpbGw6I0ZGRkZGRjt9PC9zdHlsZT48cG9seWdvbiBjbGFzcz0ic3QwIiBwb2ludHM9IjI5LjgsMTEuOSAxNi41LDI1LjIgMTAuMiwxOC45IDguOCwyMC40IDE2LjUsMjguMSAzMS4yLDEzLjQgIi8+PC9zdmc+); }\n  .checkbox span {\n    display: inline-block;\n    width: 2rem;\n    height: 2rem;\n    border: 2px solid #ff791f;\n    border-radius: 0.5rem;\n    vertical-align: middle; }\n\n.i {\n  display: inline-block;\n  width: 8rem;\n  height: 8rem;\n  vertical-align: middle; }\n  .i use {\n    fill: #693a91; }\n  .i.tiny {\n    width: 2rem;\n    height: 2rem; }\n  .i.small {\n    width: 4rem;\n    height: 4rem; }\n  .i.main {\n    width: 8rem;\n    height: 8rem; }\n  .i.large {\n    width: 12rem;\n    height: 12rem; }\n  .i.huge {\n    width: 16rem;\n    height: 16rem; }\n  .i.super {\n    width: 24rem;\n    height: 24rem; }\n  .i.hero {\n    width: 48rem;\n    height: 48rem; }\n  .i.main use {\n    fill: #693a91; }\n  .i.main path {\n    stroke: #693a91; }\n  .i.main-softest use {\n    fill: #f8f8ff; }\n  .i.main-softest path {\n    stroke: #f8f8ff; }\n  .i.alt use {\n    fill: #ff791f; }\n  .i.alt path {\n    stroke: #ff791f; }\n  .i.accent use {\n    fill: #23a8e6; }\n  .i.accent path {\n    stroke: #23a8e6; }\n  .i.error use {\n    fill: #ff5554; }\n  .i.error path {\n    stroke: #ff5554; }\n  .i.accent-dark use {\n    fill: #168ac0; }\n  .i.accent-dark path {\n    stroke: #168ac0; }\n  .i.success use {\n    fill: #28c787; }\n  .i.success path {\n    stroke: #28c787; }\n  .i.white use {\n    fill: #ffffff; }\n  .i.white path {\n    stroke: #ffffff; }\n  .i.black use {\n    fill: #3e3e3e; }\n  .i.black path {\n    stroke: #3e3e3e; }\n  .i.white-0 use {\n    fill: rgba(255, 255, 255, 0.1); }\n  .i.white-0 path {\n    stroke: rgba(255, 255, 255, 0.1); }\n  .i.white-off use {\n    fill: #f7f6f8; }\n  .i.white-off path {\n    stroke: #f7f6f8; }\n  .i.shade-0 use {\n    fill: #f8f8ff; }\n  .i.shade-0 path {\n    stroke: #f8f8ff; }\n  .i.shade-1 use {\n    fill: rgba(105, 58, 145, 0.1); }\n  .i.shade-1 path {\n    stroke: rgba(105, 58, 145, 0.1); }\n  .i.shade-2 use {\n    fill: rgba(105, 58, 145, 0.3); }\n  .i.shade-2 path {\n    stroke: rgba(105, 58, 145, 0.3); }\n  .i.shade-3 use {\n    fill: #d0c6db; }\n  .i.shade-3 path {\n    stroke: #d0c6db; }\n  .i.shade-4 use {\n    fill: #b5aabf; }\n  .i.shade-4 path {\n    stroke: #b5aabf; }\n  .i.shade-5 use {\n    fill: #693a91; }\n  .i.shade-5 path {\n    stroke: #693a91; }\n  .i.main-dark use {\n    fill: #4f2b6d; }\n  .i.main-dark path {\n    stroke: #4f2b6d; }\n  .i.main-light use {\n    fill: #8349b5; }\n  .i.main-light path {\n    stroke: #8349b5; }\n  .i.main-soft use {\n    fill: rgba(105, 58, 145, 0.5); }\n  .i.main-soft path {\n    stroke: rgba(105, 58, 145, 0.5); }\n  .i.main-soft-extra use {\n    fill: rgba(105, 58, 145, 0.2); }\n  .i.main-soft-extra path {\n    stroke: rgba(105, 58, 145, 0.2); }\n  .i.main-softest-dark use {\n    fill: #c5c5ff; }\n  .i.main-softest-dark path {\n    stroke: #c5c5ff; }\n  .i.main-softest-light use {\n    fill: white; }\n  .i.main-softest-light path {\n    stroke: white; }\n  .i.main-softest-soft use {\n    fill: rgba(248, 248, 255, 0.5); }\n  .i.main-softest-soft path {\n    stroke: rgba(248, 248, 255, 0.5); }\n  .i.main-softest-soft-extra use {\n    fill: rgba(248, 248, 255, 0.2); }\n  .i.main-softest-soft-extra path {\n    stroke: rgba(248, 248, 255, 0.2); }\n  .i.alt-dark use {\n    fill: #eb5e00; }\n  .i.alt-dark path {\n    stroke: #eb5e00; }\n  .i.alt-light use {\n    fill: #ff9852; }\n  .i.alt-light path {\n    stroke: #ff9852; }\n  .i.alt-soft use {\n    fill: rgba(255, 121, 31, 0.5); }\n  .i.alt-soft path {\n    stroke: rgba(255, 121, 31, 0.5); }\n  .i.alt-soft-extra use {\n    fill: rgba(255, 121, 31, 0.2); }\n  .i.alt-soft-extra path {\n    stroke: rgba(255, 121, 31, 0.2); }\n  .i.accent-light use {\n    fill: #51baeb; }\n  .i.accent-light path {\n    stroke: #51baeb; }\n  .i.accent-soft use {\n    fill: rgba(35, 168, 230, 0.5); }\n  .i.accent-soft path {\n    stroke: rgba(35, 168, 230, 0.5); }\n  .i.accent-soft-extra use {\n    fill: rgba(35, 168, 230, 0.2); }\n  .i.accent-soft-extra path {\n    stroke: rgba(35, 168, 230, 0.2); }\n  .i.error-dark use {\n    fill: #ff2221; }\n  .i.error-dark path {\n    stroke: #ff2221; }\n  .i.error-light use {\n    fill: #ff8887; }\n  .i.error-light path {\n    stroke: #ff8887; }\n  .i.error-soft use {\n    fill: rgba(255, 85, 84, 0.5); }\n  .i.error-soft path {\n    stroke: rgba(255, 85, 84, 0.5); }\n  .i.error-soft-extra use {\n    fill: rgba(255, 85, 84, 0.2); }\n  .i.error-soft-extra path {\n    stroke: rgba(255, 85, 84, 0.2); }\n  .i.accent-dark-dark use {\n    fill: #a46f09; }\n  .i.accent-dark-dark path {\n    stroke: #a46f09; }\n  .i.accent-dark-light use {\n    fill: #f2ab21; }\n  .i.accent-dark-light path {\n    stroke: #f2ab21; }\n  .i.accent-dark-soft use {\n    fill: rgba(212, 144, 12, 0.5); }\n  .i.accent-dark-soft path {\n    stroke: rgba(212, 144, 12, 0.5); }\n  .i.accent-dark-soft-extra use {\n    fill: rgba(212, 144, 12, 0.2); }\n  .i.accent-dark-soft-extra path {\n    stroke: rgba(212, 144, 12, 0.2); }\n  .i.success-dark use {\n    fill: #1f9d6a; }\n  .i.success-dark path {\n    stroke: #1f9d6a; }\n  .i.success-light use {\n    fill: #48da9f; }\n  .i.success-light path {\n    stroke: #48da9f; }\n  .i.success-soft use {\n    fill: rgba(40, 199, 135, 0.5); }\n  .i.success-soft path {\n    stroke: rgba(40, 199, 135, 0.5); }\n  .i.success-soft-extra use {\n    fill: rgba(40, 199, 135, 0.2); }\n  .i.success-soft-extra path {\n    stroke: rgba(40, 199, 135, 0.2); }\n  .i.white-dark use {\n    fill: #e6e6e6; }\n  .i.white-dark path {\n    stroke: #e6e6e6; }\n  .i.white-light use {\n    fill: white; }\n  .i.white-light path {\n    stroke: white; }\n  .i.white-soft use {\n    fill: rgba(255, 255, 255, 0.5); }\n  .i.white-soft path {\n    stroke: rgba(255, 255, 255, 0.5); }\n  .i.white-soft-extra use {\n    fill: rgba(255, 255, 255, 0.2); }\n  .i.white-soft-extra path {\n    stroke: rgba(255, 255, 255, 0.2); }\n  .i.black-dark use {\n    fill: #252525; }\n  .i.black-dark path {\n    stroke: #252525; }\n  .i.black-light use {\n    fill: #585858; }\n  .i.black-light path {\n    stroke: #585858; }\n  .i.black-soft use {\n    fill: rgba(62, 62, 62, 0.5); }\n  .i.black-soft path {\n    stroke: rgba(62, 62, 62, 0.5); }\n  .i.black-soft-extra use {\n    fill: rgba(62, 62, 62, 0.2); }\n  .i.black-soft-extra path {\n    stroke: rgba(62, 62, 62, 0.2); }\n  .i.white-0-dark use {\n    fill: rgba(230, 230, 230, 0.1); }\n  .i.white-0-dark path {\n    stroke: rgba(230, 230, 230, 0.1); }\n  .i.white-0-light use {\n    fill: rgba(255, 255, 255, 0.1); }\n  .i.white-0-light path {\n    stroke: rgba(255, 255, 255, 0.1); }\n  .i.white-0-soft use {\n    fill: rgba(255, 255, 255, 0.5); }\n  .i.white-0-soft path {\n    stroke: rgba(255, 255, 255, 0.5); }\n  .i.white-0-soft-extra use {\n    fill: rgba(255, 255, 255, 0.2); }\n  .i.white-0-soft-extra path {\n    stroke: rgba(255, 255, 255, 0.2); }\n  .i.white-off-dark use {\n    fill: #ded9e2; }\n  .i.white-off-dark path {\n    stroke: #ded9e2; }\n  .i.white-off-light use {\n    fill: white; }\n  .i.white-off-light path {\n    stroke: white; }\n  .i.white-off-soft use {\n    fill: rgba(247, 246, 248, 0.5); }\n  .i.white-off-soft path {\n    stroke: rgba(247, 246, 248, 0.5); }\n  .i.white-off-soft-extra use {\n    fill: rgba(247, 246, 248, 0.2); }\n  .i.white-off-soft-extra path {\n    stroke: rgba(247, 246, 248, 0.2); }\n  .i.shade-0-dark use {\n    fill: #c5c5ff; }\n  .i.shade-0-dark path {\n    stroke: #c5c5ff; }\n  .i.shade-0-light use {\n    fill: white; }\n  .i.shade-0-light path {\n    stroke: white; }\n  .i.shade-0-soft use {\n    fill: rgba(248, 248, 255, 0.5); }\n  .i.shade-0-soft path {\n    stroke: rgba(248, 248, 255, 0.5); }\n  .i.shade-0-soft-extra use {\n    fill: rgba(248, 248, 255, 0.2); }\n  .i.shade-0-soft-extra path {\n    stroke: rgba(248, 248, 255, 0.2); }\n  .i.shade-1-dark use {\n    fill: rgba(79, 43, 109, 0.1); }\n  .i.shade-1-dark path {\n    stroke: rgba(79, 43, 109, 0.1); }\n  .i.shade-1-light use {\n    fill: rgba(131, 73, 181, 0.1); }\n  .i.shade-1-light path {\n    stroke: rgba(131, 73, 181, 0.1); }\n  .i.shade-1-soft use {\n    fill: rgba(105, 58, 145, 0.5); }\n  .i.shade-1-soft path {\n    stroke: rgba(105, 58, 145, 0.5); }\n  .i.shade-1-soft-extra use {\n    fill: rgba(105, 58, 145, 0.2); }\n  .i.shade-1-soft-extra path {\n    stroke: rgba(105, 58, 145, 0.2); }\n  .i.shade-2-dark use {\n    fill: rgba(79, 43, 109, 0.3); }\n  .i.shade-2-dark path {\n    stroke: rgba(79, 43, 109, 0.3); }\n  .i.shade-2-light use {\n    fill: rgba(131, 73, 181, 0.3); }\n  .i.shade-2-light path {\n    stroke: rgba(131, 73, 181, 0.3); }\n  .i.shade-2-soft use {\n    fill: rgba(105, 58, 145, 0.5); }\n  .i.shade-2-soft path {\n    stroke: rgba(105, 58, 145, 0.5); }\n  .i.shade-2-soft-extra use {\n    fill: rgba(105, 58, 145, 0.2); }\n  .i.shade-2-soft-extra path {\n    stroke: rgba(105, 58, 145, 0.2); }\n  .i.shade-3-dark use {\n    fill: #b6a7c7; }\n  .i.shade-3-dark path {\n    stroke: #b6a7c7; }\n  .i.shade-3-light use {\n    fill: #eae5ef; }\n  .i.shade-3-light path {\n    stroke: #eae5ef; }\n  .i.shade-3-soft use {\n    fill: rgba(208, 198, 219, 0.5); }\n  .i.shade-3-soft path {\n    stroke: rgba(208, 198, 219, 0.5); }\n  .i.shade-3-soft-extra use {\n    fill: rgba(208, 198, 219, 0.2); }\n  .i.shade-3-soft-extra path {\n    stroke: rgba(208, 198, 219, 0.2); }\n  .i.shade-4-dark use {\n    fill: #9c8da9; }\n  .i.shade-4-dark path {\n    stroke: #9c8da9; }\n  .i.shade-4-light use {\n    fill: #cec7d5; }\n  .i.shade-4-light path {\n    stroke: #cec7d5; }\n  .i.shade-4-soft use {\n    fill: rgba(181, 170, 191, 0.5); }\n  .i.shade-4-soft path {\n    stroke: rgba(181, 170, 191, 0.5); }\n  .i.shade-4-soft-extra use {\n    fill: rgba(181, 170, 191, 0.2); }\n  .i.shade-4-soft-extra path {\n    stroke: rgba(181, 170, 191, 0.2); }\n  .i.shade-5-dark use {\n    fill: #4f2b6d; }\n  .i.shade-5-dark path {\n    stroke: #4f2b6d; }\n  .i.shade-5-light use {\n    fill: #8349b5; }\n  .i.shade-5-light path {\n    stroke: #8349b5; }\n  .i.shade-5-soft use {\n    fill: rgba(105, 58, 145, 0.5); }\n  .i.shade-5-soft path {\n    stroke: rgba(105, 58, 145, 0.5); }\n  .i.shade-5-soft-extra use {\n    fill: rgba(105, 58, 145, 0.2); }\n  .i.shade-5-soft-extra path {\n    stroke: rgba(105, 58, 145, 0.2); }\n  .i.text use {\n    fill: #b5aabf; }\n  .i.text path {\n    stroke: #b5aabf; }\n  .i.text-dark use {\n    fill: #734b86; }\n  .i.text-dark path {\n    stroke: #734b86; }\n  .i.bg use {\n    fill: #ffffff; }\n  .i.bg path {\n    stroke: #ffffff; }\n\ntable {\n  border-radius: 1rem;\n  width: calc(100% + 4rem);\n  table-layout: fixed;\n  border-collapse: separate;\n  border-spacing: 0 1rem;\n  padding: 4rem 2rem;\n  margin-left: -2rem;\n  margin-right: -2rem; }\n  table tr {\n    margin-bottom: 2rem;\n    height: 4rem;\n    line-height: 4rem; }\n    table tr td {\n      border-style: solid none; }\n    table tr td:first-child {\n      border-left-style: solid;\n      border-top-left-radius: 1rem;\n      border-bottom-left-radius: 1rem; }\n    table tr td:last-child {\n      border-right-style: solid;\n      border-bottom-right-radius: 1rem;\n      border-top-right-radius: 1rem; }\n    table tr th {\n      text-transform: uppercase;\n      color: rgba(105, 58, 145, 0.3);\n      font-weight: bold;\n      letter-spacing: 1px;\n      height: 4rem;\n      line-height: 4rem;\n      text-align: left;\n      font-size: 1.6rem; }\n    table tr th, table tr td {\n      padding: 0 4rem;\n      overflow: hidden;\n      white-space: nowrap;\n      text-overflow: ellipsis; }\n    table tr td {\n      background-color: #ffffff;\n      height: 4rem;\n      line-height: 4rem; }\n    table tr th.icon, table tr td.icon {\n      padding: 0 2rem;\n      width: 4rem;\n      text-align: center; }\n  table.selectable tr:hover:not(.row-header), table.selectable tr:hover:not(.row-header) td, table tr.selected, table tr.selected td {\n    background-color: #f8f8ff;\n    cursor: pointer; }\n  table.rows-split {\n    border-collapse: separate;\n    border-spacing: 0 0.5rem; }\n\n.tabs {\n  height: 4rem;\n  line-height: 4rem;\n  border-bottom: 1px solid rgba(255, 255, 255, 0.1);\n  user-select: none; }\n  .tabs .tab {\n    cursor: pointer;\n    display: inline-block;\n    border-right: 1px solid rgba(255, 255, 255, 0.1);\n    padding: 0 2rem; }\n    .tabs .tab.icon-only {\n      padding: 0;\n      width: 4rem;\n      text-align: center; }\n    .tabs .tab:hover {\n      background-color: #f8f8ff; }\n\n.modal-overlay {\n  position: fixed;\n  z-index: 100;\n  background-color: rgba(62, 62, 62, 0.8);\n  opacity: 0;\n  transition: all 500ms; }\n  .modal-overlay.open {\n    opacity: 1; }\n  .modal-overlay.close {\n    opacity: 0; }\n  .modal-overlay .modal {\n    background-color: #ffffff;\n    transform: translate(-50%, -75%);\n    padding: 12rem;\n    transition: all 500ms; }\n    .modal-overlay .modal.open {\n      transform: translate(-50%, -50%); }\n    .modal-overlay .modal.close {\n      transform: translate(-50%, -75%); }\n\n.list li {\n  border-bottom: 1px solid rgba(105, 58, 145, 0.2); }\n\n.list.selectable li {\n  cursor: pointer; }\n  .list.selectable li:hover {\n    background-color: #f8f8ff; }\n\n.list li.disabled {\n  pointer-events: none;\n  opacity: 0.5; }\n\nhtml {\n  font-size: 10px;\n  font-family: 'Work Sans', sans-serif;\n  color: #693a91; }\n\nbody, * {\n  font-size: 1.5rem;\n  line-height: 1.6; }\n\n.center, .modal-overlay .modal {\n  position: absolute;\n  top: 50%;\n  left: 50%;\n  transform: translate(-50%, -50%); }\n\nbody {\n  background-color: #f8f8ff; }\n", ""]);
+exports.push([module.i, "* {\n  box-sizing: border-box;\n  -webkit-appearance: none;\n  -moz-appearance: none; }\n\nhtml, body, div, span, applet, object, iframe,\nh1, h2, h3, h4, h5, h6, p, blockquote, pre,\na, abbr, acronym, address, big, cite, code,\ndel, dfn, em, img, ins, kbd, q, s, samp,\nsmall, strike, strong, sub, sup, tt, var,\nb, u, i, center,\ndl, dt, dd, ol, ul, li,\nfieldset, form, label, legend,\ntable, caption, tbody, tfoot, thead, tr, th, td,\narticle, aside, canvas, details, figcaption, figure,\nfooter, header, hgroup, menu, nav, section, summary,\ntime, mark, audio, video {\n  margin: 0;\n  padding: 0;\n  border: 0;\n  outline: 0;\n  font-size: 100%;\n  font: inherit;\n  vertical-align: baseline; }\n\n/* HTML5 display-role reset for older browsers */\narticle, aside, details, figcaption, figure,\nfooter, header, hgroup, menu, nav, section {\n  display: block; }\n\nbody {\n  line-height: 1; }\n\nol, ul {\n  list-style: none; }\n\nblockquote, q {\n  quotes: none; }\n\nblockquote:before, blockquote:after,\nq:before, q:after {\n  content: '';\n  content: none; }\n\n/* remember to define visible focus styles! */\n*:focus {\n  outline: none; }\n\n/* remember to highlight inserts somehow! */\nins {\n  text-decoration: none; }\n\ndel {\n  text-decoration: line-through; }\n\ntable {\n  border-collapse: collapse;\n  border-spacing: 0; }\n\n.hide {\n  display: none !important; }\n\n.round {\n  border-radius: 50%; }\n\n.rounded, table tr, .modal-overlay .modal {\n  border-radius: 1rem; }\n\n.no-select {\n  user-select: none; }\n\n.color-main {\n  color: #693a91; }\n\n.background-main {\n  background-color: #693a91; }\n\n.color-main-softest {\n  color: #f8f8ff; }\n\n.background-main-softest {\n  background-color: #f8f8ff; }\n\n.color-alt {\n  color: #ff791f; }\n\n.background-alt {\n  background-color: #ff791f; }\n\n.color-accent {\n  color: #23a8e6; }\n\n.background-accent {\n  background-color: #23a8e6; }\n\n.color-error {\n  color: #ff5554; }\n\n.background-error {\n  background-color: #ff5554; }\n\n.color-accent-dark {\n  color: #168ac0; }\n\n.background-accent-dark {\n  background-color: #168ac0; }\n\n.color-success {\n  color: #28c787; }\n\n.background-success {\n  background-color: #28c787; }\n\n.color-white {\n  color: #ffffff; }\n\n.background-white {\n  background-color: #ffffff; }\n\n.color-black {\n  color: #3e3e3e; }\n\n.background-black {\n  background-color: #3e3e3e; }\n\n.color-white-0 {\n  color: rgba(255, 255, 255, 0.1); }\n\n.background-white-0 {\n  background-color: rgba(255, 255, 255, 0.1); }\n\n.color-white-off {\n  color: #f7f6f8; }\n\n.background-white-off {\n  background-color: #f7f6f8; }\n\n.color-shade-0 {\n  color: #f8f8ff; }\n\n.background-shade-0 {\n  background-color: #f8f8ff; }\n\n.color-shade-1 {\n  color: rgba(105, 58, 145, 0.1); }\n\n.background-shade-1 {\n  background-color: rgba(105, 58, 145, 0.1); }\n\n.color-shade-2 {\n  color: rgba(105, 58, 145, 0.3); }\n\n.background-shade-2 {\n  background-color: rgba(105, 58, 145, 0.3); }\n\n.color-shade-3 {\n  color: #d0c6db; }\n\n.background-shade-3 {\n  background-color: #d0c6db; }\n\n.color-shade-4 {\n  color: #b5aabf; }\n\n.background-shade-4 {\n  background-color: #b5aabf; }\n\n.color-shade-5 {\n  color: #693a91; }\n\n.background-shade-5 {\n  background-color: #693a91; }\n\n.color-main-dark {\n  color: #4f2b6d; }\n\n.background-main-dark {\n  background-color: #4f2b6d; }\n\n.color-main-light {\n  color: #8349b5; }\n\n.background-main-light {\n  background-color: #8349b5; }\n\n.color-main-soft {\n  color: rgba(105, 58, 145, 0.5); }\n\n.background-main-soft {\n  background-color: rgba(105, 58, 145, 0.5); }\n\n.color-main-soft-extra {\n  color: rgba(105, 58, 145, 0.2); }\n\n.background-main-soft-extra {\n  background-color: rgba(105, 58, 145, 0.2); }\n\n.color-main-softest-dark {\n  color: #c5c5ff; }\n\n.background-main-softest-dark {\n  background-color: #c5c5ff; }\n\n.color-main-softest-light {\n  color: white; }\n\n.background-main-softest-light {\n  background-color: white; }\n\n.color-main-softest-soft {\n  color: rgba(248, 248, 255, 0.5); }\n\n.background-main-softest-soft {\n  background-color: rgba(248, 248, 255, 0.5); }\n\n.color-main-softest-soft-extra {\n  color: rgba(248, 248, 255, 0.2); }\n\n.background-main-softest-soft-extra {\n  background-color: rgba(248, 248, 255, 0.2); }\n\n.color-alt-dark {\n  color: #eb5e00; }\n\n.background-alt-dark {\n  background-color: #eb5e00; }\n\n.color-alt-light {\n  color: #ff9852; }\n\n.background-alt-light {\n  background-color: #ff9852; }\n\n.color-alt-soft {\n  color: rgba(255, 121, 31, 0.5); }\n\n.background-alt-soft {\n  background-color: rgba(255, 121, 31, 0.5); }\n\n.color-alt-soft-extra {\n  color: rgba(255, 121, 31, 0.2); }\n\n.background-alt-soft-extra {\n  background-color: rgba(255, 121, 31, 0.2); }\n\n.color-accent-light {\n  color: #51baeb; }\n\n.background-accent-light {\n  background-color: #51baeb; }\n\n.color-accent-soft {\n  color: rgba(35, 168, 230, 0.5); }\n\n.background-accent-soft {\n  background-color: rgba(35, 168, 230, 0.5); }\n\n.color-accent-soft-extra {\n  color: rgba(35, 168, 230, 0.2); }\n\n.background-accent-soft-extra {\n  background-color: rgba(35, 168, 230, 0.2); }\n\n.color-error-dark {\n  color: #ff2221; }\n\n.background-error-dark {\n  background-color: #ff2221; }\n\n.color-error-light {\n  color: #ff8887; }\n\n.background-error-light {\n  background-color: #ff8887; }\n\n.color-error-soft {\n  color: rgba(255, 85, 84, 0.5); }\n\n.background-error-soft {\n  background-color: rgba(255, 85, 84, 0.5); }\n\n.color-error-soft-extra {\n  color: rgba(255, 85, 84, 0.2); }\n\n.background-error-soft-extra {\n  background-color: rgba(255, 85, 84, 0.2); }\n\n.color-accent-dark-dark {\n  color: #a46f09; }\n\n.background-accent-dark-dark {\n  background-color: #a46f09; }\n\n.color-accent-dark-light {\n  color: #f2ab21; }\n\n.background-accent-dark-light {\n  background-color: #f2ab21; }\n\n.color-accent-dark-soft {\n  color: rgba(212, 144, 12, 0.5); }\n\n.background-accent-dark-soft {\n  background-color: rgba(212, 144, 12, 0.5); }\n\n.color-accent-dark-soft-extra {\n  color: rgba(212, 144, 12, 0.2); }\n\n.background-accent-dark-soft-extra {\n  background-color: rgba(212, 144, 12, 0.2); }\n\n.color-success-dark {\n  color: #1f9d6a; }\n\n.background-success-dark {\n  background-color: #1f9d6a; }\n\n.color-success-light {\n  color: #48da9f; }\n\n.background-success-light {\n  background-color: #48da9f; }\n\n.color-success-soft {\n  color: rgba(40, 199, 135, 0.5); }\n\n.background-success-soft {\n  background-color: rgba(40, 199, 135, 0.5); }\n\n.color-success-soft-extra {\n  color: rgba(40, 199, 135, 0.2); }\n\n.background-success-soft-extra {\n  background-color: rgba(40, 199, 135, 0.2); }\n\n.color-white-dark {\n  color: #e6e6e6; }\n\n.background-white-dark {\n  background-color: #e6e6e6; }\n\n.color-white-light {\n  color: white; }\n\n.background-white-light {\n  background-color: white; }\n\n.color-white-soft {\n  color: rgba(255, 255, 255, 0.5); }\n\n.background-white-soft {\n  background-color: rgba(255, 255, 255, 0.5); }\n\n.color-white-soft-extra {\n  color: rgba(255, 255, 255, 0.2); }\n\n.background-white-soft-extra {\n  background-color: rgba(255, 255, 255, 0.2); }\n\n.color-black-dark {\n  color: #252525; }\n\n.background-black-dark {\n  background-color: #252525; }\n\n.color-black-light {\n  color: #585858; }\n\n.background-black-light {\n  background-color: #585858; }\n\n.color-black-soft {\n  color: rgba(62, 62, 62, 0.5); }\n\n.background-black-soft {\n  background-color: rgba(62, 62, 62, 0.5); }\n\n.color-black-soft-extra {\n  color: rgba(62, 62, 62, 0.2); }\n\n.background-black-soft-extra {\n  background-color: rgba(62, 62, 62, 0.2); }\n\n.color-white-0-dark {\n  color: rgba(230, 230, 230, 0.1); }\n\n.background-white-0-dark {\n  background-color: rgba(230, 230, 230, 0.1); }\n\n.color-white-0-light {\n  color: rgba(255, 255, 255, 0.1); }\n\n.background-white-0-light {\n  background-color: rgba(255, 255, 255, 0.1); }\n\n.color-white-0-soft {\n  color: rgba(255, 255, 255, 0.5); }\n\n.background-white-0-soft {\n  background-color: rgba(255, 255, 255, 0.5); }\n\n.color-white-0-soft-extra {\n  color: rgba(255, 255, 255, 0.2); }\n\n.background-white-0-soft-extra {\n  background-color: rgba(255, 255, 255, 0.2); }\n\n.color-white-off-dark {\n  color: #ded9e2; }\n\n.background-white-off-dark {\n  background-color: #ded9e2; }\n\n.color-white-off-light {\n  color: white; }\n\n.background-white-off-light {\n  background-color: white; }\n\n.color-white-off-soft {\n  color: rgba(247, 246, 248, 0.5); }\n\n.background-white-off-soft {\n  background-color: rgba(247, 246, 248, 0.5); }\n\n.color-white-off-soft-extra {\n  color: rgba(247, 246, 248, 0.2); }\n\n.background-white-off-soft-extra {\n  background-color: rgba(247, 246, 248, 0.2); }\n\n.color-shade-0-dark {\n  color: #c5c5ff; }\n\n.background-shade-0-dark {\n  background-color: #c5c5ff; }\n\n.color-shade-0-light {\n  color: white; }\n\n.background-shade-0-light {\n  background-color: white; }\n\n.color-shade-0-soft {\n  color: rgba(248, 248, 255, 0.5); }\n\n.background-shade-0-soft {\n  background-color: rgba(248, 248, 255, 0.5); }\n\n.color-shade-0-soft-extra {\n  color: rgba(248, 248, 255, 0.2); }\n\n.background-shade-0-soft-extra {\n  background-color: rgba(248, 248, 255, 0.2); }\n\n.color-shade-1-dark {\n  color: rgba(79, 43, 109, 0.1); }\n\n.background-shade-1-dark {\n  background-color: rgba(79, 43, 109, 0.1); }\n\n.color-shade-1-light {\n  color: rgba(131, 73, 181, 0.1); }\n\n.background-shade-1-light {\n  background-color: rgba(131, 73, 181, 0.1); }\n\n.color-shade-1-soft {\n  color: rgba(105, 58, 145, 0.5); }\n\n.background-shade-1-soft {\n  background-color: rgba(105, 58, 145, 0.5); }\n\n.color-shade-1-soft-extra {\n  color: rgba(105, 58, 145, 0.2); }\n\n.background-shade-1-soft-extra {\n  background-color: rgba(105, 58, 145, 0.2); }\n\n.color-shade-2-dark {\n  color: rgba(79, 43, 109, 0.3); }\n\n.background-shade-2-dark {\n  background-color: rgba(79, 43, 109, 0.3); }\n\n.color-shade-2-light {\n  color: rgba(131, 73, 181, 0.3); }\n\n.background-shade-2-light {\n  background-color: rgba(131, 73, 181, 0.3); }\n\n.color-shade-2-soft {\n  color: rgba(105, 58, 145, 0.5); }\n\n.background-shade-2-soft {\n  background-color: rgba(105, 58, 145, 0.5); }\n\n.color-shade-2-soft-extra {\n  color: rgba(105, 58, 145, 0.2); }\n\n.background-shade-2-soft-extra {\n  background-color: rgba(105, 58, 145, 0.2); }\n\n.color-shade-3-dark {\n  color: #b6a7c7; }\n\n.background-shade-3-dark {\n  background-color: #b6a7c7; }\n\n.color-shade-3-light {\n  color: #eae5ef; }\n\n.background-shade-3-light {\n  background-color: #eae5ef; }\n\n.color-shade-3-soft {\n  color: rgba(208, 198, 219, 0.5); }\n\n.background-shade-3-soft {\n  background-color: rgba(208, 198, 219, 0.5); }\n\n.color-shade-3-soft-extra {\n  color: rgba(208, 198, 219, 0.2); }\n\n.background-shade-3-soft-extra {\n  background-color: rgba(208, 198, 219, 0.2); }\n\n.color-shade-4-dark {\n  color: #9c8da9; }\n\n.background-shade-4-dark {\n  background-color: #9c8da9; }\n\n.color-shade-4-light {\n  color: #cec7d5; }\n\n.background-shade-4-light {\n  background-color: #cec7d5; }\n\n.color-shade-4-soft {\n  color: rgba(181, 170, 191, 0.5); }\n\n.background-shade-4-soft {\n  background-color: rgba(181, 170, 191, 0.5); }\n\n.color-shade-4-soft-extra {\n  color: rgba(181, 170, 191, 0.2); }\n\n.background-shade-4-soft-extra {\n  background-color: rgba(181, 170, 191, 0.2); }\n\n.color-shade-5-dark {\n  color: #4f2b6d; }\n\n.background-shade-5-dark {\n  background-color: #4f2b6d; }\n\n.color-shade-5-light {\n  color: #8349b5; }\n\n.background-shade-5-light {\n  background-color: #8349b5; }\n\n.color-shade-5-soft {\n  color: rgba(105, 58, 145, 0.5); }\n\n.background-shade-5-soft {\n  background-color: rgba(105, 58, 145, 0.5); }\n\n.color-shade-5-soft-extra {\n  color: rgba(105, 58, 145, 0.2); }\n\n.background-shade-5-soft-extra {\n  background-color: rgba(105, 58, 145, 0.2); }\n\n.color-text {\n  color: #b5aabf; }\n\n.background-text {\n  background-color: #b5aabf; }\n\n.color-text-dark {\n  color: #734b86; }\n\n.background-text-dark {\n  background-color: #734b86; }\n\n.color-bg {\n  color: #ffffff; }\n\n.background-bg {\n  background-color: #ffffff; }\n\n.error {\n  color: #ff5554; }\n\n.gradient-main {\n  background: linear-gradient(to bottom right, #b155ba, #693a91); }\n\n.gradient-orange {\n  background: linear-gradient(to bottom right, #FF9B54, #C95A54); }\n\n.gradient-red {\n  background: linear-gradient(to bottom right, #FF5554, #C92954); }\n\n.gradient-green {\n  background: linear-gradient(to bottom right, #84D59A, #00BED0); }\n\n.gradient-blue {\n  background: linear-gradient(to bottom right, #008CBA, #6146C8); }\n\n.display-ib {\n  display: inline-block; }\n\n.display-b {\n  display: block; }\n\n.position-r {\n  position: relative; }\n\n.position-a {\n  position: absolute; }\n\n.center, .modal-overlay .modal {\n  position: absolute;\n  left: 50%;\n  top: 50%;\n  transform: translate(-50%, -50%); }\n\n.center-v {\n  position: absolute;\n  top: 50%;\n  transform: translateY(-50%); }\n\n.center-h {\n  position: absolute;\n  left: 50%;\n  transform: translateX(-50%); }\n\n.float-left {\n  float: left; }\n\n.float-right {\n  float: right; }\n\n.width-10 {\n  width: 10%; }\n\n.width-20 {\n  width: 20%; }\n\n.width-30 {\n  width: 30%; }\n\n.width-40 {\n  width: 40%; }\n\n.width-50 {\n  width: 50%; }\n\n.width-60 {\n  width: 60%; }\n\n.width-70 {\n  width: 70%; }\n\n.width-80 {\n  width: 80%; }\n\n.width-90 {\n  width: 90%; }\n\n.width-100 {\n  width: 100%; }\n\n.cover, .modal-overlay {\n  position: absolute;\n  top: 0;\n  left: 0;\n  width: 100%;\n  height: 100%; }\n\n.margin-tiny {\n  margin: 1rem; }\n\n.margin-v-tiny {\n  margin-top: 1rem;\n  margin-bottom: 1rem; }\n\n.margin-h-tiny {\n  margin-left: 1rem;\n  margin-right: 1rem; }\n\n.margin-t-tiny {\n  margin-top: 1rem; }\n\n.margin-l-tiny {\n  margin-left: 1rem; }\n\n.margin-b-tiny {\n  margin-bottom: 1rem; }\n\n.margin-r-tiny {\n  margin-rights: 1rem; }\n\n.margin-small {\n  margin: 2rem; }\n\n.margin-v-small {\n  margin-top: 2rem;\n  margin-bottom: 2rem; }\n\n.margin-h-small {\n  margin-left: 2rem;\n  margin-right: 2rem; }\n\n.margin-t-small {\n  margin-top: 2rem; }\n\n.margin-l-small {\n  margin-left: 2rem; }\n\n.margin-b-small {\n  margin-bottom: 2rem; }\n\n.margin-r-small {\n  margin-rights: 2rem; }\n\n.margin-main {\n  margin: 4rem; }\n\n.margin-v-main {\n  margin-top: 4rem;\n  margin-bottom: 4rem; }\n\n.margin-h-main {\n  margin-left: 4rem;\n  margin-right: 4rem; }\n\n.margin-t-main {\n  margin-top: 4rem; }\n\n.margin-l-main {\n  margin-left: 4rem; }\n\n.margin-b-main {\n  margin-bottom: 4rem; }\n\n.margin-r-main {\n  margin-rights: 4rem; }\n\n.margin-large {\n  margin: 6rem; }\n\n.margin-v-large {\n  margin-top: 6rem;\n  margin-bottom: 6rem; }\n\n.margin-h-large {\n  margin-left: 6rem;\n  margin-right: 6rem; }\n\n.margin-t-large {\n  margin-top: 6rem; }\n\n.margin-l-large {\n  margin-left: 6rem; }\n\n.margin-b-large {\n  margin-bottom: 6rem; }\n\n.margin-r-large {\n  margin-rights: 6rem; }\n\n.margin-huge {\n  margin: 8rem; }\n\n.margin-v-huge {\n  margin-top: 8rem;\n  margin-bottom: 8rem; }\n\n.margin-h-huge {\n  margin-left: 8rem;\n  margin-right: 8rem; }\n\n.margin-t-huge {\n  margin-top: 8rem; }\n\n.margin-l-huge {\n  margin-left: 8rem; }\n\n.margin-b-huge {\n  margin-bottom: 8rem; }\n\n.margin-r-huge {\n  margin-rights: 8rem; }\n\n.margin-super {\n  margin: 12rem; }\n\n.margin-v-super {\n  margin-top: 12rem;\n  margin-bottom: 12rem; }\n\n.margin-h-super {\n  margin-left: 12rem;\n  margin-right: 12rem; }\n\n.margin-t-super {\n  margin-top: 12rem; }\n\n.margin-l-super {\n  margin-left: 12rem; }\n\n.margin-b-super {\n  margin-bottom: 12rem; }\n\n.margin-r-super {\n  margin-rights: 12rem; }\n\n.margin-hero {\n  margin: 24rem; }\n\n.margin-v-hero {\n  margin-top: 24rem;\n  margin-bottom: 24rem; }\n\n.margin-h-hero {\n  margin-left: 24rem;\n  margin-right: 24rem; }\n\n.margin-t-hero {\n  margin-top: 24rem; }\n\n.margin-l-hero {\n  margin-left: 24rem; }\n\n.margin-b-hero {\n  margin-bottom: 24rem; }\n\n.margin-r-hero {\n  margin-rights: 24rem; }\n\n.padding-tiny {\n  padding: 1rem; }\n\n.padding-v-tiny {\n  padding-top: 1rem;\n  padding-bottom: 1rem; }\n\n.padding-h-tiny {\n  padding-left: 1rem;\n  padding-right: 1rem; }\n\n.padding-t-tiny {\n  padding-top: 1rem; }\n\n.padding-l-tiny {\n  padding-left: 1rem; }\n\n.padding-b-tiny {\n  padding-bottom: 1rem; }\n\n.padding-r-tiny {\n  padding-rights: 1rem; }\n\n.padding-small {\n  padding: 2rem; }\n\n.padding-v-small {\n  padding-top: 2rem;\n  padding-bottom: 2rem; }\n\n.padding-h-small {\n  padding-left: 2rem;\n  padding-right: 2rem; }\n\n.padding-t-small {\n  padding-top: 2rem; }\n\n.padding-l-small {\n  padding-left: 2rem; }\n\n.padding-b-small {\n  padding-bottom: 2rem; }\n\n.padding-r-small {\n  padding-rights: 2rem; }\n\n.padding-main {\n  padding: 4rem; }\n\n.padding-v-main {\n  padding-top: 4rem;\n  padding-bottom: 4rem; }\n\n.padding-h-main {\n  padding-left: 4rem;\n  padding-right: 4rem; }\n\n.padding-t-main {\n  padding-top: 4rem; }\n\n.padding-l-main {\n  padding-left: 4rem; }\n\n.padding-b-main {\n  padding-bottom: 4rem; }\n\n.padding-r-main {\n  padding-rights: 4rem; }\n\n.padding-large {\n  padding: 6rem; }\n\n.padding-v-large {\n  padding-top: 6rem;\n  padding-bottom: 6rem; }\n\n.padding-h-large {\n  padding-left: 6rem;\n  padding-right: 6rem; }\n\n.padding-t-large {\n  padding-top: 6rem; }\n\n.padding-l-large {\n  padding-left: 6rem; }\n\n.padding-b-large {\n  padding-bottom: 6rem; }\n\n.padding-r-large {\n  padding-rights: 6rem; }\n\n.padding-huge {\n  padding: 8rem; }\n\n.padding-v-huge {\n  padding-top: 8rem;\n  padding-bottom: 8rem; }\n\n.padding-h-huge {\n  padding-left: 8rem;\n  padding-right: 8rem; }\n\n.padding-t-huge {\n  padding-top: 8rem; }\n\n.padding-l-huge {\n  padding-left: 8rem; }\n\n.padding-b-huge {\n  padding-bottom: 8rem; }\n\n.padding-r-huge {\n  padding-rights: 8rem; }\n\n.padding-super {\n  padding: 12rem; }\n\n.padding-v-super {\n  padding-top: 12rem;\n  padding-bottom: 12rem; }\n\n.padding-h-super {\n  padding-left: 12rem;\n  padding-right: 12rem; }\n\n.padding-t-super {\n  padding-top: 12rem; }\n\n.padding-l-super {\n  padding-left: 12rem; }\n\n.padding-b-super {\n  padding-bottom: 12rem; }\n\n.padding-r-super {\n  padding-rights: 12rem; }\n\n.padding-hero {\n  padding: 24rem; }\n\n.padding-v-hero {\n  padding-top: 24rem;\n  padding-bottom: 24rem; }\n\n.padding-h-hero {\n  padding-left: 24rem;\n  padding-right: 24rem; }\n\n.padding-t-hero {\n  padding-top: 24rem; }\n\n.padding-l-hero {\n  padding-left: 24rem; }\n\n.padding-b-hero {\n  padding-bottom: 24rem; }\n\n.padding-r-hero {\n  padding-rights: 24rem; }\n\n.width-tiny {\n  width: 1rem; }\n\n.width-small {\n  width: 2rem; }\n\n.width-main {\n  width: 4rem; }\n\n.width-large {\n  width: 6rem; }\n\n.width-huge {\n  width: 8rem; }\n\n.width-super {\n  width: 12rem; }\n\n.width-hero {\n  width: 24rem; }\n\n.height-tiny {\n  height: 1rem; }\n\n.height-small {\n  height: 2rem; }\n\n.height-main {\n  height: 4rem; }\n\n.height-large {\n  height: 6rem; }\n\n.height-huge {\n  height: 8rem; }\n\n.height-super {\n  height: 12rem; }\n\n.height-hero {\n  height: 24rem; }\n\n.size-tiny {\n  width: 1rem;\n  height: 1rem; }\n\n.size-small {\n  width: 2rem;\n  height: 2rem; }\n\n.size-main {\n  width: 4rem;\n  height: 4rem; }\n\n.size-large {\n  width: 6rem;\n  height: 6rem; }\n\n.size-huge {\n  width: 8rem;\n  height: 8rem; }\n\n.size-super {\n  width: 12rem;\n  height: 12rem; }\n\n.size-hero {\n  width: 24rem;\n  height: 24rem; }\n\n.uppercase {\n  text-transform: uppercase; }\n\n.text-left {\n  text-align: left; }\n\n.text-center {\n  text-align: center; }\n\n.text-right {\n  text-align: right; }\n\n.align-middle {\n  vertical-align: middle; }\n\n.shadow-shade-1, table tr {\n  box-shadow: 0 1rem 2rem rgba(105, 58, 145, 0.1); }\n\n.font-tiny {\n  font-size: 1.2rem; }\n\n.font-small {\n  font-size: 1.6rem; }\n\n.font-main {\n  font-size: 1.8rem; }\n\n.font-large {\n  font-size: 2.4rem; }\n\n.font-huge {\n  font-size: 3.6rem; }\n\n.font-super {\n  font-size: 4.8rem; }\n\n.font-hero {\n  font-size: 6rem; }\n\nh1 {\n  font-size: 6rem;\n  color: #693a91;\n  font-weight: 700; }\n\nh2 {\n  font-size: 2.4rem;\n  color: #ff791f; }\n\na {\n  text-decoration: none;\n  color: #ff791f; }\n\nsmall {\n  font-size: 1.6rem; }\n\nstrong {\n  font-weight: 700;\n  letter-spacing: 1px; }\n\nbutton, .button, input[type='submit'] {\n  text-transform: uppercase;\n  font-weight: 600;\n  letter-spacing: 1px;\n  border: none;\n  height: 6rem;\n  line-height: 6rem;\n  padding: 0 2rem;\n  border-radius: 1rem;\n  color: #ffffff;\n  transition: all 0.15s;\n  user-select: none;\n  background: linear-gradient(to bottom right, #b155ba, #693a91);\n  cursor: pointer; }\n  button.hollow, .button.hollow, input[type='submit'].hollow {\n    background: transparent;\n    color: #693a91; }\n  button:hover, .button:hover, input[type='submit']:hover {\n    filter: brightness(1.1); }\n  button:focus, .button:focus, input[type='submit']:focus {\n    border: none;\n    filter: brightness(0.9); }\n  button.round, .button.round, input[type='submit'].round {\n    padding: 0;\n    border-radius: 50%; }\n  button.has-icon, .button.has-icon, input[type='submit'].has-icon {\n    padding-left: 2rem; }\n    button.has-icon .i, .button.has-icon .i, input[type='submit'].has-icon .i {\n      vertical-align: top;\n      margin-right: 2rem; }\n    button.has-icon .loader, .button.has-icon .loader, input[type='submit'].has-icon .loader {\n      margin-top: 1rem; }\n  button.no-text, .button.no-text, input[type='submit'].no-text {\n    padding: 0; }\n    button.no-text .i, .button.no-text .i, input[type='submit'].no-text .i {\n      margin: 0; }\n  button:disabled, .button:disabled, input[type='submit']:disabled {\n    opacity: 0.5;\n    pointer-events: none; }\n  button.tiny, .button.tiny, input[type='submit'].tiny {\n    height: 0.8rem;\n    line-height: 0.8rem;\n    font-size: 0.36rem;\n    padding: 0 0.4rem; }\n  button.small, .button.small, input[type='submit'].small {\n    height: 1.6rem;\n    line-height: 1.6rem;\n    font-size: 0.72rem;\n    padding: 0 0.8rem; }\n  button.main, .button.main, input[type='submit'].main {\n    height: 3.2rem;\n    line-height: 3.2rem;\n    font-size: 1.44rem;\n    padding: 0 1.6rem; }\n  button.large, .button.large, input[type='submit'].large {\n    height: 4.8rem;\n    line-height: 4.8rem;\n    font-size: 2.16rem;\n    padding: 0 2.4rem; }\n  button.huge, .button.huge, input[type='submit'].huge {\n    height: 6.4rem;\n    line-height: 6.4rem;\n    font-size: 2.88rem;\n    padding: 0 3.2rem; }\n  button.super, .button.super, input[type='submit'].super {\n    height: 9.6rem;\n    line-height: 9.6rem;\n    font-size: 4.32rem;\n    padding: 0 4.8rem; }\n  button.hero, .button.hero, input[type='submit'].hero {\n    height: 19.2rem;\n    line-height: 19.2rem;\n    font-size: 8.64rem;\n    padding: 0 9.6rem; }\n\n.button-group button, .button-group .button {\n  margin-right: 1rem; }\n\n.button-group.float-right button, .button-group.float-right .button {\n  margin-right: 0;\n  margin-left: 1rem; }\n\nform input, form select, form textarea {\n  color: #693a91;\n  background-color: #f8f8ff;\n  height: 6rem;\n  padding: 0 2rem;\n  border-radius: 1rem;\n  border: none;\n  width: 100%;\n  border: 2px solid transparent; }\n  form input:focus, form select:focus, form textarea:focus {\n    border: 2px solid rgba(105, 58, 145, 0.3); }\n  form input::placeholder, form select::placeholder, form textarea::placeholder {\n    color: #d0c6db; }\n  form input:disabled, form select:disabled, form textarea:disabled {\n    opacity: 0.5;\n    user-select: none; }\n\nform textarea {\n  min-height: 12rem;\n  max-width: 100%; }\n\nform select {\n  padding-right: 4rem;\n  background-image: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz48c3ZnIHZlcnNpb249IjEuMSIgaWQ9IkxheWVyXzEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHg9IjBweCIgeT0iMHB4IiB2aWV3Qm94PSIwIDAgNDAgNDAiIHN0eWxlPSJlbmFibGUtYmFja2dyb3VuZDpuZXcgMCAwIDQwIDQwOyIgeG1sOnNwYWNlPSJwcmVzZXJ2ZSI+PGcgZmlsbD0icmdiYSgxMDUsIDU4LCAxNDUsIDAuNSkiPjxwYXRoIGQ9Ik0yMCwyNC4zYy0wLjYsMC0xLjMtMC4yLTEuOC0wLjdsLTcuMS03LjFjLTAuMi0wLjItMC4yLTAuNSwwLTAuN3MwLjUtMC4yLDAuNywwbDcuMSw3LjFjMC42LDAuNiwxLjUsMC42LDIuMSwwbDcuMS03LjFjMC4yLTAuMiwwLjUtMC4yLDAuNywwczAuMiwwLjUsMCwwLjdsLTcuMSw3LjFDMjEuMywyNC4xLDIwLjYsMjQuMywyMCwyNC4zeiIvPjwvZz48L3N2Zz4=);\n  background-repeat: no-repeat;\n  background-position: right center; }\n\nform .form-row {\n  display: block;\n  margin-bottom: 1rem;\n  position: relative; }\n  form .form-row > span {\n    margin-top: 6rem;\n    margin-bottom: 2rem;\n    display: block;\n    text-transform: uppercase;\n    font-weight: bold; }\n  form .form-row > .i,\n  form .form-row > zen-ui-icon {\n    position: absolute;\n    margin: 1rem; }\n    form .form-row > .i + input,\n    form .form-row > zen-ui-icon + input {\n      padding-left: 6rem; }\n  form .form-row label {\n    display: flex; }\n    form .form-row label input {\n      flex: 2; }\n  form .form-row button {\n    flex-basis: 6rem;\n    padding: 0;\n    margin-left: 2rem; }\n  form .form-row.disabled .i {\n    opacity: 0.5; }\n\nform.full-field-width {\n  width: 100%; }\n  form.full-field-width .form-group, form.full-field-width input, form.full-field-width button, form.full-field-width select, form.full-field-width textarea {\n    width: 100%; }\n\nform fieldset legend {\n  font-size: 2.4rem;\n  color: #ff791f;\n  padding-top: 2rem;\n  width: 100%; }\n\nform fieldset + fieldset {\n  margin-top: 24rem; }\n  form fieldset + fieldset legend {\n    padding-top: 24rem;\n    border-top: 1px solid rgba(105, 58, 145, 0.2); }\n\n.checkbox {\n  position: relative; }\n  .checkbox input {\n    visibility: hidden;\n    position: absolute;\n    left: 0;\n    top: 0; }\n    .checkbox input:checked + span {\n      background-color: #693a91;\n      border-color: #693a91;\n      background-image: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz48c3ZnIHZlcnNpb249IjEuMSIgaWQ9IkxheWVyXzEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHg9IjBweCIgeT0iMHB4IiB2aWV3Qm94PSIwIDAgNDAgNDAiIHN0eWxlPSJlbmFibGUtYmFja2dyb3VuZDpuZXcgMCAwIDQwIDQwOyIgeG1sOnNwYWNlPSJwcmVzZXJ2ZSI+PHN0eWxlIHR5cGU9InRleHQvY3NzIj4uc3Qwe2ZpbGw6I0ZGRkZGRjt9PC9zdHlsZT48cG9seWdvbiBjbGFzcz0ic3QwIiBwb2ludHM9IjI5LjgsMTEuOSAxNi41LDI1LjIgMTAuMiwxOC45IDguOCwyMC40IDE2LjUsMjguMSAzMS4yLDEzLjQgIi8+PC9zdmc+); }\n  .checkbox span {\n    display: inline-block;\n    width: 2rem;\n    height: 2rem;\n    border: 2px solid #ff791f;\n    border-radius: 0.5rem;\n    vertical-align: middle; }\n\n.i {\n  display: inline-block;\n  width: 8rem;\n  height: 8rem;\n  vertical-align: middle; }\n  .i use {\n    fill: #693a91; }\n  .i.tiny {\n    width: 2rem;\n    height: 2rem; }\n  .i.small {\n    width: 4rem;\n    height: 4rem; }\n  .i.main {\n    width: 8rem;\n    height: 8rem; }\n  .i.large {\n    width: 12rem;\n    height: 12rem; }\n  .i.huge {\n    width: 16rem;\n    height: 16rem; }\n  .i.super {\n    width: 24rem;\n    height: 24rem; }\n  .i.hero {\n    width: 48rem;\n    height: 48rem; }\n  .i.main use {\n    fill: #693a91; }\n  .i.main path {\n    stroke: #693a91; }\n  .i.main-softest use {\n    fill: #f8f8ff; }\n  .i.main-softest path {\n    stroke: #f8f8ff; }\n  .i.alt use {\n    fill: #ff791f; }\n  .i.alt path {\n    stroke: #ff791f; }\n  .i.accent use {\n    fill: #23a8e6; }\n  .i.accent path {\n    stroke: #23a8e6; }\n  .i.error use {\n    fill: #ff5554; }\n  .i.error path {\n    stroke: #ff5554; }\n  .i.accent-dark use {\n    fill: #168ac0; }\n  .i.accent-dark path {\n    stroke: #168ac0; }\n  .i.success use {\n    fill: #28c787; }\n  .i.success path {\n    stroke: #28c787; }\n  .i.white use {\n    fill: #ffffff; }\n  .i.white path {\n    stroke: #ffffff; }\n  .i.black use {\n    fill: #3e3e3e; }\n  .i.black path {\n    stroke: #3e3e3e; }\n  .i.white-0 use {\n    fill: rgba(255, 255, 255, 0.1); }\n  .i.white-0 path {\n    stroke: rgba(255, 255, 255, 0.1); }\n  .i.white-off use {\n    fill: #f7f6f8; }\n  .i.white-off path {\n    stroke: #f7f6f8; }\n  .i.shade-0 use {\n    fill: #f8f8ff; }\n  .i.shade-0 path {\n    stroke: #f8f8ff; }\n  .i.shade-1 use {\n    fill: rgba(105, 58, 145, 0.1); }\n  .i.shade-1 path {\n    stroke: rgba(105, 58, 145, 0.1); }\n  .i.shade-2 use {\n    fill: rgba(105, 58, 145, 0.3); }\n  .i.shade-2 path {\n    stroke: rgba(105, 58, 145, 0.3); }\n  .i.shade-3 use {\n    fill: #d0c6db; }\n  .i.shade-3 path {\n    stroke: #d0c6db; }\n  .i.shade-4 use {\n    fill: #b5aabf; }\n  .i.shade-4 path {\n    stroke: #b5aabf; }\n  .i.shade-5 use {\n    fill: #693a91; }\n  .i.shade-5 path {\n    stroke: #693a91; }\n  .i.main-dark use {\n    fill: #4f2b6d; }\n  .i.main-dark path {\n    stroke: #4f2b6d; }\n  .i.main-light use {\n    fill: #8349b5; }\n  .i.main-light path {\n    stroke: #8349b5; }\n  .i.main-soft use {\n    fill: rgba(105, 58, 145, 0.5); }\n  .i.main-soft path {\n    stroke: rgba(105, 58, 145, 0.5); }\n  .i.main-soft-extra use {\n    fill: rgba(105, 58, 145, 0.2); }\n  .i.main-soft-extra path {\n    stroke: rgba(105, 58, 145, 0.2); }\n  .i.main-softest-dark use {\n    fill: #c5c5ff; }\n  .i.main-softest-dark path {\n    stroke: #c5c5ff; }\n  .i.main-softest-light use {\n    fill: white; }\n  .i.main-softest-light path {\n    stroke: white; }\n  .i.main-softest-soft use {\n    fill: rgba(248, 248, 255, 0.5); }\n  .i.main-softest-soft path {\n    stroke: rgba(248, 248, 255, 0.5); }\n  .i.main-softest-soft-extra use {\n    fill: rgba(248, 248, 255, 0.2); }\n  .i.main-softest-soft-extra path {\n    stroke: rgba(248, 248, 255, 0.2); }\n  .i.alt-dark use {\n    fill: #eb5e00; }\n  .i.alt-dark path {\n    stroke: #eb5e00; }\n  .i.alt-light use {\n    fill: #ff9852; }\n  .i.alt-light path {\n    stroke: #ff9852; }\n  .i.alt-soft use {\n    fill: rgba(255, 121, 31, 0.5); }\n  .i.alt-soft path {\n    stroke: rgba(255, 121, 31, 0.5); }\n  .i.alt-soft-extra use {\n    fill: rgba(255, 121, 31, 0.2); }\n  .i.alt-soft-extra path {\n    stroke: rgba(255, 121, 31, 0.2); }\n  .i.accent-light use {\n    fill: #51baeb; }\n  .i.accent-light path {\n    stroke: #51baeb; }\n  .i.accent-soft use {\n    fill: rgba(35, 168, 230, 0.5); }\n  .i.accent-soft path {\n    stroke: rgba(35, 168, 230, 0.5); }\n  .i.accent-soft-extra use {\n    fill: rgba(35, 168, 230, 0.2); }\n  .i.accent-soft-extra path {\n    stroke: rgba(35, 168, 230, 0.2); }\n  .i.error-dark use {\n    fill: #ff2221; }\n  .i.error-dark path {\n    stroke: #ff2221; }\n  .i.error-light use {\n    fill: #ff8887; }\n  .i.error-light path {\n    stroke: #ff8887; }\n  .i.error-soft use {\n    fill: rgba(255, 85, 84, 0.5); }\n  .i.error-soft path {\n    stroke: rgba(255, 85, 84, 0.5); }\n  .i.error-soft-extra use {\n    fill: rgba(255, 85, 84, 0.2); }\n  .i.error-soft-extra path {\n    stroke: rgba(255, 85, 84, 0.2); }\n  .i.accent-dark-dark use {\n    fill: #a46f09; }\n  .i.accent-dark-dark path {\n    stroke: #a46f09; }\n  .i.accent-dark-light use {\n    fill: #f2ab21; }\n  .i.accent-dark-light path {\n    stroke: #f2ab21; }\n  .i.accent-dark-soft use {\n    fill: rgba(212, 144, 12, 0.5); }\n  .i.accent-dark-soft path {\n    stroke: rgba(212, 144, 12, 0.5); }\n  .i.accent-dark-soft-extra use {\n    fill: rgba(212, 144, 12, 0.2); }\n  .i.accent-dark-soft-extra path {\n    stroke: rgba(212, 144, 12, 0.2); }\n  .i.success-dark use {\n    fill: #1f9d6a; }\n  .i.success-dark path {\n    stroke: #1f9d6a; }\n  .i.success-light use {\n    fill: #48da9f; }\n  .i.success-light path {\n    stroke: #48da9f; }\n  .i.success-soft use {\n    fill: rgba(40, 199, 135, 0.5); }\n  .i.success-soft path {\n    stroke: rgba(40, 199, 135, 0.5); }\n  .i.success-soft-extra use {\n    fill: rgba(40, 199, 135, 0.2); }\n  .i.success-soft-extra path {\n    stroke: rgba(40, 199, 135, 0.2); }\n  .i.white-dark use {\n    fill: #e6e6e6; }\n  .i.white-dark path {\n    stroke: #e6e6e6; }\n  .i.white-light use {\n    fill: white; }\n  .i.white-light path {\n    stroke: white; }\n  .i.white-soft use {\n    fill: rgba(255, 255, 255, 0.5); }\n  .i.white-soft path {\n    stroke: rgba(255, 255, 255, 0.5); }\n  .i.white-soft-extra use {\n    fill: rgba(255, 255, 255, 0.2); }\n  .i.white-soft-extra path {\n    stroke: rgba(255, 255, 255, 0.2); }\n  .i.black-dark use {\n    fill: #252525; }\n  .i.black-dark path {\n    stroke: #252525; }\n  .i.black-light use {\n    fill: #585858; }\n  .i.black-light path {\n    stroke: #585858; }\n  .i.black-soft use {\n    fill: rgba(62, 62, 62, 0.5); }\n  .i.black-soft path {\n    stroke: rgba(62, 62, 62, 0.5); }\n  .i.black-soft-extra use {\n    fill: rgba(62, 62, 62, 0.2); }\n  .i.black-soft-extra path {\n    stroke: rgba(62, 62, 62, 0.2); }\n  .i.white-0-dark use {\n    fill: rgba(230, 230, 230, 0.1); }\n  .i.white-0-dark path {\n    stroke: rgba(230, 230, 230, 0.1); }\n  .i.white-0-light use {\n    fill: rgba(255, 255, 255, 0.1); }\n  .i.white-0-light path {\n    stroke: rgba(255, 255, 255, 0.1); }\n  .i.white-0-soft use {\n    fill: rgba(255, 255, 255, 0.5); }\n  .i.white-0-soft path {\n    stroke: rgba(255, 255, 255, 0.5); }\n  .i.white-0-soft-extra use {\n    fill: rgba(255, 255, 255, 0.2); }\n  .i.white-0-soft-extra path {\n    stroke: rgba(255, 255, 255, 0.2); }\n  .i.white-off-dark use {\n    fill: #ded9e2; }\n  .i.white-off-dark path {\n    stroke: #ded9e2; }\n  .i.white-off-light use {\n    fill: white; }\n  .i.white-off-light path {\n    stroke: white; }\n  .i.white-off-soft use {\n    fill: rgba(247, 246, 248, 0.5); }\n  .i.white-off-soft path {\n    stroke: rgba(247, 246, 248, 0.5); }\n  .i.white-off-soft-extra use {\n    fill: rgba(247, 246, 248, 0.2); }\n  .i.white-off-soft-extra path {\n    stroke: rgba(247, 246, 248, 0.2); }\n  .i.shade-0-dark use {\n    fill: #c5c5ff; }\n  .i.shade-0-dark path {\n    stroke: #c5c5ff; }\n  .i.shade-0-light use {\n    fill: white; }\n  .i.shade-0-light path {\n    stroke: white; }\n  .i.shade-0-soft use {\n    fill: rgba(248, 248, 255, 0.5); }\n  .i.shade-0-soft path {\n    stroke: rgba(248, 248, 255, 0.5); }\n  .i.shade-0-soft-extra use {\n    fill: rgba(248, 248, 255, 0.2); }\n  .i.shade-0-soft-extra path {\n    stroke: rgba(248, 248, 255, 0.2); }\n  .i.shade-1-dark use {\n    fill: rgba(79, 43, 109, 0.1); }\n  .i.shade-1-dark path {\n    stroke: rgba(79, 43, 109, 0.1); }\n  .i.shade-1-light use {\n    fill: rgba(131, 73, 181, 0.1); }\n  .i.shade-1-light path {\n    stroke: rgba(131, 73, 181, 0.1); }\n  .i.shade-1-soft use {\n    fill: rgba(105, 58, 145, 0.5); }\n  .i.shade-1-soft path {\n    stroke: rgba(105, 58, 145, 0.5); }\n  .i.shade-1-soft-extra use {\n    fill: rgba(105, 58, 145, 0.2); }\n  .i.shade-1-soft-extra path {\n    stroke: rgba(105, 58, 145, 0.2); }\n  .i.shade-2-dark use {\n    fill: rgba(79, 43, 109, 0.3); }\n  .i.shade-2-dark path {\n    stroke: rgba(79, 43, 109, 0.3); }\n  .i.shade-2-light use {\n    fill: rgba(131, 73, 181, 0.3); }\n  .i.shade-2-light path {\n    stroke: rgba(131, 73, 181, 0.3); }\n  .i.shade-2-soft use {\n    fill: rgba(105, 58, 145, 0.5); }\n  .i.shade-2-soft path {\n    stroke: rgba(105, 58, 145, 0.5); }\n  .i.shade-2-soft-extra use {\n    fill: rgba(105, 58, 145, 0.2); }\n  .i.shade-2-soft-extra path {\n    stroke: rgba(105, 58, 145, 0.2); }\n  .i.shade-3-dark use {\n    fill: #b6a7c7; }\n  .i.shade-3-dark path {\n    stroke: #b6a7c7; }\n  .i.shade-3-light use {\n    fill: #eae5ef; }\n  .i.shade-3-light path {\n    stroke: #eae5ef; }\n  .i.shade-3-soft use {\n    fill: rgba(208, 198, 219, 0.5); }\n  .i.shade-3-soft path {\n    stroke: rgba(208, 198, 219, 0.5); }\n  .i.shade-3-soft-extra use {\n    fill: rgba(208, 198, 219, 0.2); }\n  .i.shade-3-soft-extra path {\n    stroke: rgba(208, 198, 219, 0.2); }\n  .i.shade-4-dark use {\n    fill: #9c8da9; }\n  .i.shade-4-dark path {\n    stroke: #9c8da9; }\n  .i.shade-4-light use {\n    fill: #cec7d5; }\n  .i.shade-4-light path {\n    stroke: #cec7d5; }\n  .i.shade-4-soft use {\n    fill: rgba(181, 170, 191, 0.5); }\n  .i.shade-4-soft path {\n    stroke: rgba(181, 170, 191, 0.5); }\n  .i.shade-4-soft-extra use {\n    fill: rgba(181, 170, 191, 0.2); }\n  .i.shade-4-soft-extra path {\n    stroke: rgba(181, 170, 191, 0.2); }\n  .i.shade-5-dark use {\n    fill: #4f2b6d; }\n  .i.shade-5-dark path {\n    stroke: #4f2b6d; }\n  .i.shade-5-light use {\n    fill: #8349b5; }\n  .i.shade-5-light path {\n    stroke: #8349b5; }\n  .i.shade-5-soft use {\n    fill: rgba(105, 58, 145, 0.5); }\n  .i.shade-5-soft path {\n    stroke: rgba(105, 58, 145, 0.5); }\n  .i.shade-5-soft-extra use {\n    fill: rgba(105, 58, 145, 0.2); }\n  .i.shade-5-soft-extra path {\n    stroke: rgba(105, 58, 145, 0.2); }\n  .i.text use {\n    fill: #b5aabf; }\n  .i.text path {\n    stroke: #b5aabf; }\n  .i.text-dark use {\n    fill: #734b86; }\n  .i.text-dark path {\n    stroke: #734b86; }\n  .i.bg use {\n    fill: #ffffff; }\n  .i.bg path {\n    stroke: #ffffff; }\n\ntable {\n  border-radius: 1rem;\n  width: calc(100% + 4rem);\n  table-layout: fixed;\n  border-collapse: separate;\n  border-spacing: 0 1rem;\n  padding: 4rem 2rem;\n  margin-left: -2rem;\n  margin-right: -2rem; }\n  table tr {\n    margin-bottom: 2rem;\n    height: 4rem;\n    line-height: 4rem; }\n    table tr td {\n      border-style: solid none; }\n    table tr td:first-child {\n      border-left-style: solid;\n      border-top-left-radius: 1rem;\n      border-bottom-left-radius: 1rem; }\n    table tr td:last-child {\n      border-right-style: solid;\n      border-bottom-right-radius: 1rem;\n      border-top-right-radius: 1rem; }\n    table tr th {\n      text-transform: uppercase;\n      color: rgba(105, 58, 145, 0.3);\n      font-weight: bold;\n      letter-spacing: 1px;\n      height: 4rem;\n      line-height: 4rem;\n      text-align: left;\n      font-size: 1.6rem; }\n    table tr th, table tr td {\n      padding: 0 4rem;\n      overflow: hidden;\n      white-space: nowrap;\n      text-overflow: ellipsis; }\n    table tr td {\n      background-color: #ffffff;\n      height: 4rem;\n      line-height: 4rem; }\n    table tr th.icon, table tr td.icon {\n      padding: 0 2rem;\n      width: 4rem;\n      text-align: center; }\n  table.selectable tr:hover:not(.row-header), table.selectable tr:hover:not(.row-header) td, table tr.selected, table tr.selected td {\n    background-color: #f8f8ff;\n    cursor: pointer; }\n  table.rows-split {\n    border-collapse: separate;\n    border-spacing: 0 0.5rem; }\n\n.tabs {\n  height: 4rem;\n  line-height: 4rem;\n  border-bottom: 1px solid rgba(255, 255, 255, 0.1);\n  user-select: none; }\n  .tabs .tab {\n    cursor: pointer;\n    display: inline-block;\n    border-right: 1px solid rgba(255, 255, 255, 0.1);\n    padding: 0 2rem; }\n    .tabs .tab.icon-only {\n      padding: 0;\n      width: 4rem;\n      text-align: center; }\n    .tabs .tab:hover {\n      background-color: #f8f8ff; }\n\n.modal-overlay {\n  position: fixed;\n  z-index: 100;\n  background-color: rgba(62, 62, 62, 0.8);\n  opacity: 0;\n  transition: all 500ms; }\n  .modal-overlay.open {\n    opacity: 1; }\n  .modal-overlay.close {\n    opacity: 0; }\n  .modal-overlay .modal {\n    background-color: #ffffff;\n    transform: translate(-50%, -75%);\n    padding: 12rem;\n    transition: all 500ms; }\n    .modal-overlay .modal.open {\n      transform: translate(-50%, -50%); }\n    .modal-overlay .modal.close {\n      transform: translate(-50%, -75%); }\n\n.list li {\n  border-bottom: 1px solid rgba(105, 58, 145, 0.2); }\n\n.list.selectable li {\n  cursor: pointer; }\n  .list.selectable li:hover {\n    background-color: #f8f8ff; }\n\n.list li.disabled {\n  pointer-events: none;\n  opacity: 0.5; }\n\nhtml {\n  font-size: 10px;\n  font-family: 'Work Sans', sans-serif;\n  color: #693a91; }\n\nbody, * {\n  font-size: 1.5rem;\n  line-height: 1.6; }\n\n.center, .modal-overlay .modal {\n  position: absolute;\n  top: 50%;\n  left: 50%;\n  transform: translate(-50%, -50%); }\n\nbody {\n  background-color: #f8f8ff; }\n", ""]);
 
 // exports
 
@@ -22229,15 +22256,16 @@ exports.default = function () {
             return state.merge(merging);
 
         case _const.AUTH_LOGIN_FAILED:
+            return state.setIn(['errors', 'loggingIn'], message);
+
+        case _const.AUTH_VERIFIED_FAILED:
             var message = action.message;
+
 
             if (action.message.includes('Supplied JWT has expired')) {
                 message = 'You were logged out due to inactivity';
             }
 
-            return state.setIn(['errors', 'loggingIn'], message);
-
-        case _const.AUTH_VERIFIED_FAILED:
             return state.setIn(['errors', 'verify'], action.message);
 
         default:
@@ -22262,10 +22290,17 @@ var _seamlessImmutable2 = _interopRequireDefault(_seamlessImmutable);
 
 var _const = __webpack_require__(6);
 
+var _const2 = __webpack_require__(37);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var initialState = (0, _seamlessImmutable2.default)({
-    jewelItems: [],
+    sidebar: {
+        items: []
+    },
+    page: {
+        title: ''
+    },
     tabs: []
 });
 
@@ -22274,8 +22309,8 @@ exports.default = function () {
     var action = arguments[1];
 
     switch (action.type) {
-        case _const.APP_JEWEL_ITEMS_SET:
-            return state.set('jewelItems', action.items);
+        case _const.APP_SIDEBAR_ITEMS_SET:
+            return state.setIn(['sidebar', 'items'], action.items);
 
         case _const.APP_TABS_NEW:
             var existing = state.tabs.find(function (t) {
@@ -22297,6 +22332,11 @@ exports.default = function () {
             if (index < 0) return state;
 
             return state.setIn(['tabs', index, 'name'], action.name);
+
+        case _const.APP_TITLE_SET:
+            document.title = _const2.TITLE_PREFIX + action.title;
+
+            return state.setIn(['page', 'title'], action.title);
 
         default:
             return state;
@@ -24966,7 +25006,7 @@ module.exports = !$assign || __webpack_require__(18)(function () {
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
-exports.tabsName = exports.tabsClose = exports.tabsNew = exports.getJewelItems = undefined;
+exports.tabsName = exports.tabsClose = exports.tabsNew = exports.titleSet = exports.getSidebarItems = undefined;
 
 var _slicedToArray2 = __webpack_require__(30);
 
@@ -24978,22 +25018,32 @@ var _const = __webpack_require__(6);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var getJewelItems = exports.getJewelItems = function getJewelItems() {
-    return function (dispatch) {
+var getSidebarItems = exports.getSidebarItems = function getSidebarItems(dispatch) {
+    return function () {
         // TODO: Convert to endpoint
-        dispatch({ type: _const.APP_JEWEL_ITEMS_SET, items: [{
-                name: 'Pages',
-                url: '/pages',
-                icon: 'page'
+        dispatch({ type: _const.APP_SIDEBAR_ITEMS_SET, items: [{
+                icon: 'page',
+                color: 'red',
+                to: '/pages'
             }, {
-                name: 'Users',
-                url: '/users',
-                icon: 'user'
+                icon: 'dollar',
+                color: 'green',
+                to: '/app/engagement'
             }, {
-                name: 'Settings',
-                url: '/settings',
-                icon: 'settings'
+                icon: 'messages',
+                color: 'orange',
+                to: '/app/engagement'
+            }, {
+                icon: 'user',
+                color: 'blue',
+                to: '/users'
             }] });
+    };
+};
+
+var titleSet = exports.titleSet = function titleSet(dispatch) {
+    return function (title) {
+        return dispatch({ type: _const.APP_TITLE_SET, title: title });
     };
 };
 
@@ -26026,6 +26076,7 @@ var App = function (_Element) {
         key: 'connectedCallback',
         value: function connectedCallback() {
             if (this.auth.token && !this.auth.loggedIn) this.trigger('verify', this.auth.token);
+            this.trigger('title-set', ['Home']);
         }
     }, {
         key: 'propertyChangedCallback',
@@ -26033,7 +26084,6 @@ var App = function (_Element) {
             switch (prop) {
                 case 'auth':
                     if (!newV.loggedIn && !newV.token && location.pathname != '/admin/login') document.querySelector('wc-router').replace('/login');
-                    // if (newV.loggedIn && newV.token) this.trigger('getMe');
 
                     break;
             }
@@ -26069,7 +26119,8 @@ var ConnectedApp = function (_connect) {
             return {
                 login: _actions2.default.Auth.login(dispatch),
                 verify: _actions2.default.Auth.verify(dispatch),
-                getMe: _actions2.default.Me.getMe(dispatch)
+                getMe: _actions2.default.Me.getMe(dispatch),
+                'title-set': _actions2.default.App.titleSet(dispatch)
             };
         }
     }]);
@@ -26082,7 +26133,7 @@ window.customElements.define('page-app', ConnectedApp);
 /* 181 */
 /***/ (function(module, exports) {
 
-module.exports = "<zen-sidebar></zen-sidebar>\n\n<main>\n    <wc-switch>\n        <wc-route path='/pages' element='page-app-pages'></wc-route>\n        <wc-route path='*' element='page-not-found'></wc-route>\n    </wc-switch>\n</main>\n"
+module.exports = "<zen-sidebar></zen-sidebar>\n\n<zen-header></zen-header>\n\n<main>\n    <wc-switch>\n        <wc-route path='/pages' element='page-app-pages'></wc-route>\n        <wc-route path='*' element='page-not-found'></wc-route>\n    </wc-switch>\n</main>\n"
 
 /***/ }),
 /* 182 */
@@ -26170,6 +26221,7 @@ var Pages = function (_Element) {
     (0, _createClass3.default)(Pages, [{
         key: 'connectedCallback',
         value: function connectedCallback() {
+            this.trigger('title-set', ['Pages']);
             this.trigger('pages-get');
         }
     }, {
@@ -26208,7 +26260,8 @@ var ConnectedPages = function (_connect) {
         key: '_mapDispatchToEvents',
         value: function _mapDispatchToEvents(dispatch) {
             return {
-                'pages-get': _actions2.default.Pages.pagesGet(dispatch)
+                'pages-get': _actions2.default.Pages.pagesGet(dispatch),
+                'title-set': _actions2.default.App.titleSet(dispatch)
             };
         }
     }]);
@@ -26221,7 +26274,7 @@ window.customElements.define('page-app-pages', ConnectedPages);
 /* 185 */
 /***/ (function(module, exports) {
 
-module.exports = "<h1>Pages!</h1>\n\n<zen-ui-resource-table>\n    <zen-ui-resource-table-column\n        key=\"title\"\n    ></zen-ui-resource-table-column>\n    <zen-ui-resource-table-column\n        key=\"url\"\n    ></zen-ui-resource-table-column>\n</zen-ui-resource-table>\n"
+module.exports = "<wc-switch>\n    <wc-route path='/pages' exact>\n        <zen-ui-resource-table resource=\"page\">\n            <zen-ui-resource-table-column\n            key=\"title\"\n            ></zen-ui-resource-table-column>\n            <zen-ui-resource-table-column\n            key=\"url\"\n            ></zen-ui-resource-table-column>\n        </zen-ui-resource-table>\n    </wc-route>\n    <wc-route path='/pages/:id'>\n        <p>Hey!</p>\n    </wc-route>\n</wc-switch>\n"
 
 /***/ }),
 /* 186 */
@@ -26248,6 +26301,10 @@ var _classCallCheck2 = __webpack_require__(0);
 
 var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
 
+var _createClass2 = __webpack_require__(1);
+
+var _createClass3 = _interopRequireDefault(_createClass2);
+
 var _possibleConstructorReturn2 = __webpack_require__(2);
 
 var _possibleConstructorReturn3 = _interopRequireDefault(_possibleConstructorReturn2);
@@ -26266,6 +26323,16 @@ var _notFound3 = __webpack_require__(189);
 
 var _notFound4 = _interopRequireDefault(_notFound3);
 
+var _ConnectedElementMixin = __webpack_require__(22);
+
+var _store = __webpack_require__(16);
+
+var _store2 = _interopRequireDefault(_store);
+
+var _actions = __webpack_require__(31);
+
+var _actions2 = _interopRequireDefault(_actions);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var NotFound = function (_Element) {
@@ -26281,16 +26348,41 @@ var NotFound = function (_Element) {
         return _this;
     }
 
+    (0, _createClass3.default)(NotFound, [{
+        key: 'connectedCallback',
+        value: function connectedCallback() {
+            this.trigger('title-set', ['Not found']);
+        }
+    }]);
     return NotFound;
 }(_lib.Element);
 
-window.customElements.define('page-not-found', NotFound);
+var ConnectedNotFound = function (_connect) {
+    (0, _inherits3.default)(ConnectedNotFound, _connect);
+
+    function ConnectedNotFound() {
+        (0, _classCallCheck3.default)(this, ConnectedNotFound);
+        return (0, _possibleConstructorReturn3.default)(this, (ConnectedNotFound.__proto__ || Object.getPrototypeOf(ConnectedNotFound)).apply(this, arguments));
+    }
+
+    (0, _createClass3.default)(ConnectedNotFound, [{
+        key: '_mapDispatchToEvents',
+        value: function _mapDispatchToEvents(dispatch) {
+            return {
+                'title-set': _actions2.default.App.titleSet(dispatch)
+            };
+        }
+    }]);
+    return ConnectedNotFound;
+}((0, _ConnectedElementMixin.connect)(_store2.default, NotFound));
+
+window.customElements.define('page-not-found', ConnectedNotFound);
 
 /***/ }),
 /* 188 */
 /***/ (function(module, exports) {
 
-module.exports = "<h1>Not Found!</h1>\n"
+module.exports = "<h2>Whoops! Looks like that page is missing.</h2>\n<wc-link to='/'>Return home</wc-link>\n"
 
 /***/ }),
 /* 189 */
@@ -26320,6 +26412,8 @@ __webpack_require__(193);
 __webpack_require__(202);
 
 __webpack_require__(207);
+
+__webpack_require__(227);
 
 /***/ }),
 /* 191 */
@@ -26596,7 +26690,7 @@ exports = module.exports = __webpack_require__(7)(undefined);
 exports.push([module.i, "@import url(/admin/origami.css);", ""]);
 
 // module
-exports.push([module.i, ":host, :host svg {\n  display: inline-block;\n  vertical-align: middle; }\n\n:host svg {\n  width: 100%;\n  height: 100%; }\n  :host svg.main use {\n    fill: #693a91; }\n  :host svg.main-softest use {\n    fill: #f8f8ff; }\n  :host svg.alt use {\n    fill: #ff791f; }\n  :host svg.accent use {\n    fill: #23a8e6; }\n  :host svg.error use {\n    fill: #ff5554; }\n  :host svg.accent-dark use {\n    fill: #168ac0; }\n  :host svg.success use {\n    fill: #28c787; }\n  :host svg.white use {\n    fill: #ffffff; }\n  :host svg.black use {\n    fill: #3e3e3e; }\n  :host svg.white-0 use {\n    fill: rgba(255, 255, 255, 0.1); }\n  :host svg.white-off use {\n    fill: #f7f6f8; }\n  :host svg.shade-0 use {\n    fill: #f8f8ff; }\n  :host svg.shade-1 use {\n    fill: rgba(105, 58, 145, 0.1); }\n  :host svg.shade-2 use {\n    fill: rgba(105, 58, 145, 0.3); }\n  :host svg.shade-3 use {\n    fill: #d0c6db; }\n  :host svg.shade-4 use {\n    fill: #b5aabf; }\n  :host svg.shade-5 use {\n    fill: #693a91; }\n  :host svg.main-dark use {\n    fill: #4f2b6d; }\n  :host svg.main-light use {\n    fill: #8349b5; }\n  :host svg.main-soft use {\n    fill: rgba(105, 58, 145, 0.5); }\n  :host svg.main-soft-extra use {\n    fill: rgba(105, 58, 145, 0.2); }\n  :host svg.main-softest-dark use {\n    fill: #c5c5ff; }\n  :host svg.main-softest-light use {\n    fill: white; }\n  :host svg.main-softest-soft use {\n    fill: rgba(248, 248, 255, 0.5); }\n  :host svg.main-softest-soft-extra use {\n    fill: rgba(248, 248, 255, 0.2); }\n  :host svg.alt-dark use {\n    fill: #eb5e00; }\n  :host svg.alt-light use {\n    fill: #ff9852; }\n  :host svg.alt-soft use {\n    fill: rgba(255, 121, 31, 0.5); }\n  :host svg.alt-soft-extra use {\n    fill: rgba(255, 121, 31, 0.2); }\n  :host svg.accent-light use {\n    fill: #51baeb; }\n  :host svg.accent-soft use {\n    fill: rgba(35, 168, 230, 0.5); }\n  :host svg.accent-soft-extra use {\n    fill: rgba(35, 168, 230, 0.2); }\n  :host svg.error-dark use {\n    fill: #ff2221; }\n  :host svg.error-light use {\n    fill: #ff8887; }\n  :host svg.error-soft use {\n    fill: rgba(255, 85, 84, 0.5); }\n  :host svg.error-soft-extra use {\n    fill: rgba(255, 85, 84, 0.2); }\n  :host svg.accent-dark-dark use {\n    fill: #a46f09; }\n  :host svg.accent-dark-light use {\n    fill: #f2ab21; }\n  :host svg.accent-dark-soft use {\n    fill: rgba(212, 144, 12, 0.5); }\n  :host svg.accent-dark-soft-extra use {\n    fill: rgba(212, 144, 12, 0.2); }\n  :host svg.success-dark use {\n    fill: #1f9d6a; }\n  :host svg.success-light use {\n    fill: #48da9f; }\n  :host svg.success-soft use {\n    fill: rgba(40, 199, 135, 0.5); }\n  :host svg.success-soft-extra use {\n    fill: rgba(40, 199, 135, 0.2); }\n  :host svg.white-dark use {\n    fill: #e6e6e6; }\n  :host svg.white-light use {\n    fill: white; }\n  :host svg.white-soft use {\n    fill: rgba(255, 255, 255, 0.5); }\n  :host svg.white-soft-extra use {\n    fill: rgba(255, 255, 255, 0.2); }\n  :host svg.black-dark use {\n    fill: #252525; }\n  :host svg.black-light use {\n    fill: #585858; }\n  :host svg.black-soft use {\n    fill: rgba(62, 62, 62, 0.5); }\n  :host svg.black-soft-extra use {\n    fill: rgba(62, 62, 62, 0.2); }\n  :host svg.white-0-dark use {\n    fill: rgba(230, 230, 230, 0.1); }\n  :host svg.white-0-light use {\n    fill: rgba(255, 255, 255, 0.1); }\n  :host svg.white-0-soft use {\n    fill: rgba(255, 255, 255, 0.5); }\n  :host svg.white-0-soft-extra use {\n    fill: rgba(255, 255, 255, 0.2); }\n  :host svg.white-off-dark use {\n    fill: #ded9e2; }\n  :host svg.white-off-light use {\n    fill: white; }\n  :host svg.white-off-soft use {\n    fill: rgba(247, 246, 248, 0.5); }\n  :host svg.white-off-soft-extra use {\n    fill: rgba(247, 246, 248, 0.2); }\n  :host svg.shade-0-dark use {\n    fill: #c5c5ff; }\n  :host svg.shade-0-light use {\n    fill: white; }\n  :host svg.shade-0-soft use {\n    fill: rgba(248, 248, 255, 0.5); }\n  :host svg.shade-0-soft-extra use {\n    fill: rgba(248, 248, 255, 0.2); }\n  :host svg.shade-1-dark use {\n    fill: rgba(79, 43, 109, 0.1); }\n  :host svg.shade-1-light use {\n    fill: rgba(131, 73, 181, 0.1); }\n  :host svg.shade-1-soft use {\n    fill: rgba(105, 58, 145, 0.5); }\n  :host svg.shade-1-soft-extra use {\n    fill: rgba(105, 58, 145, 0.2); }\n  :host svg.shade-2-dark use {\n    fill: rgba(79, 43, 109, 0.3); }\n  :host svg.shade-2-light use {\n    fill: rgba(131, 73, 181, 0.3); }\n  :host svg.shade-2-soft use {\n    fill: rgba(105, 58, 145, 0.5); }\n  :host svg.shade-2-soft-extra use {\n    fill: rgba(105, 58, 145, 0.2); }\n  :host svg.shade-3-dark use {\n    fill: #b6a7c7; }\n  :host svg.shade-3-light use {\n    fill: #eae5ef; }\n  :host svg.shade-3-soft use {\n    fill: rgba(208, 198, 219, 0.5); }\n  :host svg.shade-3-soft-extra use {\n    fill: rgba(208, 198, 219, 0.2); }\n  :host svg.shade-4-dark use {\n    fill: #9c8da9; }\n  :host svg.shade-4-light use {\n    fill: #cec7d5; }\n  :host svg.shade-4-soft use {\n    fill: rgba(181, 170, 191, 0.5); }\n  :host svg.shade-4-soft-extra use {\n    fill: rgba(181, 170, 191, 0.2); }\n  :host svg.shade-5-dark use {\n    fill: #4f2b6d; }\n  :host svg.shade-5-light use {\n    fill: #8349b5; }\n  :host svg.shade-5-soft use {\n    fill: rgba(105, 58, 145, 0.5); }\n  :host svg.shade-5-soft-extra use {\n    fill: rgba(105, 58, 145, 0.2); }\n  :host svg.text use {\n    fill: #b5aabf; }\n  :host svg.text-dark use {\n    fill: #734b86; }\n  :host svg.bg use {\n    fill: #ffffff; }\n", ""]);
+exports.push([module.i, ":host {\n  display: inline-block;\n  vertical-align: middle; }\n\n:host svg {\n  display: inline-block;\n  vertical-align: top;\n  width: 100%;\n  height: 100%; }\n  :host svg.main use {\n    fill: #693a91; }\n  :host svg.main-softest use {\n    fill: #f8f8ff; }\n  :host svg.alt use {\n    fill: #ff791f; }\n  :host svg.accent use {\n    fill: #23a8e6; }\n  :host svg.error use {\n    fill: #ff5554; }\n  :host svg.accent-dark use {\n    fill: #168ac0; }\n  :host svg.success use {\n    fill: #28c787; }\n  :host svg.white use {\n    fill: #ffffff; }\n  :host svg.black use {\n    fill: #3e3e3e; }\n  :host svg.white-0 use {\n    fill: rgba(255, 255, 255, 0.1); }\n  :host svg.white-off use {\n    fill: #f7f6f8; }\n  :host svg.shade-0 use {\n    fill: #f8f8ff; }\n  :host svg.shade-1 use {\n    fill: rgba(105, 58, 145, 0.1); }\n  :host svg.shade-2 use {\n    fill: rgba(105, 58, 145, 0.3); }\n  :host svg.shade-3 use {\n    fill: #d0c6db; }\n  :host svg.shade-4 use {\n    fill: #b5aabf; }\n  :host svg.shade-5 use {\n    fill: #693a91; }\n  :host svg.main-dark use {\n    fill: #4f2b6d; }\n  :host svg.main-light use {\n    fill: #8349b5; }\n  :host svg.main-soft use {\n    fill: rgba(105, 58, 145, 0.5); }\n  :host svg.main-soft-extra use {\n    fill: rgba(105, 58, 145, 0.2); }\n  :host svg.main-softest-dark use {\n    fill: #c5c5ff; }\n  :host svg.main-softest-light use {\n    fill: white; }\n  :host svg.main-softest-soft use {\n    fill: rgba(248, 248, 255, 0.5); }\n  :host svg.main-softest-soft-extra use {\n    fill: rgba(248, 248, 255, 0.2); }\n  :host svg.alt-dark use {\n    fill: #eb5e00; }\n  :host svg.alt-light use {\n    fill: #ff9852; }\n  :host svg.alt-soft use {\n    fill: rgba(255, 121, 31, 0.5); }\n  :host svg.alt-soft-extra use {\n    fill: rgba(255, 121, 31, 0.2); }\n  :host svg.accent-light use {\n    fill: #51baeb; }\n  :host svg.accent-soft use {\n    fill: rgba(35, 168, 230, 0.5); }\n  :host svg.accent-soft-extra use {\n    fill: rgba(35, 168, 230, 0.2); }\n  :host svg.error-dark use {\n    fill: #ff2221; }\n  :host svg.error-light use {\n    fill: #ff8887; }\n  :host svg.error-soft use {\n    fill: rgba(255, 85, 84, 0.5); }\n  :host svg.error-soft-extra use {\n    fill: rgba(255, 85, 84, 0.2); }\n  :host svg.accent-dark-dark use {\n    fill: #a46f09; }\n  :host svg.accent-dark-light use {\n    fill: #f2ab21; }\n  :host svg.accent-dark-soft use {\n    fill: rgba(212, 144, 12, 0.5); }\n  :host svg.accent-dark-soft-extra use {\n    fill: rgba(212, 144, 12, 0.2); }\n  :host svg.success-dark use {\n    fill: #1f9d6a; }\n  :host svg.success-light use {\n    fill: #48da9f; }\n  :host svg.success-soft use {\n    fill: rgba(40, 199, 135, 0.5); }\n  :host svg.success-soft-extra use {\n    fill: rgba(40, 199, 135, 0.2); }\n  :host svg.white-dark use {\n    fill: #e6e6e6; }\n  :host svg.white-light use {\n    fill: white; }\n  :host svg.white-soft use {\n    fill: rgba(255, 255, 255, 0.5); }\n  :host svg.white-soft-extra use {\n    fill: rgba(255, 255, 255, 0.2); }\n  :host svg.black-dark use {\n    fill: #252525; }\n  :host svg.black-light use {\n    fill: #585858; }\n  :host svg.black-soft use {\n    fill: rgba(62, 62, 62, 0.5); }\n  :host svg.black-soft-extra use {\n    fill: rgba(62, 62, 62, 0.2); }\n  :host svg.white-0-dark use {\n    fill: rgba(230, 230, 230, 0.1); }\n  :host svg.white-0-light use {\n    fill: rgba(255, 255, 255, 0.1); }\n  :host svg.white-0-soft use {\n    fill: rgba(255, 255, 255, 0.5); }\n  :host svg.white-0-soft-extra use {\n    fill: rgba(255, 255, 255, 0.2); }\n  :host svg.white-off-dark use {\n    fill: #ded9e2; }\n  :host svg.white-off-light use {\n    fill: white; }\n  :host svg.white-off-soft use {\n    fill: rgba(247, 246, 248, 0.5); }\n  :host svg.white-off-soft-extra use {\n    fill: rgba(247, 246, 248, 0.2); }\n  :host svg.shade-0-dark use {\n    fill: #c5c5ff; }\n  :host svg.shade-0-light use {\n    fill: white; }\n  :host svg.shade-0-soft use {\n    fill: rgba(248, 248, 255, 0.5); }\n  :host svg.shade-0-soft-extra use {\n    fill: rgba(248, 248, 255, 0.2); }\n  :host svg.shade-1-dark use {\n    fill: rgba(79, 43, 109, 0.1); }\n  :host svg.shade-1-light use {\n    fill: rgba(131, 73, 181, 0.1); }\n  :host svg.shade-1-soft use {\n    fill: rgba(105, 58, 145, 0.5); }\n  :host svg.shade-1-soft-extra use {\n    fill: rgba(105, 58, 145, 0.2); }\n  :host svg.shade-2-dark use {\n    fill: rgba(79, 43, 109, 0.3); }\n  :host svg.shade-2-light use {\n    fill: rgba(131, 73, 181, 0.3); }\n  :host svg.shade-2-soft use {\n    fill: rgba(105, 58, 145, 0.5); }\n  :host svg.shade-2-soft-extra use {\n    fill: rgba(105, 58, 145, 0.2); }\n  :host svg.shade-3-dark use {\n    fill: #b6a7c7; }\n  :host svg.shade-3-light use {\n    fill: #eae5ef; }\n  :host svg.shade-3-soft use {\n    fill: rgba(208, 198, 219, 0.5); }\n  :host svg.shade-3-soft-extra use {\n    fill: rgba(208, 198, 219, 0.2); }\n  :host svg.shade-4-dark use {\n    fill: #9c8da9; }\n  :host svg.shade-4-light use {\n    fill: #cec7d5; }\n  :host svg.shade-4-soft use {\n    fill: rgba(181, 170, 191, 0.5); }\n  :host svg.shade-4-soft-extra use {\n    fill: rgba(181, 170, 191, 0.2); }\n  :host svg.shade-5-dark use {\n    fill: #4f2b6d; }\n  :host svg.shade-5-light use {\n    fill: #8349b5; }\n  :host svg.shade-5-soft use {\n    fill: rgba(105, 58, 145, 0.5); }\n  :host svg.shade-5-soft-extra use {\n    fill: rgba(105, 58, 145, 0.2); }\n  :host svg.text use {\n    fill: #b5aabf; }\n  :host svg.text-dark use {\n    fill: #734b86; }\n  :host svg.bg use {\n    fill: #ffffff; }\n", ""]);
 
 // exports
 
@@ -26656,13 +26750,7 @@ window.customElements.define('zen-ui-form', function (_Element) {
     function ZenForm() {
         (0, _classCallCheck3.default)(this, ZenForm);
 
-        var _this = (0, _possibleConstructorReturn3.default)(this, (ZenForm.__proto__ || Object.getPrototypeOf(ZenForm)).call(this));
-
-        _this.html = _form2.default;
-        _this.css = _form4.default.toString();
-        _this._updateTemplates();
-        _this.render();
-        _this.values = {};
+        var _this = (0, _possibleConstructorReturn3.default)(this, (ZenForm.__proto__ || Object.getPrototypeOf(ZenForm)).call(this, _form2.default, _form4.default.toString()));
 
         _this.form = _this.shadowRoot.querySelector('form');
         return _this;
@@ -26683,7 +26771,8 @@ window.customElements.define('zen-ui-form', function (_Element) {
         }
     }, {
         key: 'propertyChangedCallback',
-        value: function propertyChangedCallback(prop, oldV, newV) {
+        value: async function propertyChangedCallback(prop, oldV, newV) {
+            await this.ready();
             switch (prop) {
                 case 'error':
                     this.updateError();
@@ -26781,7 +26870,8 @@ window.customElements.define('zen-ui-form', function (_Element) {
         key: 'defaultProps',
         get: function get() {
             return {
-                fields: []
+                fields: [],
+                values: {}
             };
         }
     }, {
@@ -26872,10 +26962,11 @@ window.customElements.define('zen-ui-checkbox', function (_Element) {
         }
     }, {
         key: 'propertyChangedCallback',
-        value: function propertyChangedCallback(prop, oldV, newV) {
+        value: async function propertyChangedCallback(prop, oldV, newV) {
             switch (prop) {
                 case 'checked':
-                    if (this.isConnected) this.input.checked = newV;
+                    await this.ready();
+                    this.input.checked = newV;
                     break;
             }
         }
@@ -26947,6 +27038,10 @@ var _resourceTable3 = __webpack_require__(209);
 
 var _resourceTable4 = _interopRequireDefault(_resourceTable3);
 
+var _pluralize = __webpack_require__(173);
+
+var _pluralize2 = _interopRequireDefault(_pluralize);
+
 __webpack_require__(210);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
@@ -26966,16 +27061,23 @@ window.customElements.define('zen-ui-resource-table', function (_Element) {
         _this.table = _this.shadowRoot.querySelector('.table');
         _this.observer = new MutationObserver(_this.handleMutation.bind(_this));
         _this.observer.observe(_this, { childList: true });
+        _this.router = document.querySelector('wc-router');
         return _this;
     }
 
     (0, _createClass3.default)(ZenResourceTable, [{
-        key: 'connectedCallback',
-        value: function connectedCallback() {}
-    }, {
         key: 'disconnectedCallback',
         value: function disconnectedCallback() {
             this.observer.disconnect();
+        }
+    }, {
+        key: 'attributeChangedCallback',
+        value: function attributeChangedCallback(attr, oldV, newV) {
+            switch (attr) {
+                case 'resource':
+                    this[attr] = newV;
+                    break;
+            }
         }
     }, {
         key: 'renderRows',
@@ -27013,7 +27115,7 @@ window.customElements.define('zen-ui-resource-table', function (_Element) {
 
             check.checked = this.selected.includes(ele[this.idKey]);
             checkTD.appendChild(check);
-            checkTD.classList.add('check');
+            checkTD.classList.add('fixed');
             checkTD.addEventListener('change', function () {
                 return _this3.select(ele[_this3.idKey]);
             });
@@ -27024,6 +27126,17 @@ window.customElements.define('zen-ui-resource-table', function (_Element) {
                 td.innerHTML = ele[col.key];
                 tr.appendChild(td);
             });
+
+            var editTD = document.createElement('span');
+            editTD.classList.add('text-right');
+            var editButton = document.createElement('zen-ui-button');
+            editButton.innerHTML = 'Edit';
+            editButton.setAttribute('size', 'main');
+            editButton.addEventListener('click', function () {
+                _this3.open(ele);
+            });
+            editTD.appendChild(editButton);
+            tr.appendChild(editTD);
 
             return tr;
         }
@@ -27044,14 +27157,30 @@ window.customElements.define('zen-ui-resource-table', function (_Element) {
         }
     }, {
         key: 'render',
-        value: function render() {
+        value: async function render() {
             (0, _get3.default)(ZenResourceTable.prototype.__proto__ || Object.getPrototypeOf(ZenResourceTable.prototype), 'render', this).call(this);
-            if (this.isConnected) this.renderRows();
+            await this.ready();
+            this.renderRows();
+        }
+    }, {
+        key: 'open',
+        value: function open(res) {
+            this.router.push(this.resPlural + '/' + res.id);
         }
     }, {
         key: 'handleMutation',
         value: function handleMutation(e) {
             if (e.addedNodes || e.removedNodes) this.render();
+        }
+    }, {
+        key: 'resPlural',
+        get: function get() {
+            return (0, _pluralize2.default)(this.resource);
+        }
+    }, {
+        key: 'resSingular',
+        get: function get() {
+            return _pluralize2.default.singular(this.resource);
         }
     }], [{
         key: 'boundProps',
@@ -27066,6 +27195,11 @@ window.customElements.define('zen-ui-resource-table', function (_Element) {
                 idKey: 'id',
                 selected: []
             };
+        }
+    }, {
+        key: 'observedAttributes',
+        get: function get() {
+            return ['resource'];
         }
     }]);
     return ZenResourceTable;
@@ -27086,7 +27220,7 @@ exports = module.exports = __webpack_require__(7)(undefined);
 
 
 // module
-exports.push([module.i, ":host .table > div {\n  box-shadow: 0 1rem 2rem rgba(105, 58, 145, 0.1); }\n\n:host .table > div {\n  border-radius: 1rem; }\n\n:host {\n  display: block;\n  width: 100%;\n  overflow: hidden;\n  margin-left: -2rem;\n  width: calc(100% + 4rem); }\n  :host .table {\n    display: flex;\n    flex-flow: column nowrap;\n    flex: 1 1 auto;\n    padding: 2rem; }\n    :host .table > div.header {\n      display: none; }\n      :host .table > div.header > span {\n        white-space: normal;\n        justify-content: center; }\n    :host .table > div {\n      width: 100%;\n      display: flex;\n      flex-flow: row nowrap;\n      background-color: #ffffff;\n      height: 5rem;\n      line-height: 5rem;\n      margin-bottom: 1rem; }\n      :host .table > div > span {\n        flex-flow: row nowrap;\n        flex-grow: 1;\n        flex-basis: 0;\n        word-break: break-word;\n        overflow: hidden;\n        text-overflow: ellipsis;\n        white-space: nowrap;\n        padding: 0 2rem;\n        min-width: 0; }\n        :host .table > div > span.check {\n          flex-grow: 0; }\n", ""]);
+exports.push([module.i, ":host .table > div {\n  box-shadow: 0 1rem 2rem rgba(105, 58, 145, 0.1); }\n\n:host .table > div {\n  border-radius: 1rem; }\n\n:host {\n  display: block;\n  width: 100%;\n  overflow: hidden;\n  margin-left: -2rem;\n  width: calc(100% + 4rem); }\n  :host .table {\n    display: flex;\n    flex-flow: column nowrap;\n    flex: 1 1 auto;\n    padding: 2rem; }\n    :host .table > div.header {\n      display: none; }\n      :host .table > div.header > span {\n        white-space: normal;\n        justify-content: center; }\n    :host .table > div {\n      width: 100%;\n      display: flex;\n      flex-flow: row nowrap;\n      background-color: #ffffff;\n      height: 5rem;\n      line-height: 5rem;\n      margin-bottom: 1rem; }\n      :host .table > div > span {\n        flex-flow: row nowrap;\n        flex-grow: 1;\n        flex-basis: 0;\n        word-break: break-word;\n        overflow: hidden;\n        text-overflow: ellipsis;\n        white-space: nowrap;\n        padding: 0 2rem;\n        min-width: 0; }\n        :host .table > div > span.fixed {\n          flex-grow: 0; }\n", ""]);
 
 // exports
 
@@ -27172,6 +27306,8 @@ window.customElements.define('zen-ui-resource-table-column', function (_Element)
 
 __webpack_require__(212);
 
+__webpack_require__(217);
+
 /***/ }),
 /* 212 */
 /***/ (function(module, exports, __webpack_require__) {
@@ -27219,10 +27355,11 @@ var _store = __webpack_require__(16);
 
 var _store2 = _interopRequireDefault(_store);
 
+var _actions = __webpack_require__(31);
+
+var _actions2 = _interopRequireDefault(_actions);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-// import actions from 'actions';
-
 
 var Sidebar = function (_Element) {
     (0, _inherits3.default)(Sidebar, _Element);
@@ -27257,29 +27394,14 @@ var Sidebar = function (_Element) {
             this.form.fields = this.search;
             this.appsList = this.shadowRoot.querySelector('ul.apps');
 
-            this.apps = [{
-                icon: 'page',
-                color: 'red',
-                to: '/pages'
-            }, {
-                icon: 'dollar',
-                color: 'green',
-                to: '/app/engagement'
-            }, {
-                icon: 'messages',
-                color: 'orange',
-                to: '/app/engagement'
-            }, {
-                icon: 'user',
-                color: 'blue',
-                to: '/users'
-            }];
+            this.trigger('sidebar-items-get');
         }
     }, {
         key: 'propertyChangedCallback',
-        value: function propertyChangedCallback(prop, oldV, newV) {
+        value: async function propertyChangedCallback(prop, oldV, newV) {
             switch (prop) {
-                case 'apps':
+                case 'sidebar':
+                    await this.ready();
                     this.renderApps();
                     break;
             }
@@ -27293,7 +27415,7 @@ var Sidebar = function (_Element) {
 
             this.appsList.innerHTML = '';
 
-            this.apps.forEach(function (a) {
+            this.sidebar.items.forEach(function (a) {
                 var _li = li.cloneNode(true);
                 _li.querySelector('wc-link').to = a.to;
                 _li.querySelector('zen-ui-icon').type = a.icon;
@@ -27304,7 +27426,7 @@ var Sidebar = function (_Element) {
     }], [{
         key: 'boundProps',
         get: function get() {
-            return ['me', 'apps'];
+            return ['me', 'sidebar'];
         }
     }]);
     return Sidebar;
@@ -27322,7 +27444,15 @@ var ConnectedSidebar = function (_connect) {
         key: '_mapStateToProps',
         value: function _mapStateToProps(state) {
             return {
-                me: state.Me
+                me: state.Me,
+                sidebar: state.App.sidebar
+            };
+        }
+    }, {
+        key: '_mapDispatchToEvents',
+        value: function _mapDispatchToEvents(dispatch) {
+            return {
+                'sidebar-items-get': _actions2.default.App.getSidebarItems(dispatch)
             };
         }
     }]);
@@ -27335,7 +27465,7 @@ window.customElements.define('zen-sidebar', ConnectedSidebar);
 /* 213 */
 /***/ (function(module, exports) {
 
-module.exports = "<template id=\"app\">\n    <li class=\"rounded position-r\">\n        <wc-link class=\"cover\">\n            <zen-ui-icon color=\"white\" class=\"center\" size=\"large\"></zen-ui-icon>\n        </wc-link>\n    </li>\n</template>\n\n\n<aside>\n    <wc-link to='/' class=\"top-link display-b\">\n        <img class=\"logo width-large\" />\n    </wc-link>\n\n    <zen-ui-form></zen-ui-form>\n\n    <img class=\"logo-text height-small\" />\n\n    <ul class=\"apps\"></ul>\n\n    <!-- <HeaderTabs />\n    <Jewel /> -->\n</aside>\n"
+module.exports = "<template id=\"app\">\n    <li class=\"rounded position-r\">\n        <wc-link class=\"cover\">\n            <zen-ui-icon color=\"white\" class=\"center\" size=\"large\"></zen-ui-icon>\n        </wc-link>\n    </li>\n</template>\n\n\n<aside>\n    <wc-link to='/' class=\"top-link display-b\">\n        <img class=\"logo width-large\" />\n    </wc-link>\n\n    <zen-ui-form></zen-ui-form>\n\n    <img class=\"logo-text height-small\" />\n\n    <ul class=\"apps\"></ul>\n</aside>\n"
 
 /***/ }),
 /* 214 */
@@ -27362,6 +27492,245 @@ module.exports = __webpack_require__.p + "e6cadbe4f35dbcf8241d0b675d4d7391.svg";
 /***/ (function(module, exports, __webpack_require__) {
 
 module.exports = __webpack_require__.p + "1c33a7b28bd1a7742fbd3326014d7b64.svg";
+
+/***/ }),
+/* 217 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var _classCallCheck2 = __webpack_require__(0);
+
+var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
+
+var _createClass2 = __webpack_require__(1);
+
+var _createClass3 = _interopRequireDefault(_createClass2);
+
+var _possibleConstructorReturn2 = __webpack_require__(2);
+
+var _possibleConstructorReturn3 = _interopRequireDefault(_possibleConstructorReturn2);
+
+var _inherits2 = __webpack_require__(3);
+
+var _inherits3 = _interopRequireDefault(_inherits2);
+
+var _lib = __webpack_require__(8);
+
+var _header = __webpack_require__(225);
+
+var _header2 = _interopRequireDefault(_header);
+
+var _header3 = __webpack_require__(226);
+
+var _header4 = _interopRequireDefault(_header3);
+
+var _ConnectedElementMixin = __webpack_require__(22);
+
+var _store = __webpack_require__(16);
+
+var _store2 = _interopRequireDefault(_store);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var Sidebar = function (_Element) {
+    (0, _inherits3.default)(Sidebar, _Element);
+
+    function Sidebar() {
+        (0, _classCallCheck3.default)(this, Sidebar);
+        return (0, _possibleConstructorReturn3.default)(this, (Sidebar.__proto__ || Object.getPrototypeOf(Sidebar)).call(this, _header2.default, _header4.default.toString()));
+    }
+
+    (0, _createClass3.default)(Sidebar, null, [{
+        key: 'boundProps',
+        get: function get() {
+            return ['app'];
+        }
+    }]);
+    return Sidebar;
+}(_lib.Element);
+
+var ConnectedHeader = function (_connect) {
+    (0, _inherits3.default)(ConnectedHeader, _connect);
+
+    function ConnectedHeader() {
+        (0, _classCallCheck3.default)(this, ConnectedHeader);
+        return (0, _possibleConstructorReturn3.default)(this, (ConnectedHeader.__proto__ || Object.getPrototypeOf(ConnectedHeader)).apply(this, arguments));
+    }
+
+    (0, _createClass3.default)(ConnectedHeader, [{
+        key: '_mapStateToProps',
+        value: function _mapStateToProps(state) {
+            return {
+                app: state.App
+            };
+        }
+    }]);
+    return ConnectedHeader;
+}((0, _ConnectedElementMixin.connect)(_store2.default, Sidebar));
+
+window.customElements.define('zen-header', ConnectedHeader);
+
+/***/ }),
+/* 218 */,
+/* 219 */,
+/* 220 */,
+/* 221 */,
+/* 222 */,
+/* 223 */,
+/* 224 */,
+/* 225 */
+/***/ (function(module, exports) {
+
+module.exports = "<h1>{{app.page.title}}</h1>\n<zen-header-user></zen-header-user>\n"
+
+/***/ }),
+/* 226 */
+/***/ (function(module, exports, __webpack_require__) {
+
+exports = module.exports = __webpack_require__(7)(undefined);
+// imports
+
+
+// module
+exports.push([module.i, ":host {\n  display: block;\n  height: 12rem;\n  margin-left: 30rem;\n  padding: 0 4rem; }\n  :host h1 {\n    line-height: 12rem; }\n", ""]);
+
+// exports
+
+
+/***/ }),
+/* 227 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var _classCallCheck2 = __webpack_require__(0);
+
+var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
+
+var _createClass2 = __webpack_require__(1);
+
+var _createClass3 = _interopRequireDefault(_createClass2);
+
+var _possibleConstructorReturn2 = __webpack_require__(2);
+
+var _possibleConstructorReturn3 = _interopRequireDefault(_possibleConstructorReturn2);
+
+var _inherits2 = __webpack_require__(3);
+
+var _inherits3 = _interopRequireDefault(_inherits2);
+
+var _lib = __webpack_require__(8);
+
+var _button = __webpack_require__(228);
+
+var _button2 = _interopRequireDefault(_button);
+
+var _button3 = __webpack_require__(229);
+
+var _button4 = _interopRequireDefault(_button3);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+window.customElements.define('zen-ui-button', function (_Element) {
+    (0, _inherits3.default)(Button, _Element);
+
+    function Button() {
+        (0, _classCallCheck3.default)(this, Button);
+
+        var _this = (0, _possibleConstructorReturn3.default)(this, (Button.__proto__ || Object.getPrototypeOf(Button)).call(this, _button2.default, _button4.default.toString()));
+
+        _this.button = _this.shadowRoot.querySelector('button');
+        _this._icon = _this.shadowRoot.querySelector('zen-ui-icon');
+        return _this;
+    }
+
+    (0, _createClass3.default)(Button, [{
+        key: 'attributeChangedCallback',
+        value: function attributeChangedCallback(attr, oldV, newV) {
+            switch (attr) {
+                case 'icon':
+                case 'color':
+                case 'size':
+                case 'hollow':
+                    this[attr] = newV;
+                    break;
+            }
+        }
+    }, {
+        key: 'propertyChangedCallback',
+        value: async function propertyChangedCallback(prop, oldV, newV) {
+            await this.ready();
+            switch (prop) {
+                case 'icon':
+                    this._icon.classList.toggle('hide', !newV);
+
+                    if (newV) {
+                        this._icon.type = newV;
+                        this._icon.size = this.size;
+                    }
+                    break;
+
+                case 'color':
+                    this.classList.toggle(oldV, false);
+                    this.classList.toggle(newV, true);
+                    break;
+
+                case 'size':
+                    this.button.classList.toggle(oldV, false);
+                    this.button.classList.toggle(newV, true);
+                    if (this.icon) this._icon.size = newV;
+                    break;
+
+                case 'hollow':
+                    this.button.classList.toggle('hollow', Boolean(newV));
+            }
+        }
+    }], [{
+        key: 'defaultProps',
+        get: function get() {
+            return {
+                'color': 'main',
+                'size': 'main',
+                'icon': false,
+                'hollow': false
+            };
+        }
+    }, {
+        key: 'boundProps',
+        get: function get() {
+            return ['type', 'color', 'size', 'icon', 'hollow'];
+        }
+    }, {
+        key: 'observedAttributes',
+        get: function get() {
+            return ['type', 'color', 'size', 'hollow'];
+        }
+    }]);
+    return Button;
+}(_lib.Element));
+
+/***/ }),
+/* 228 */
+/***/ (function(module, exports) {
+
+module.exports = "<button>\n    <zen-ui-icon color=\"white\"></zen-ui-icon>\n    <span class=\"align-middle\"><slot>Submit</slot></span>\n</button>\n"
+
+/***/ }),
+/* 229 */
+/***/ (function(module, exports, __webpack_require__) {
+
+exports = module.exports = __webpack_require__(7)(undefined);
+// imports
+
+
+// module
+exports.push([module.i, ":host zen-ui-icon {\n  vertical-align: top;\n  margin-right: 1rem; }\n", ""]);
+
+// exports
+
 
 /***/ })
 /******/ ]);

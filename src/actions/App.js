@@ -2,34 +2,44 @@ import {singular} from 'pluralize';
 
 
 import {
-    APP_JEWEL_ITEMS_SET,
+    APP_SIDEBAR_ITEMS_SET,
     APP_TABS_NEW,
     APP_TABS_CLOSE,
-    APP_TABS_NAME
+    APP_TABS_NAME,
+    APP_TITLE_SET
 } from './const';
 
 
-export const getJewelItems = () =>
-    dispatch => {
+export const getSidebarItems = dispatch =>
+    () => {
         // TODO: Convert to endpoint
-        dispatch({type: APP_JEWEL_ITEMS_SET, items: [
+        dispatch({type: APP_SIDEBAR_ITEMS_SET, items: [
             {
-                name: 'Pages',
-                url: '/pages',
-                icon: 'page'
+                icon: 'page',
+                color: 'red',
+                to: '/pages'
             },
             {
-                name: 'Users',
-                url: '/users',
-                icon: 'user'
+                icon: 'dollar',
+                color: 'green',
+                to: '/app/engagement'
             },
             {
-                name: 'Settings',
-                url: '/settings',
-                icon: 'settings'
+                icon: 'messages',
+                color: 'orange',
+                to: '/app/engagement'
+            },
+            {
+                icon: 'user',
+                color: 'blue',
+                to: '/users'
             }
         ]});
     };
+
+
+export const titleSet = dispatch =>
+    title => dispatch({type: APP_TITLE_SET, title});
 
 
 export const tabsNew = url =>

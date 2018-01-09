@@ -1,0 +1,16 @@
+@import '~origami-css/import';
+
+:host {
+    display: block;
+    height: 12rem;
+    // Sidebar offset
+    margin-left: 30rem;
+
+    padding: 0 size('main');
+
+    h1 {
+        line-height: 12rem;
+    }
+}
+
+

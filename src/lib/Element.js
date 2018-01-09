@@ -1,36 +1,49 @@
 import query from 'json-query';
 export default class Element extends HTMLElement {
-    constructor() {
+    constructor(html, css) {
         super();
 
-        this.templates = {};
-        this._textNodeMap = new Map();
+        this._readyPromise = new Promise(this.init(html, css));
+    }
 
-        this.attachShadow({mode: 'open'});
+    init(html, css) {
+        return (res, rej) => {
+            this.templates = {};
+            this._textNodeMap = new Map();
 
-        this.css = '@import "/admin/origami.css";';
+            this.attachShadow({mode: 'open'});
 
-        this.constructor.boundProps.forEach(p => {
-            let prop;
+            this.css = `@import "/admin/origami.css"; ${css || ''}`;
 
-            Object.defineProperty(this, p, {
-                get: () => prop,
-                set: v => {
-                    if (prop === v) return v;
-                    const oldV = prop;
-                    prop = v;
-                    this.propertyChangedCallback(p, oldV, prop);
-                    if (this.isConnected) this.render();
+            this.constructor.boundProps.forEach(p => {
+                let prop;
 
-                    return v;
-                },
-                configurable: true
+                Object.defineProperty(this, p, {
+                    get: () => prop,
+                    set: async v => {
+                        if (prop === v) return v;
+                        const oldV = prop;
+                        prop = v;
+                        this.propertyChangedCallback(p, oldV, prop);
+                        if (this.isConnected) this.render();
+
+                        return v;
+                    },
+                    configurable: true
+                });
             });
 
-            this[p] = this.constructor.defaultProps[p];
-        });
+            if (this.constructor.defaultProps) {
+                Object.entries(this.constructor.defaultProps).forEach(([k,v]) => {
+                    this[k] = v;
+                });
+            }
 
-        this._updateTemplates();
+            if (html) this.html = html;
+            this._updateTemplates();
+
+            res();
+        };
     }
 
     static get boundProps() { return []; }
@@ -83,6 +96,11 @@ export default class Element extends HTMLElement {
             bubbles: true,
             detail
         }));
+    }
+
+
+    ready() {
+        return this._readyPromise;
     }
 
     _updateTextNodeMap() {

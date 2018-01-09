@@ -18,6 +18,7 @@ class Pages extends Element {
     }
 
     connectedCallback() {
+        this.trigger('title-set', ['Pages']);
         this.trigger('pages-get');
     }
 
@@ -42,7 +43,8 @@ class ConnectedPages extends connect(store, Pages) {
     }
     _mapDispatchToEvents(dispatch) {
         return {
-            'pages-get': actions.Pages.pagesGet(dispatch)
+            'pages-get': actions.Pages.pagesGet(dispatch),
+            'title-set': actions.App.titleSet(dispatch)
         };
     }
 }

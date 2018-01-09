@@ -6,12 +6,7 @@ import './Checkbox';
 
 window.customElements.define('zen-ui-form', class ZenForm extends Element {
     constructor() {
-        super();
-        this.html = HTML;
-        this.css = CSS.toString();
-        this._updateTemplates();
-        this.render();
-        this.values = {};
+        super(HTML, CSS.toString());
 
         this.form = this.shadowRoot.querySelector('form');
     }
@@ -26,7 +21,8 @@ window.customElements.define('zen-ui-form', class ZenForm extends Element {
 
     static get defaultProps() {
         return {
-            fields: []
+            fields: [],
+            values: {}
         };
     }
 
@@ -43,7 +39,8 @@ window.customElements.define('zen-ui-form', class ZenForm extends Element {
         }
     }
 
-    propertyChangedCallback(prop, oldV, newV) {
+    async propertyChangedCallback(prop, oldV, newV) {
+        await this.ready();
         switch (prop) {
             case 'error':
                 this.updateError();

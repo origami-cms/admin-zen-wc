@@ -1,6 +1,7 @@
 import {Element} from 'lib';
 import HTML from './resource-table.html';
 import CSS from './resource-table.scss';
+import pluralize from 'pluralize';
 
 import './Column';
 
@@ -15,9 +16,7 @@ window.customElements.define('zen-ui-resource-table', class ZenResourceTable ext
         this.table = this.shadowRoot.querySelector('.table');
         this.observer = new MutationObserver(this.handleMutation.bind(this));
         this.observer.observe(this, {childList: true});
-    }
-
-    connectedCallback() {
+        this.router = document.querySelector('wc-router');
     }
 
     disconnectedCallback() {
@@ -28,12 +27,34 @@ window.customElements.define('zen-ui-resource-table', class ZenResourceTable ext
         return ['data', 'idKey', 'selected'];
     }
 
+
     static get defaultProps() {
         return {
             data: [],
             idKey: 'id',
             selected: []
         };
+    }
+
+    static get observedAttributes() {
+        return ['resource'];
+    }
+
+    attributeChangedCallback(attr, oldV, newV) {
+        switch (attr) {
+            case 'resource':
+                this[attr] = newV;
+                break;
+        }
+    }
+
+
+    get resPlural() {
+        return pluralize(this.resource);
+    }
+
+    get resSingular() {
+        return pluralize.singular(this.resource);
     }
 
 
@@ -67,7 +88,7 @@ window.customElements.define('zen-ui-resource-table', class ZenResourceTable ext
 
         check.checked = this.selected.includes(ele[this.idKey]);
         checkTD.appendChild(check);
-        checkTD.classList.add('check');
+        checkTD.classList.add('fixed');
         checkTD.addEventListener('change', () => this.select(ele[this.idKey]));
         tr.appendChild(checkTD);
 
@@ -77,6 +98,19 @@ window.customElements.define('zen-ui-resource-table', class ZenResourceTable ext
             td.innerHTML = ele[col.key];
             tr.appendChild(td);
         });
+
+
+        const editTD = document.createElement('span');
+        editTD.classList.add('text-right');
+        const editButton = document.createElement('zen-ui-button');
+        editButton.innerHTML = 'Edit';
+        editButton.setAttribute('size', 'main');
+        editButton.addEventListener('click', () => {
+            this.open(ele);
+        })
+        editTD.appendChild(editButton);
+        tr.appendChild(editTD);
+
 
         return tr;
     }
@@ -95,9 +129,15 @@ window.customElements.define('zen-ui-resource-table', class ZenResourceTable ext
     }
 
 
-    render() {
+    async render() {
         super.render();
-        if (this.isConnected) this.renderRows();
+        await this.ready();
+        this.renderRows();
+    }
+
+
+    open(res) {
+        this.router.push(`${this.resPlural}/${res.id}`);
     }
 
 

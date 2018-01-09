@@ -12,10 +12,11 @@ export const AUTH_LOGIN_FAILED = 'AUTH_LOGIN_FAILED';
 export const AUTH_LOGOUT = 'AUTH_LOGOUT';
 
 // ------------------------------------------------------------------------- App
-export const APP_JEWEL_ITEMS_SET = 'APP_JEWEL_ITEMS_SET';
+export const APP_SIDEBAR_ITEMS_SET = 'APP_JEWEL_ITEMS_SET';
 export const APP_TABS_NEW = 'APP_TABS_NEW';
 export const APP_TABS_CLOSE = 'APP_TABS_CLOSE';
 export const APP_TABS_NAME = 'APP_TABS_NAME';
+export const APP_TITLE_SET = 'APP_TITLE_SET';
 
 // -------------------------------------------------------------------------- Me
 export const ME_SET = 'ME_SET';
