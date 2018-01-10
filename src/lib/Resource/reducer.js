@@ -13,8 +13,13 @@ export default (resource, func, key = 'id') => {
         }
     });
 
+
     return (state = initialState, action) => {
         const resourceList = state[resource].asMutable();
+
+        const findIndexByKey = res =>
+            resourceList.findIndex(r => r[key] === res[key]);
+
 
         switch (action.type) {
             case constants[`${up}_LOADING_SINGLE_START`]:
@@ -29,11 +34,34 @@ export default (resource, func, key = 'id') => {
 
 
             case constants[`${up}_SET`]:
+                // If there is no resource, return state
                 if (!action[resource]) return state;
-                else return state.merge({
-                    [resource]: action[resource],
-                    loadedInitial: true
+
+
+                let updated = state;
+
+                action[resource].forEach(res => {
+                    const existing = findIndexByKey(res);
+
+                    // If there is an existing resource that matches the id,
+                    // then update it
+                    if (existing >= 0) updated = updated.setIn([resource, existing], {
+                        ...state[resource][existing],
+                        ...res
+                    });
+                    // Otherwise merge the resource into the array
+                    else {
+                        updated = updated.merge({
+                            [resource]: [
+                                ...updated[resource],
+                                res
+                            ],
+                            loadedInitial: true
+                        });
+                    }
                 });
+
+                return updated;
 
 
             case constants[`${up}_CREATED`]:
@@ -50,15 +78,18 @@ export default (resource, func, key = 'id') => {
 
 
             case constants[`${up}_UPDATED`]:
-                let r;
-                const rIndex = state[resource].findIndex(_r => {
-                    if (_r[key] == action[key]) return r = _r;
-                });
+                const index = findIndexByKey(action[singular]);
 
-                return state.setIn(
-                    [resource, rIndex],
-                    r.merge(action[singular])
+                const s = state.setIn(
+                    [resource, index],
+                    {
+                        ...state[resource][index],
+                        ...action[singular]
+                    }
                 );
+
+                return s;
+
 
             default:
                 if (func) return func(state, action);

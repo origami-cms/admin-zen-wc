@@ -70,8 +70,11 @@ window.customElements.define('zen-ui-resource-table', class ZenResourceTable ext
 
         // Add in the new data
         this.data.forEach(ele => {
-            if (!eles.get(ele)) eles.set(ele, this.renderRow(ele));
-            else this.updateRow(ele);
+            const existing = Array.from(eles).find(([e]) => e.id === ele.id);
+
+            if (!existing) {
+                eles.set(ele, this.renderRow(ele));
+            } else this.updateRow(ele, existing[1]);
         });
 
         eles.forEach(ele => {
@@ -107,7 +110,7 @@ window.customElements.define('zen-ui-resource-table', class ZenResourceTable ext
         editButton.setAttribute('size', 'main');
         editButton.addEventListener('click', () => {
             this.open(ele);
-        })
+        });
         editTD.appendChild(editButton);
         tr.appendChild(editTD);
 
@@ -116,9 +119,15 @@ window.customElements.define('zen-ui-resource-table', class ZenResourceTable ext
     }
 
 
-    updateRow(data) {
-        const ele = this._elementMap.get(data);
+    updateRow(data, ele) {
         ele.querySelector('zen-ui-checkbox').checked = this.selected.includes(data[this.idKey]);
+        Array.from(ele.children)
+            // Remove 'checkbox'
+            // Remove edit button
+            .slice(1, -1)
+            .forEach((td, i) => {
+                td.innerHTML = data[this.children[i].key];
+            });
     }
 
 
@@ -132,7 +141,7 @@ window.customElements.define('zen-ui-resource-table', class ZenResourceTable ext
     async render() {
         super.render();
         await this.ready();
-        this.renderRows();
+        if (this.isConnected) this.renderRows();
     }
 
 

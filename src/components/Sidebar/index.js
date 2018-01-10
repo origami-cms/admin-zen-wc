@@ -42,7 +42,7 @@ class Sidebar extends Element {
         return ['me', 'sidebar'];
     }
 
-    async propertyChangedCallback(prop, oldV, newV) {
+    async propertyChangedCallback(prop) {
         switch (prop) {
             case 'sidebar':
                 await this.ready();

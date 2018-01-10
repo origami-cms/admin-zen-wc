@@ -8,7 +8,7 @@ export default class Element extends HTMLElement {
     }
 
     init(html, css) {
-        return (res, rej) => {
+        return res => {
             this.templates = {};
             this._textNodeMap = new Map();
 
@@ -36,7 +36,7 @@ export default class Element extends HTMLElement {
             });
 
             if (this.constructor.defaultProps) {
-                Object.entries(this.constructor.defaultProps).forEach(([k,v]) => {
+                Object.entries(this.constructor.defaultProps).forEach(([k, v]) => {
                     this[k] = v;
                 });
             }
@@ -74,6 +74,11 @@ export default class Element extends HTMLElement {
     }
 
     propertyChangedCallback() {
+    }
+
+
+    connectedCallback() {
+        this.render();
     }
 
     render() {

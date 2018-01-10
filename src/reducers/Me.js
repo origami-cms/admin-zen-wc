@@ -1,7 +1,7 @@
 import immutable from 'seamless-immutable';
 import {
     ME_SET,
-    ME_EMAIL_SET,
+    ME_EMAIL_SET
 } from 'actions/const';
 
 import {LS_EMAIL} from 'const';

@@ -39,7 +39,7 @@ window.customElements.define('zen-ui-form', class ZenForm extends Element {
         }
     }
 
-    async propertyChangedCallback(prop, oldV, newV) {
+    async propertyChangedCallback(prop) {
         await this.ready();
         switch (prop) {
             case 'error':
@@ -53,8 +53,7 @@ window.customElements.define('zen-ui-form', class ZenForm extends Element {
 
     updateError() {
         const err = this.shadowRoot.querySelector('.error');
-        if (!err) return;
-        else err.classList.toggle('hide', !this.error);
+        if (err) err.classList.toggle('hide', !this.error);
     }
 
     render() {
@@ -111,7 +110,6 @@ window.customElements.define('zen-ui-form', class ZenForm extends Element {
                 break;
 
             case 'submit':
-                console.log('hereee', f.value || 'Submit');
                 field.type = f.type;
                 field.value = f.value || 'Submit';
                 break;

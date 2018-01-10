@@ -62,7 +62,6 @@ class Login extends Element {
             case 'auth':
                 if (oldV) {
                     if (!oldV.loggedIn && newV.loggedIn && this.isConnected) {
-                        console.info('TRANSITION TO APP', location.pathname);
                         document.querySelector('wc-router').replace('/');
                     }
                 }

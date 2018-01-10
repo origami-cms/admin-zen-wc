@@ -1,3 +1,9 @@
+@import '~origami-css/import';
+
+:host {
+    display: block;
+}
+
 span.error {
     display: block;
     margin-bottom: 1rem;
