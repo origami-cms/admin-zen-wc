@@ -50,13 +50,13 @@ window.customElements.define('zen-ui-button', class Button extends Element {
                 break;
 
             case 'color':
-                this.classList.toggle(oldV, false);
-                this.classList.toggle(newV, true);
+                this.button.classList.toggle(oldV, false);
+                this.button.classList.toggle(newV, true);
                 break;
 
             case 'size':
-                this.button.classList.toggle(oldV, false);
-                this.button.classList.toggle(newV, true);
+                this.button.classList.toggle(`size-${oldV}`, false);
+                this.button.classList.toggle(`size-${newV}`, true);
                 if (this.icon) this._icon.size = newV;
                 break;
 

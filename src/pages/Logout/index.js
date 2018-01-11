@@ -31,9 +31,9 @@ class ConnectedLogout extends connect(store, Logout) {
             auth: state.Auth
         };
     }
-    _mapDispatchToEvents(dispatch) {
+    get mapDispatchToEvents() {
         return {
-            logout: actions.Auth.logout(dispatch)
+            logout: actions.Auth.logout
         };
     }
 }

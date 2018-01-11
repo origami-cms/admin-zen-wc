@@ -16,14 +16,15 @@ class NotFound extends Element {
     }
 
     connectedCallback() {
+        super.connectedCallback();
         this.trigger('title-set', ['Not found']);
     }
 }
 
 class ConnectedNotFound extends connect(store, NotFound) {
-    _mapDispatchToEvents(dispatch) {
+    get mapDispatchToEvents() {
         return {
-            'title-set': actions.App.titleSet(dispatch)
+            'title-set': actions.App.titleSet
         };
     }
 }

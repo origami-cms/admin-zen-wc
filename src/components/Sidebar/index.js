@@ -13,7 +13,6 @@ import actions from 'actions';
 class Sidebar extends Element {
     constructor() {
         super(HTML, CSS.toString());
-
         this.search = [
             {
                 type: 'text',
@@ -26,6 +25,7 @@ class Sidebar extends Element {
     }
 
     connectedCallback() {
+        super.connectedCallback();
         this.logo = this.shadowRoot.querySelector('img.logo');
         this.logo.src = logo;
         this.logoBottom = this.shadowRoot.querySelector('img.logo-text');
@@ -78,9 +78,9 @@ class ConnectedSidebar extends connect(store, Sidebar) {
             sidebar: state.App.sidebar
         };
     }
-    _mapDispatchToEvents(dispatch) {
+    get mapDispatchToEvents() {
         return {
-            'sidebar-items-get': actions.App.getSidebarItems(dispatch)
+            'sidebar-items-get': actions.App.getSidebarItems
         };
     }
 }

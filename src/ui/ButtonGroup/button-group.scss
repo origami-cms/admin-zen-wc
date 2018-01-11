@@ -1,0 +1,10 @@
+@import '~origami-css/import';
+
+:host {
+    display: block;
+    zen-ui-button {
+        display: inline-block;
+        margin-right: size('small');
+    }
+}
+

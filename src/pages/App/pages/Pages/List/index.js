@@ -14,7 +14,7 @@ class PagesList extends Element {
         this.html = HTML;
         this.css = CSS.toString();
 
-        this.table = this.shadowRoot.querySelector('zen-ui-resource-table');
+        this.table = this.shadowRoot.querySelector('zen-resource-table');
     }
 
     static get boundProps() {
@@ -22,6 +22,7 @@ class PagesList extends Element {
     }
 
     connectedCallback() {
+        super.connectedCallback();
         this.trigger('pages-get', [null, false]);
         this.trigger('title-set', ['Pages']);
     }
@@ -42,10 +43,10 @@ class ConnectedPagesList extends connect(store, PagesList) {
             pages: state.Pages
         };
     }
-    _mapDispatchToEvents(dispatch) {
+    get mapDispatchToEvents() {
         return {
-            'pages-get': actions.Pages.pagesGet(dispatch),
-            'title-set': actions.App.titleSet(dispatch)
+            'pages-get': actions.Pages.pagesGet,
+            'title-set': actions.App.titleSet
         };
     }
 }

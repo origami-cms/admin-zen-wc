@@ -12,6 +12,7 @@ window.customElements.define('zen-ui-form', class ZenForm extends Element {
     }
 
     connectedCallback() {
+        super.connectedCallback();
         this.form.addEventListener('submit', this.submit.bind(this));
     }
 

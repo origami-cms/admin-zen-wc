@@ -23,6 +23,7 @@ class App extends Element {
     }
 
     connectedCallback() {
+        super.connectedCallback();
         if (this.auth.token && !this.auth.loggedIn) this.trigger('verify', this.auth.token);
         this.trigger('title-set', ['Home']);
     }
@@ -49,12 +50,12 @@ class ConnectedApp extends connect(store, App) {
             auth: state.Auth
         };
     }
-    _mapDispatchToEvents(dispatch) {
+    get mapDispatchToEvents() {
         return {
-            login: actions.Auth.login(dispatch),
-            verify: actions.Auth.verify(dispatch),
-            getMe: actions.Me.getMe(dispatch),
-            'title-set': actions.App.titleSet(dispatch)
+            login: actions.Auth.login,
+            verify: actions.Auth.verify,
+            getMe: actions.Me.getMe,
+            'title-set': actions.App.titleSet
         };
     }
 }

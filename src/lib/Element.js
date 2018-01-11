@@ -14,7 +14,14 @@ export default class Element extends HTMLElement {
 
             this.attachShadow({mode: 'open'});
 
-            this.css = `@import "/admin/origami.css"; ${css || ''}`;
+            this._cssLib = document.createElement('link');
+            this._cssLib.rel = 'stylesheet';
+            this._cssLib.href = '/admin/origami.css';
+            this._cssLib.id = 'css-lib';
+            this._cssLib.onload = () => this.style.display = '';
+            this.shadowRoot.appendChild(this._cssLib);
+
+            this.css = css;
 
             this.constructor.boundProps.forEach(p => {
                 let prop;
@@ -53,6 +60,7 @@ export default class Element extends HTMLElement {
 
     set html(v) {
         this.shadowRoot.innerHTML = v;
+        this.shadowRoot.prepend(this._cssLib);
         this.css = this._css;
         this._updateTemplates();
         this._updateTextNodeMap();
@@ -63,7 +71,7 @@ export default class Element extends HTMLElement {
         this._css = v;
         const style = document.createElement('style');
         style.innerHTML = v;
-        this.shadowRoot.insertBefore(style, this.shadowRoot.firstChild);
+        this.shadowRoot.insertBefore(style, this._cssLib.nextElementSibling);
     }
 
     _updateTemplates() {
@@ -78,6 +86,7 @@ export default class Element extends HTMLElement {
 
 
     connectedCallback() {
+        this.style.display = 'none';
         this.render();
     }
 
@@ -97,10 +106,10 @@ export default class Element extends HTMLElement {
     }
 
 
-    trigger(event, detail) {
+    trigger(event, detail, bubbles = true) {
         this.shadowRoot.dispatchEvent(new CustomEvent(event, {
             composed: true,
-            bubbles: true,
+            bubbles,
             detail
         }));
     }

@@ -1155,8 +1155,7 @@ button, .button, input[type='submit'] {
   background: linear-gradient(to bottom right, #b155ba, #693a91);
   cursor: pointer; }
   button.hollow, .button.hollow, input[type='submit'].hollow {
-    background: transparent;
-    color: #693a91; }
+    background: transparent; }
   button:hover, .button:hover, input[type='submit']:hover {
     filter: brightness(1.1); }
   button:focus, .button:focus, input[type='submit']:focus {
@@ -1179,41 +1178,58 @@ button, .button, input[type='submit'] {
   button:disabled, .button:disabled, input[type='submit']:disabled {
     opacity: 0.5;
     pointer-events: none; }
-  button.tiny, .button.tiny, input[type='submit'].tiny {
+  button.size-tiny, .button.size-tiny, input[type='submit'].size-tiny {
     height: 0.8rem;
+    width: auto;
     line-height: 0.8rem;
     font-size: 0.36rem;
     padding: 0 0.4rem; }
-  button.small, .button.small, input[type='submit'].small {
+  button.size-small, .button.size-small, input[type='submit'].size-small {
     height: 1.6rem;
+    width: auto;
     line-height: 1.6rem;
     font-size: 0.72rem;
     padding: 0 0.8rem; }
-  button.main, .button.main, input[type='submit'].main {
+  button.size-main, .button.size-main, input[type='submit'].size-main {
     height: 3.2rem;
+    width: auto;
     line-height: 3.2rem;
     font-size: 1.44rem;
     padding: 0 1.6rem; }
-  button.large, .button.large, input[type='submit'].large {
+  button.size-large, .button.size-large, input[type='submit'].size-large {
     height: 4.8rem;
+    width: auto;
     line-height: 4.8rem;
     font-size: 2.16rem;
     padding: 0 2.4rem; }
-  button.huge, .button.huge, input[type='submit'].huge {
+  button.size-huge, .button.size-huge, input[type='submit'].size-huge {
     height: 6.4rem;
+    width: auto;
     line-height: 6.4rem;
     font-size: 2.88rem;
     padding: 0 3.2rem; }
-  button.super, .button.super, input[type='submit'].super {
+  button.size-super, .button.size-super, input[type='submit'].size-super {
     height: 9.6rem;
+    width: auto;
     line-height: 9.6rem;
     font-size: 4.32rem;
     padding: 0 4.8rem; }
-  button.hero, .button.hero, input[type='submit'].hero {
+  button.size-hero, .button.size-hero, input[type='submit'].size-hero {
     height: 19.2rem;
+    width: auto;
     line-height: 19.2rem;
     font-size: 8.64rem;
     padding: 0 9.6rem; }
+  button.main, .button.main, input[type='submit'].main {
+    background: linear-gradient(to bottom right, #b155ba, #693a91); }
+  button.orange, .button.orange, input[type='submit'].orange {
+    background: linear-gradient(to bottom right, #FF9B54, #C95A54); }
+  button.red, .button.red, input[type='submit'].red {
+    background: linear-gradient(to bottom right, #FF5554, #C92954); }
+  button.green, .button.green, input[type='submit'].green {
+    background: linear-gradient(to bottom right, #84D59A, #00BED0); }
+  button.blue, .button.blue, input[type='submit'].blue {
+    background: linear-gradient(to bottom right, #008CBA, #6146C8); }
 
 .button-group button, .button-group .button {
   margin-right: 1rem; }

@@ -2,17 +2,24 @@ import {Element} from 'lib';
 import HTML from './resource-table.html';
 import CSS from './resource-table.scss';
 import pluralize from 'pluralize';
+import {upperFirst} from 'lodash';
 
 import './Column';
 
 
-window.customElements.define('zen-ui-resource-table', class ZenResourceTable extends Element {
+import {connect} from 'lib/ConnectedElement.mixin.js';
+import store from 'store';
+import actions from 'actions';
+
+
+class ResourceTable extends Element {
     constructor() {
         super();
         this.html = HTML;
         this.css = CSS.toString();
         this._elementMap = new Map();
 
+        this.buttonGroup = this.shadowRoot.querySelector('header zen-ui-button-group');
         this.table = this.shadowRoot.querySelector('.table');
         this.observer = new MutationObserver(this.handleMutation.bind(this));
         this.observer.observe(this, {childList: true});
@@ -20,6 +27,7 @@ window.customElements.define('zen-ui-resource-table', class ZenResourceTable ext
     }
 
     disconnectedCallback() {
+        super.connectedCallback();
         this.observer.disconnect();
     }
 
@@ -49,12 +57,27 @@ window.customElements.define('zen-ui-resource-table', class ZenResourceTable ext
     }
 
 
+    async propertyChangedCallback(prop) {
+        await this.ready();
+
+        switch (prop) {
+            case 'selected':
+                this.updateButtons();
+                this.trigger('change');
+                break;
+
+            default:
+                break;
+        }
+    }
+
+
     get resPlural() {
-        return pluralize(this.resource);
+        return this.resource ? pluralize(this.resource) : false;
     }
 
     get resSingular() {
-        return pluralize.singular(this.resource);
+        return this.resource ? pluralize.singular(this.resource) : false;
     }
 
 
@@ -92,7 +115,10 @@ window.customElements.define('zen-ui-resource-table', class ZenResourceTable ext
         check.checked = this.selected.includes(ele[this.idKey]);
         checkTD.appendChild(check);
         checkTD.classList.add('fixed');
-        checkTD.addEventListener('change', () => this.select(ele[this.idKey]));
+        checkTD.addEventListener('change', e => {
+            e.stopPropagation();
+            this.select(ele[this.idKey]);
+        });
         tr.appendChild(checkTD);
 
 
@@ -130,6 +156,30 @@ window.customElements.define('zen-ui-resource-table', class ZenResourceTable ext
             });
     }
 
+    updateButtons() {
+        const buttonCreate = {innerHTML: 'create', color: 'green'};
+        const buttonEdit = {innerHTML: 'edit', color: 'main'};
+        const buttonRemove = {innerHTML: 'remove', color: 'red', onclick: this.actionRemove.bind(this)};
+
+        let buttons = [];
+
+        switch (this.selected.length) {
+            case 0:
+                buttons = [buttonCreate];
+                break;
+
+            case 1:
+                buttons = [buttonEdit, buttonRemove];
+                break;
+
+            default:
+                buttons = [buttonRemove];
+                break;
+        }
+
+        buttons.forEach(b => b.hollow = true);
+        this.buttonGroup.buttons = buttons;
+    }
 
     select(id) {
         if (this.selected.includes(id)) {
@@ -153,4 +203,24 @@ window.customElements.define('zen-ui-resource-table', class ZenResourceTable ext
     handleMutation(e) {
         if (e.addedNodes || e.removedNodes) this.render();
     }
-});
+
+    actionRemove() {
+        console.log();
+        // TODO: Remove resource when clicked
+    }
+}
+
+class ConnectedResourceTable extends connect(store, ResourceTable) {
+    _mapStateToProps(state) {
+        return {
+            me: state.Me,
+            sidebar: state.App.sidebar
+        };
+    }
+    get mapDispatchToEvents() {
+        if (!this.resPlural) return {};
+        else return actions[upperFirst(this.resPlural)];
+    }
+}
+
+window.customElements.define('zen-resource-table', ConnectedResourceTable);

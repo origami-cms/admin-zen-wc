@@ -10,12 +10,11 @@ export const connect = (store, superClass) => class extends superClass {
     constructor() {
         super();
         // Map dispatch to events
-        if (this._mapDispatchToEvents) {
-            const eventMap = this._mapDispatchToEvents(store.dispatch);
-            for (const type in eventMap) {
+        if (this.mapDispatchToEvents) {
+            for (const [type, func] of Object.entries(this.mapDispatchToEvents)) {
                 this.addEventListener(type, event => {
                     event.stopImmediatePropagation();
-                    eventMap[type](...event.detail || []);
+                    func(store.dispatch)(...event.detail || []);
                 });
             }
         }

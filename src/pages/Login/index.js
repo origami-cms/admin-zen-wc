@@ -38,6 +38,7 @@ class Login extends Element {
     }
 
     async connectedCallback() {
+        super.connectedCallback();
         const form = this.shadowRoot.querySelector('zen-ui-form');
         const img = this.shadowRoot.querySelector('img.logo');
         img.src = logo;
@@ -90,10 +91,10 @@ class ConnectedLogin extends connect(store, Login) {
             auth: state.Auth
         };
     }
-    _mapDispatchToEvents(dispatch) {
+    get mapDispatchToEvents() {
         return {
-            login: actions.Auth.login(dispatch),
-            verify: actions.Auth.verify(dispatch)
+            login: actions.Auth.login,
+            verify: actions.Auth.verify
         };
     }
 }

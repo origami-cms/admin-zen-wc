@@ -1,5 +1,5 @@
 import './IconSet';
 import './Icon';
 import './Form';
-import './ResourceTable';
 import './Button';
+import './ButtonGroup';

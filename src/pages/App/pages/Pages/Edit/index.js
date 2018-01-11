@@ -38,6 +38,7 @@ class PagedEdit extends Element {
     }
 
     connectedCallback() {
+        super.connectedCallback();
         this.trigger('page-get', [this.id]);
     }
 
@@ -70,11 +71,11 @@ class ConnectedPagesEdit extends connect(store, PagedEdit) {
 
         return {page};
     }
-    _mapDispatchToEvents(dispatch) {
+    get mapDispatchToEvents() {
         return {
-            'page-get': actions.Pages.pagesGet(dispatch),
-            'page-update': actions.Pages.pagesUpdate(dispatch),
-            'title-set': actions.App.titleSet(dispatch)
+            'page-get': actions.Pages.pagesGet,
+            'page-update': actions.Pages.pagesUpdate,
+            'title-set': actions.App.titleSet
         };
     }
 }
