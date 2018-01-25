@@ -31,6 +31,7 @@ export const PAGE_PROPERTIES_SET = 'PAGE_PROPERTIES_SET';
 export const PAGE_DATA_SET = 'PAGE_DATA_SET';
 
 export const PAGES_TREE_SET = 'PAGES_TREE_SET';
+export const PAGES_GET_ERROR = 'PAGES_GET_ERROR';
 
 
 // ------------------------------------------------------------------- Templates

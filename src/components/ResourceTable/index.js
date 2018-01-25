@@ -32,7 +32,7 @@ class ResourceTable extends Element {
     }
 
     static get boundProps() {
-        return ['data', 'idKey', 'selected'];
+        return ['data', 'idKey', 'selected', 'resource'];
     }
 
 
@@ -66,7 +66,8 @@ class ResourceTable extends Element {
                 this.trigger('change');
                 break;
 
-            default:
+            case 'resource':
+                this._bindEventsToDispatch();
                 break;
         }
     }
@@ -135,7 +136,7 @@ class ResourceTable extends Element {
         editButton.innerHTML = 'Edit';
         editButton.setAttribute('size', 'main');
         editButton.addEventListener('click', () => {
-            this.open(ele);
+            this.actionOpen(ele.id);
         });
         editTD.appendChild(editButton);
         tr.appendChild(editTD);
@@ -158,7 +159,7 @@ class ResourceTable extends Element {
 
     updateButtons() {
         const buttonCreate = {innerHTML: 'create', color: 'green'};
-        const buttonEdit = {innerHTML: 'edit', color: 'main'};
+        const buttonEdit = {innerHTML: 'edit', color: 'main', onclick: () => this.actionOpen()};
         const buttonRemove = {innerHTML: 'remove', color: 'red', onclick: this.actionRemove.bind(this)};
 
         let buttons = [];
@@ -195,18 +196,20 @@ class ResourceTable extends Element {
     }
 
 
-    open(res) {
-        this.router.push(`${this.resPlural}/${res.id}`);
-    }
-
-
     handleMutation(e) {
         if (e.addedNodes || e.removedNodes) this.render();
     }
 
+
+    actionOpen(res = this.selected[0]) {
+        this.router.push(`${this.resPlural}/${res}`);
+    }
+
+
     actionRemove() {
-        console.log();
-        // TODO: Remove resource when clicked
+        this.selected.forEach(id => {
+            this.trigger('pagesRemove', [id]);
+        });
     }
 }
 

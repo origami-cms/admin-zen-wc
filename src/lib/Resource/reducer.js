@@ -10,6 +10,9 @@ export default (resource, func, key = 'id') => {
         loading: {
             all: false,
             single: false
+        },
+        errors: {
+            get: null
         }
     });
 
@@ -89,6 +92,10 @@ export default (resource, func, key = 'id') => {
                 );
 
                 return s;
+
+
+            case constants[`${up}_GET_ERROR`]:
+                return state.setIn(['errors', 'get'], action.error);
 
 
             default:

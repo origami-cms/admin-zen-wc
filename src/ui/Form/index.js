@@ -76,6 +76,7 @@ window.customElements.define('zen-ui-form', class ZenForm extends Element {
             ).querySelector('div');
 
             const field = this.createField(f, v);
+            if (!field) return;
 
             const icon = row.querySelector('zen-ui-icon');
             if (f.icon) {
@@ -91,9 +92,33 @@ window.customElements.define('zen-ui-form', class ZenForm extends Element {
     }
 
     createField(f, v) {
-        const field = document.createElement('input');
+        let field = document.createElement('input');
+
+        const keyup = () => {
+            this.values = {
+                ...this.values,
+                ...{[f.name]: field.value}
+            };
+        };
 
         switch (f.type) {
+            // case 'textarea':
+            // field = document.createElement('textarea');
+            // field.value = v;
+            // field.name = f.name;
+            // field.addEventListener('keyup', keyup);
+            // break;
+
+            case 'textarea':
+                field = document.createElement('wc-wysiwyg');
+                field.name = f.name;
+                field.addEventListener('keyup', keyup);
+                // TODO: Wait for ready
+                setTimeout(() => {
+                    field.value = v;
+                }, 10);
+                break;
+
             case 'text':
             case 'input':
             case 'password':
@@ -101,12 +126,7 @@ window.customElements.define('zen-ui-form', class ZenForm extends Element {
                 field.value = v;
                 field.name = f.name;
                 field.type = f.type;
-                field.addEventListener('keyup', () => {
-                    this.values = {
-                        ...this.values,
-                        ...{[f.name]: field.value}
-                    };
-                });
+                field.addEventListener('keyup', keyup);
                 field.placeholder = f.placeholder;
                 break;
 
@@ -114,6 +134,11 @@ window.customElements.define('zen-ui-form', class ZenForm extends Element {
                 field.type = f.type;
                 field.value = f.value || 'Submit';
                 break;
+
+            default:
+                console.warn(`Field type '${f.type}' is not supported`);
+
+                return null;
         }
 
         return field;

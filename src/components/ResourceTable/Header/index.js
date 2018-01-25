@@ -52,7 +52,7 @@ window.customElements.define('zen-ui-resource-table-header', class ZenResourceTa
     }
 
     render() {
-        const metric = this.data.length === 1 ? this.resSingular : this.resPlural;
+        // const metric = this.data.length === 1 ? this.resSingular : this.resPlural;
         // Const metricSelected = this.props.selected.length === 1 ? this.resSingular : this.resPlural;
 
         // return <header>

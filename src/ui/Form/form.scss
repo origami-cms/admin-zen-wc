@@ -10,3 +10,10 @@ span.error {
 
     &:empty { display: none; }
 }
+
+
+wc-wysiwyg {
+    background-color: color('main-softest');
+    padding: $input-padding;
+    border-radius: $input-border-radius;
+}

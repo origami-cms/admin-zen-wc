@@ -74,6 +74,7 @@ module.exports = {
             'reducers': path.resolve(PATH_SRC, 'reducers'),
 
             'icons': path.resolve(__dirname, 'node_modules/origami-icons'),
+            // 'grapejs': path.resolve(__dirname, 'node_modules/grapejs/dist/index.js')
             // 'origami-css': path.resolve(__dirname, 'node_modules/origami-css')
 
         }

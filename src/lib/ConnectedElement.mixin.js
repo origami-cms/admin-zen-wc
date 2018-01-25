@@ -9,13 +9,25 @@ export const connect = (store, superClass) => class extends superClass {
 
     constructor() {
         super();
+        this._eventDispatchMap = {};
+        this._bindEventsToDispatch();
+    }
+
+    _bindEventsToDispatch() {
+        // Remove old events
+        for (const [type, event] of Object.entries(this._eventDispatchMap)) {
+            this.removeEventListener(type, event);
+        }
+        this._eventDispatchMap = {};
+
         // Map dispatch to events
         if (this.mapDispatchToEvents) {
             for (const [type, func] of Object.entries(this.mapDispatchToEvents)) {
-                this.addEventListener(type, event => {
+                this._eventDispatchMap[type] = event => {
                     event.stopImmediatePropagation();
                     func(store.dispatch)(...event.detail || []);
-                });
+                };
+                this.addEventListener(type, this._eventDispatchMap[type]);
             }
         }
         // Map state to props

@@ -4,6 +4,7 @@ export default class Element extends HTMLElement {
     constructor(html, css) {
         super();
 
+        this._cssLibHref = '/admin/origami.css';
         this._readyPromise = new Promise(this.init(html, css));
     }
 
@@ -16,11 +17,14 @@ export default class Element extends HTMLElement {
 
             this._cssLib = document.createElement('link');
             this._cssLib.rel = 'stylesheet';
-            this._cssLib.href = '/admin/origami.css';
+            this._cssLib.href = this._cssLibHref;
             this._cssLib.id = 'css-lib';
-            this._cssLib.onload = () => this.style.display = '';
+            this._cssLib.onload = () => {
+                this.style.display = '';
+                this._cssLibLoaded = true;
+            };
+            // this._cssLib.onload = () => this.style.display = '';
             this.shadowRoot.appendChild(this._cssLib);
-
             this.css = css;
 
             this.constructor.boundProps.forEach(p => {
@@ -86,7 +90,8 @@ export default class Element extends HTMLElement {
 
 
     connectedCallback() {
-        this.style.display = 'none';
+        if (!this._cssLibLoaded) this.style.display = 'none';
+
         this.render();
     }
 
@@ -123,21 +128,23 @@ export default class Element extends HTMLElement {
         // TODO: Move this to a Mutation Observer
         this._textNodeMap = new Map();
         const nodes = document.createTreeWalker(this.shadowRoot, NodeFilter.SHOW_TEXT, NodeFilter.SHOW_TEXT);
-        let node;
-        while (node = nodes.nextNode()) {
+        let node = nodes.nextNode();
+        while (node) {
             const template = node.nodeValue;
 
             // Retrieve all the {{var}} declerations in the template
-            const m = template.match(/{{\s*[\w\.]+\s*}}/g);
+            const m = template.match(/{{\s*[\w.]+\s*}}/g);
 
             if (m) {
-                const words = m.map(x => x.match(/[\w\.]+/)[0]);
+                const words = m.map(x => x.match(/[\w.]+/)[0]);
                 this._textNodeMap.set(node, {
                     words, template
                 });
 
                 this._textNodeMap.set(node, {words, template});
             }
+
+            node = nodes.nextNode();
         }
     }
 }
