@@ -23,9 +23,15 @@ export const connect = (store, superClass) => class extends superClass {
         // Map dispatch to events
         if (this.mapDispatchToEvents) {
             for (const [type, func] of Object.entries(this.mapDispatchToEvents)) {
-                this._eventDispatchMap[type] = event => {
+                this._eventDispatchMap[type] = async event => {
                     event.stopImmediatePropagation();
-                    func(store.dispatch)(...event.detail || []);
+                    const detail = await func(store.dispatch)(...event.detail || []);
+
+                    this.shadowRoot.dispatchEvent(new CustomEvent(`${type}-done`, {
+                        composed: true,
+                        bubbles: true,
+                        detail
+                    }));
                 };
                 this.addEventListener(type, this._eventDispatchMap[type]);
             }

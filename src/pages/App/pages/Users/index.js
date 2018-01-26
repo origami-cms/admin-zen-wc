@@ -5,6 +5,7 @@ import CSS from './users.scss';
 
 import './List';
 import './Edit';
+import './Create';
 
 
 class Users extends Element {

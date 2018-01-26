@@ -158,7 +158,7 @@ class ResourceTable extends Element {
     }
 
     updateButtons() {
-        const buttonCreate = {innerHTML: 'create', color: 'green'};
+        const buttonCreate = {innerHTML: 'create', color: 'green', onclick: () => this.actionCreate()};
         const buttonEdit = {innerHTML: 'edit', color: 'main', onclick: () => this.actionOpen()};
         const buttonRemove = {innerHTML: 'remove', color: 'red', onclick: this.actionRemove.bind(this)};
 
@@ -208,8 +208,13 @@ class ResourceTable extends Element {
 
     actionRemove() {
         this.selected.forEach(id => {
-            this.trigger('pagesRemove', [id]);
+            this.trigger(`${this.resPlural}Remove`, [id]);
         });
+    }
+
+
+    actionCreate() {
+        this.router.push(`${this.resPlural}/create`);
     }
 }
 

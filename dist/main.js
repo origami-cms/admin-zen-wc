@@ -289,23 +289,6 @@ if (typeof __e == 'number') __e = core; // eslint-disable-line no-undef
 /* 7 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var store = __webpack_require__(48)('wks');
-var uid = __webpack_require__(30);
-var Symbol = __webpack_require__(13).Symbol;
-var USE_SYMBOL = typeof Symbol == 'function';
-
-var $exports = module.exports = function (name) {
-  return store[name] || (store[name] =
-    USE_SYMBOL && Symbol[name] || (USE_SYMBOL ? Symbol : uid)('Symbol.' + name));
-};
-
-$exports.store = store;
-
-
-/***/ }),
-/* 8 */
-/***/ (function(module, exports, __webpack_require__) {
-
 "use strict";
 
 
@@ -347,7 +330,7 @@ exports.default = function get(object, property, receiver) {
 };
 
 /***/ }),
-/* 9 */
+/* 8 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -372,64 +355,24 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 exports.default = (0, _redux.createStore)(_reducers2.default, (0, _redux.applyMiddleware)(_reduxThunk2.default));
 
 /***/ }),
-/* 10 */
+/* 9 */
 /***/ (function(module, exports, __webpack_require__) {
 
-"use strict";
+var store = __webpack_require__(48)('wks');
+var uid = __webpack_require__(30);
+var Symbol = __webpack_require__(14).Symbol;
+var USE_SYMBOL = typeof Symbol == 'function';
 
+var $exports = module.exports = function (name) {
+  return store[name] || (store[name] =
+    USE_SYMBOL && Symbol[name] || (USE_SYMBOL ? Symbol : uid)('Symbol.' + name));
+};
 
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-// ------------------------------------------------------------------------ Auth
-var AUTH_LOADING_SET_VERIFYING = exports.AUTH_LOADING_SET_VERIFYING = 'AUTH_LOADING_SET_VERIFYING';
-var AUTH_LOADING_SET_LOGGINGIN = exports.AUTH_LOADING_SET_LOGGINGIN = 'AUTH_LOADING_SET_LOGGINGIN';
-var AUTH_CLEAR = exports.AUTH_CLEAR = 'AUTH_CLEAR';
+$exports.store = store;
 
-var AUTH_VERIFIED = exports.AUTH_VERIFIED = 'AUTH_VERIFIED';
-var AUTH_VERIFIED_FAILED = exports.AUTH_VERIFIED_FAILED = 'AUTH_VERIFIED_FAILED';
-
-var AUTH_LOGIN = exports.AUTH_LOGIN = 'AUTH_LOGIN';
-var AUTH_LOGIN_FAILED = exports.AUTH_LOGIN_FAILED = 'AUTH_LOGIN_FAILED';
-
-var AUTH_LOGOUT = exports.AUTH_LOGOUT = 'AUTH_LOGOUT';
-
-// ------------------------------------------------------------------------- App
-var APP_SIDEBAR_ITEMS_SET = exports.APP_SIDEBAR_ITEMS_SET = 'APP_JEWEL_ITEMS_SET';
-var APP_TABS_NEW = exports.APP_TABS_NEW = 'APP_TABS_NEW';
-var APP_TABS_CLOSE = exports.APP_TABS_CLOSE = 'APP_TABS_CLOSE';
-var APP_TABS_NAME = exports.APP_TABS_NAME = 'APP_TABS_NAME';
-var APP_TITLE_SET = exports.APP_TITLE_SET = 'APP_TITLE_SET';
-
-// -------------------------------------------------------------------------- Me
-var ME_SET = exports.ME_SET = 'ME_SET';
-var ME_EMAIL_SET = exports.ME_EMAIL_SET = 'ME_EMAIL_SET';
-
-// ----------------------------------------------------------------------- Pages
-var PAGES_SET = exports.PAGES_SET = 'PAGES_SET';
-var PAGES_UPDATED = exports.PAGES_UPDATED = 'PAGES_UPDATED';
-var PAGES_REMOVED = exports.PAGES_REMOVED = 'PAGES_REMOVED';
-var PAGE_PROPERTIES_SET = exports.PAGE_PROPERTIES_SET = 'PAGE_PROPERTIES_SET';
-var PAGE_DATA_SET = exports.PAGE_DATA_SET = 'PAGE_DATA_SET';
-
-var PAGES_TREE_SET = exports.PAGES_TREE_SET = 'PAGES_TREE_SET';
-var PAGES_GET_ERROR = exports.PAGES_GET_ERROR = 'PAGES_GET_ERROR';
-
-// ------------------------------------------------------------------- Templates
-var TEMPLATES_SET = exports.TEMPLATES_SET = 'TEMPLATES_SET';
-var TEMPLATES_LOADING_SINGLE_START = exports.TEMPLATES_LOADING_SINGLE_START = 'TEMPLATES_LOADING_SINGLE_START';
-var TEMPLATES_LOADING_SINGLE_END = exports.TEMPLATES_LOADING_SINGLE_END = 'TEMPLATES_LOADING_SINGLE_END';
-var TEMPLATES_LOADING_ALL_START = exports.TEMPLATES_LOADING_ALL_START = 'TEMPLATES_LOADING_ALL_START';
-var TEMPLATES_LOADING_ALL_END = exports.TEMPLATES_LOADING_ALL_END = 'TEMPLATES_LOADING_ALL_END';
-
-// ----------------------------------------------------------------------- Users
-var USERS_SET = exports.USERS_SET = 'USERS_SET';
-var USERS_CREATED = exports.USERS_CREATED = 'USERS_CREATED';
-var USERS_UPDATED = exports.USERS_UPDATED = 'USERS_UPDATED';
-var USERS_REMOVED = exports.USERS_REMOVED = 'USERS_REMOVED';
 
 /***/ }),
-/* 11 */
+/* 10 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -500,10 +443,10 @@ var connect = exports.connect = function connect(store, superClass) {
                 try {
                     for (var _iterator = Object.entries(this._eventDispatchMap)[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
                         var _step$value = (0, _slicedToArray3.default)(_step.value, 2),
-                            type = _step$value[0],
+                            _type = _step$value[0],
                             event = _step$value[1];
 
-                        this.removeEventListener(type, event);
+                        this.removeEventListener(_type, event);
                     }
                 } catch (err) {
                     _didIteratorError = true;
@@ -534,9 +477,15 @@ var connect = exports.connect = function connect(store, superClass) {
                                 type = _step2$value[0],
                                 func = _step2$value[1];
 
-                            _this2._eventDispatchMap[type] = function (event) {
+                            _this2._eventDispatchMap[type] = async function (event) {
                                 event.stopImmediatePropagation();
-                                func(store.dispatch).apply(undefined, (0, _toConsumableArray3.default)(event.detail || []));
+                                var detail = await func(store.dispatch).apply(undefined, (0, _toConsumableArray3.default)(event.detail || []));
+
+                                _this2.shadowRoot.dispatchEvent(new CustomEvent(type + "-done", {
+                                    composed: true,
+                                    bubbles: true,
+                                    detail: detail
+                                }));
                             };
                             _this2.addEventListener(type, _this2._eventDispatchMap[type]);
                         };
@@ -580,10 +529,113 @@ var connect = exports.connect = function connect(store, superClass) {
 };
 
 /***/ }),
+/* 11 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+// ------------------------------------------------------------------------ Auth
+var AUTH_LOADING_SET_VERIFYING = exports.AUTH_LOADING_SET_VERIFYING = 'AUTH_LOADING_SET_VERIFYING';
+var AUTH_LOADING_SET_LOGGINGIN = exports.AUTH_LOADING_SET_LOGGINGIN = 'AUTH_LOADING_SET_LOGGINGIN';
+var AUTH_CLEAR = exports.AUTH_CLEAR = 'AUTH_CLEAR';
+
+var AUTH_VERIFIED = exports.AUTH_VERIFIED = 'AUTH_VERIFIED';
+var AUTH_VERIFIED_FAILED = exports.AUTH_VERIFIED_FAILED = 'AUTH_VERIFIED_FAILED';
+
+var AUTH_LOGIN = exports.AUTH_LOGIN = 'AUTH_LOGIN';
+var AUTH_LOGIN_FAILED = exports.AUTH_LOGIN_FAILED = 'AUTH_LOGIN_FAILED';
+
+var AUTH_LOGOUT = exports.AUTH_LOGOUT = 'AUTH_LOGOUT';
+
+// ------------------------------------------------------------------------- App
+var APP_SIDEBAR_ITEMS_SET = exports.APP_SIDEBAR_ITEMS_SET = 'APP_JEWEL_ITEMS_SET';
+var APP_TABS_NEW = exports.APP_TABS_NEW = 'APP_TABS_NEW';
+var APP_TABS_CLOSE = exports.APP_TABS_CLOSE = 'APP_TABS_CLOSE';
+var APP_TABS_NAME = exports.APP_TABS_NAME = 'APP_TABS_NAME';
+var APP_TITLE_SET = exports.APP_TITLE_SET = 'APP_TITLE_SET';
+
+// -------------------------------------------------------------------------- Me
+var ME_SET = exports.ME_SET = 'ME_SET';
+var ME_EMAIL_SET = exports.ME_EMAIL_SET = 'ME_EMAIL_SET';
+
+// ----------------------------------------------------------------------- Pages
+var PAGES_SET = exports.PAGES_SET = 'PAGES_SET';
+var PAGES_UPDATED = exports.PAGES_UPDATED = 'PAGES_UPDATED';
+var PAGES_REMOVED = exports.PAGES_REMOVED = 'PAGES_REMOVED';
+var PAGE_PROPERTIES_SET = exports.PAGE_PROPERTIES_SET = 'PAGE_PROPERTIES_SET';
+var PAGE_DATA_SET = exports.PAGE_DATA_SET = 'PAGE_DATA_SET';
+
+var PAGES_TREE_SET = exports.PAGES_TREE_SET = 'PAGES_TREE_SET';
+var PAGES_GET_ERROR = exports.PAGES_GET_ERROR = 'PAGES_GET_ERROR';
+
+// ------------------------------------------------------------------- Templates
+var TEMPLATES_SET = exports.TEMPLATES_SET = 'TEMPLATES_SET';
+var TEMPLATES_LOADING_SINGLE_START = exports.TEMPLATES_LOADING_SINGLE_START = 'TEMPLATES_LOADING_SINGLE_START';
+var TEMPLATES_LOADING_SINGLE_END = exports.TEMPLATES_LOADING_SINGLE_END = 'TEMPLATES_LOADING_SINGLE_END';
+var TEMPLATES_LOADING_ALL_START = exports.TEMPLATES_LOADING_ALL_START = 'TEMPLATES_LOADING_ALL_START';
+var TEMPLATES_LOADING_ALL_END = exports.TEMPLATES_LOADING_ALL_END = 'TEMPLATES_LOADING_ALL_END';
+
+// ----------------------------------------------------------------------- Users
+var USERS_SET = exports.USERS_SET = 'USERS_SET';
+var USERS_CREATED = exports.USERS_CREATED = 'USERS_CREATED';
+var USERS_UPDATED = exports.USERS_UPDATED = 'USERS_UPDATED';
+var USERS_REMOVED = exports.USERS_REMOVED = 'USERS_REMOVED';
+
+/***/ }),
 /* 12 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var global = __webpack_require__(13);
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _Auth = __webpack_require__(186);
+
+var Auth = _interopRequireWildcard(_Auth);
+
+var _App = __webpack_require__(188);
+
+var App = _interopRequireWildcard(_App);
+
+var _Users = __webpack_require__(189);
+
+var Users = _interopRequireWildcard(_Users);
+
+var _Pages = __webpack_require__(191);
+
+var Pages = _interopRequireWildcard(_Pages);
+
+var _Templates = __webpack_require__(192);
+
+var Templates = _interopRequireWildcard(_Templates);
+
+var _Me = __webpack_require__(193);
+
+var Me = _interopRequireWildcard(_Me);
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
+exports.default = {
+    Auth: Auth,
+    App: App,
+    Users: Users,
+    Pages: Pages,
+    Templates: Templates,
+    Me: Me
+};
+
+/***/ }),
+/* 13 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var global = __webpack_require__(14);
 var core = __webpack_require__(6);
 var ctx = __webpack_require__(43);
 var hide = __webpack_require__(22);
@@ -647,7 +699,7 @@ module.exports = $export;
 
 
 /***/ }),
-/* 13 */
+/* 14 */
 /***/ (function(module, exports) {
 
 // https://github.com/zloirock/core-js/issues/86#issuecomment-115759028
@@ -659,7 +711,7 @@ if (typeof __g == 'number') __g = global; // eslint-disable-line no-undef
 
 
 /***/ }),
-/* 14 */
+/* 15 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var anObject = __webpack_require__(16);
@@ -679,52 +731,6 @@ exports.f = __webpack_require__(17) ? Object.defineProperty : function definePro
   return O;
 };
 
-
-/***/ }),
-/* 15 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-    value: true
-});
-
-var _Auth = __webpack_require__(186);
-
-var Auth = _interopRequireWildcard(_Auth);
-
-var _App = __webpack_require__(188);
-
-var App = _interopRequireWildcard(_App);
-
-var _Users = __webpack_require__(189);
-
-var Users = _interopRequireWildcard(_Users);
-
-var _Pages = __webpack_require__(191);
-
-var Pages = _interopRequireWildcard(_Pages);
-
-var _Templates = __webpack_require__(192);
-
-var Templates = _interopRequireWildcard(_Templates);
-
-var _Me = __webpack_require__(193);
-
-var Me = _interopRequireWildcard(_Me);
-
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
-
-exports.default = {
-    Auth: Auth,
-    App: App,
-    Users: Users,
-    Pages: Pages,
-    Templates: Templates,
-    Me: Me
-};
 
 /***/ }),
 /* 16 */
@@ -857,7 +863,7 @@ module.exports = g;
 /* 22 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var dP = __webpack_require__(14);
+var dP = __webpack_require__(15);
 var createDesc = __webpack_require__(26);
 module.exports = __webpack_require__(17) ? function (object, key, value) {
   return dP.f(object, key, createDesc(1, value));
@@ -2440,7 +2446,7 @@ module.exports = function (key) {
 /* 48 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var global = __webpack_require__(13);
+var global = __webpack_require__(14);
 var SHARED = '__core-js_shared__';
 var store = global[SHARED] || (global[SHARED] = {});
 module.exports = function (key) {
@@ -2462,9 +2468,9 @@ module.exports = (
 /* 50 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var def = __webpack_require__(14).f;
+var def = __webpack_require__(15).f;
 var has = __webpack_require__(18);
-var TAG = __webpack_require__(7)('toStringTag');
+var TAG = __webpack_require__(9)('toStringTag');
 
 module.exports = function (it, tag, stat) {
   if (it && !has(it = stat ? it : it.prototype, TAG)) def(it, TAG, { configurable: true, value: tag });
@@ -19632,10 +19638,10 @@ exports.default = typeof _symbol2.default === "function" && _typeof(_iterator2.d
 /***/ (function(module, exports, __webpack_require__) {
 
 __webpack_require__(136);
-var global = __webpack_require__(13);
+var global = __webpack_require__(14);
 var hide = __webpack_require__(22);
 var Iterators = __webpack_require__(24);
-var TO_STRING_TAG = __webpack_require__(7)('toStringTag');
+var TO_STRING_TAG = __webpack_require__(9)('toStringTag');
 
 var DOMIterables = ('CSSRuleList,CSSStyleDeclaration,CSSValueList,ClientRectList,DOMRectList,DOMStringList,' +
   'DOMTokenList,DataTransferItemList,FileList,HTMLAllCollection,HTMLCollection,HTMLFormElement,HTMLSelectElement,' +
@@ -19656,18 +19662,18 @@ for (var i = 0; i < DOMIterables.length; i++) {
 /* 56 */
 /***/ (function(module, exports, __webpack_require__) {
 
-exports.f = __webpack_require__(7);
+exports.f = __webpack_require__(9);
 
 
 /***/ }),
 /* 57 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var global = __webpack_require__(13);
+var global = __webpack_require__(14);
 var core = __webpack_require__(6);
 var LIBRARY = __webpack_require__(42);
 var wksExt = __webpack_require__(56);
-var defineProperty = __webpack_require__(14).f;
+var defineProperty = __webpack_require__(15).f;
 module.exports = function (name) {
   var $Symbol = core.Symbol || (core.Symbol = LIBRARY ? {} : global.Symbol || {});
   if (name.charAt(0) != '_' && !(name in $Symbol)) defineProperty($Symbol, name, { value: wksExt.f(name) });
@@ -19982,7 +19988,7 @@ var _lodash2 = _interopRequireDefault(_lodash);
 
 var _API = __webpack_require__(83);
 
-var _const = __webpack_require__(10);
+var _const = __webpack_require__(11);
 
 var c = _interopRequireWildcard(_const);
 
@@ -20482,7 +20488,7 @@ var _defineProperty2 = __webpack_require__(52);
 
 var _defineProperty3 = _interopRequireDefault(_defineProperty2);
 
-var _const = __webpack_require__(10);
+var _const = __webpack_require__(11);
 
 var constants = _interopRequireWildcard(_const);
 
@@ -20586,7 +20592,7 @@ exports.default = function (resource, func) {
 "use strict";
 
 var LIBRARY = __webpack_require__(42);
-var $export = __webpack_require__(12);
+var $export = __webpack_require__(13);
 var redefine = __webpack_require__(71);
 var hide = __webpack_require__(22);
 var has = __webpack_require__(18);
@@ -20594,7 +20600,7 @@ var Iterators = __webpack_require__(24);
 var $iterCreate = __webpack_require__(113);
 var setToStringTag = __webpack_require__(50);
 var getPrototypeOf = __webpack_require__(75);
-var ITERATOR = __webpack_require__(7)('iterator');
+var ITERATOR = __webpack_require__(9)('iterator');
 var BUGGY = !([].keys && 'next' in [].keys()); // Safari has buggy iterators w/o `next`
 var FF_ITERATOR = '@@iterator';
 var KEYS = 'keys';
@@ -20670,7 +20676,7 @@ module.exports = !__webpack_require__(17) && !__webpack_require__(23)(function (
 /***/ (function(module, exports, __webpack_require__) {
 
 var isObject = __webpack_require__(25);
-var document = __webpack_require__(13).document;
+var document = __webpack_require__(14).document;
 // typeof document.createElement is 'object' in old IE
 var is = isObject(document) && isObject(document.createElement);
 module.exports = function (it) {
@@ -20756,7 +20762,7 @@ module.exports = Object.getPrototypeOf || function (O) {
 /***/ (function(module, exports, __webpack_require__) {
 
 var classof = __webpack_require__(77);
-var ITERATOR = __webpack_require__(7)('iterator');
+var ITERATOR = __webpack_require__(9)('iterator');
 var Iterators = __webpack_require__(24);
 module.exports = __webpack_require__(6).getIteratorMethod = function (it) {
   if (it != undefined) return it[ITERATOR]
@@ -20771,7 +20777,7 @@ module.exports = __webpack_require__(6).getIteratorMethod = function (it) {
 
 // getting tag from 19.1.3.6 Object.prototype.toString()
 var cof = __webpack_require__(46);
-var TAG = __webpack_require__(7)('toStringTag');
+var TAG = __webpack_require__(9)('toStringTag');
 // ES3 wrong here
 var ARG = cof(function () { return arguments; }()) == 'Arguments';
 
@@ -20818,7 +20824,7 @@ exports.f = Object.getOwnPropertyNames || function getOwnPropertyNames(O) {
 /***/ (function(module, exports, __webpack_require__) {
 
 // most Object methods by ES6 should accept primitives
-var $export = __webpack_require__(12);
+var $export = __webpack_require__(13);
 var core = __webpack_require__(6);
 var fails = __webpack_require__(23);
 module.exports = function (KEY, exec) {
@@ -21492,7 +21498,7 @@ exports._unrefActive = exports.active = function(item) {
 };
 
 // setimmediate attaches itself to the global object
-__webpack_require__(230);
+__webpack_require__(239);
 exports.setImmediate = setImmediate;
 exports.clearImmediate = clearImmediate;
 
@@ -21514,15 +21520,15 @@ __webpack_require__(89);
 
 __webpack_require__(37);
 
-__webpack_require__(9);
+__webpack_require__(8);
 
 __webpack_require__(133);
 
 __webpack_require__(157);
 
-__webpack_require__(211);
+__webpack_require__(220);
 
-__webpack_require__(233);
+__webpack_require__(242);
 
 /***/ }),
 /* 86 */
@@ -27177,7 +27183,7 @@ var setToStringTag = __webpack_require__(50);
 var IteratorPrototype = {};
 
 // 25.1.2.1.1 %IteratorPrototype%[@@iterator]()
-__webpack_require__(22)(IteratorPrototype, __webpack_require__(7)('iterator'), function () { return this; });
+__webpack_require__(22)(IteratorPrototype, __webpack_require__(9)('iterator'), function () { return this; });
 
 module.exports = function (Constructor, NAME, next) {
   Constructor.prototype = create(IteratorPrototype, { next: descriptor(1, next) });
@@ -27189,7 +27195,7 @@ module.exports = function (Constructor, NAME, next) {
 /* 114 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var dP = __webpack_require__(14);
+var dP = __webpack_require__(15);
 var anObject = __webpack_require__(16);
 var getKeys = __webpack_require__(29);
 
@@ -27250,7 +27256,7 @@ module.exports = function (index, length) {
 /* 117 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var document = __webpack_require__(13).document;
+var document = __webpack_require__(14).document;
 module.exports = document && document.documentElement;
 
 
@@ -27261,7 +27267,7 @@ module.exports = document && document.documentElement;
 "use strict";
 
 var ctx = __webpack_require__(43);
-var $export = __webpack_require__(12);
+var $export = __webpack_require__(13);
 var toObject = __webpack_require__(31);
 var call = __webpack_require__(119);
 var isArrayIter = __webpack_require__(120);
@@ -27322,7 +27328,7 @@ module.exports = function (iterator, fn, value, entries) {
 
 // check on default Array iterator
 var Iterators = __webpack_require__(24);
-var ITERATOR = __webpack_require__(7)('iterator');
+var ITERATOR = __webpack_require__(9)('iterator');
 var ArrayProto = Array.prototype;
 
 module.exports = function (it) {
@@ -27336,7 +27342,7 @@ module.exports = function (it) {
 
 "use strict";
 
-var $defineProperty = __webpack_require__(14);
+var $defineProperty = __webpack_require__(15);
 var createDesc = __webpack_require__(26);
 
 module.exports = function (object, index, value) {
@@ -27349,7 +27355,7 @@ module.exports = function (object, index, value) {
 /* 122 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var ITERATOR = __webpack_require__(7)('iterator');
+var ITERATOR = __webpack_require__(9)('iterator');
 var SAFE_CLOSING = false;
 
 try {
@@ -27392,7 +27398,7 @@ module.exports = __webpack_require__(6).Object.assign;
 /***/ (function(module, exports, __webpack_require__) {
 
 // 19.1.3.1 Object.assign(target, source)
-var $export = __webpack_require__(12);
+var $export = __webpack_require__(13);
 
 $export($export.S + $export.F, 'Object', { assign: __webpack_require__(126) });
 
@@ -27453,9 +27459,9 @@ module.exports = function defineProperty(it, key, desc) {
 /* 128 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var $export = __webpack_require__(12);
+var $export = __webpack_require__(13);
 // 19.1.2.4 / 15.2.3.6 Object.defineProperty(O, P, Attributes)
-$export($export.S + $export.F * !__webpack_require__(17), 'Object', { defineProperty: __webpack_require__(14).f });
+$export($export.S + $export.F * !__webpack_require__(17), 'Object', { defineProperty: __webpack_require__(15).f });
 
 
 /***/ }),
@@ -27473,7 +27479,7 @@ var _seamlessImmutable = __webpack_require__(34);
 
 var _seamlessImmutable2 = _interopRequireDefault(_seamlessImmutable);
 
-var _const = __webpack_require__(10);
+var _const = __webpack_require__(11);
 
 var _const2 = __webpack_require__(35);
 
@@ -27560,7 +27566,7 @@ var _seamlessImmutable = __webpack_require__(34);
 
 var _seamlessImmutable2 = _interopRequireDefault(_seamlessImmutable);
 
-var _const = __webpack_require__(10);
+var _const = __webpack_require__(11);
 
 var _const2 = __webpack_require__(35);
 
@@ -27630,7 +27636,7 @@ var _seamlessImmutable = __webpack_require__(34);
 
 var _seamlessImmutable2 = _interopRequireDefault(_seamlessImmutable);
 
-var _const = __webpack_require__(10);
+var _const = __webpack_require__(11);
 
 var _const2 = __webpack_require__(35);
 
@@ -27676,7 +27682,7 @@ var _lodash = __webpack_require__(53);
 
 var _lodash2 = _interopRequireDefault(_lodash);
 
-var _const = __webpack_require__(10);
+var _const = __webpack_require__(11);
 
 var _reducer = __webpack_require__(67);
 
@@ -27882,17 +27888,17 @@ module.exports = __webpack_require__(6).Symbol;
 "use strict";
 
 // ECMAScript 6 symbols shim
-var global = __webpack_require__(13);
+var global = __webpack_require__(14);
 var has = __webpack_require__(18);
 var DESCRIPTORS = __webpack_require__(17);
-var $export = __webpack_require__(12);
+var $export = __webpack_require__(13);
 var redefine = __webpack_require__(71);
 var META = __webpack_require__(142).KEY;
 var $fails = __webpack_require__(23);
 var shared = __webpack_require__(48);
 var setToStringTag = __webpack_require__(50);
 var uid = __webpack_require__(30);
-var wks = __webpack_require__(7);
+var wks = __webpack_require__(9);
 var wksExt = __webpack_require__(56);
 var wksDefine = __webpack_require__(57);
 var enumKeys = __webpack_require__(143);
@@ -27904,7 +27910,7 @@ var createDesc = __webpack_require__(26);
 var _create = __webpack_require__(45);
 var gOPNExt = __webpack_require__(145);
 var $GOPD = __webpack_require__(58);
-var $DP = __webpack_require__(14);
+var $DP = __webpack_require__(15);
 var $keys = __webpack_require__(29);
 var gOPD = $GOPD.f;
 var dP = $DP.f;
@@ -28123,7 +28129,7 @@ setToStringTag(global.JSON, 'JSON', true);
 var META = __webpack_require__(30)('meta');
 var isObject = __webpack_require__(25);
 var has = __webpack_require__(18);
-var setDesc = __webpack_require__(14).f;
+var setDesc = __webpack_require__(15).f;
 var id = 0;
 var isExtensible = Object.isExtensible || function () {
   return true;
@@ -28271,7 +28277,7 @@ module.exports = __webpack_require__(6).Object.setPrototypeOf;
 /***/ (function(module, exports, __webpack_require__) {
 
 // 19.1.3.19 Object.setPrototypeOf(O, proto)
-var $export = __webpack_require__(12);
+var $export = __webpack_require__(13);
 $export($export.S, 'Object', { setPrototypeOf: __webpack_require__(152).set });
 
 
@@ -28327,7 +28333,7 @@ module.exports = function create(P, D) {
 /* 155 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var $export = __webpack_require__(12);
+var $export = __webpack_require__(13);
 // 19.1.2.2 / 15.2.3.5 Object.create(O [, Properties])
 $export($export.S, 'Object', { create: __webpack_require__(45) });
 
@@ -28351,7 +28357,7 @@ __webpack_require__(194);
 
 __webpack_require__(195);
 
-__webpack_require__(208);
+__webpack_require__(217);
 
 /***/ }),
 /* 158 */
@@ -28372,7 +28378,7 @@ var _possibleConstructorReturn2 = __webpack_require__(2);
 
 var _possibleConstructorReturn3 = _interopRequireDefault(_possibleConstructorReturn2);
 
-var _get2 = __webpack_require__(8);
+var _get2 = __webpack_require__(7);
 
 var _get3 = _interopRequireDefault(_get2);
 
@@ -28396,13 +28402,13 @@ var _logo = __webpack_require__(185);
 
 var _logo2 = _interopRequireDefault(_logo);
 
-var _ConnectedElementMixin = __webpack_require__(11);
+var _ConnectedElementMixin = __webpack_require__(10);
 
-var _store = __webpack_require__(9);
+var _store = __webpack_require__(8);
 
 var _store2 = _interopRequireDefault(_store);
 
-var _actions = __webpack_require__(15);
+var _actions = __webpack_require__(12);
 
 var _actions2 = _interopRequireDefault(_actions);
 
@@ -28633,7 +28639,7 @@ module.exports = __webpack_require__(170);
 /***/ (function(module, exports, __webpack_require__) {
 
 var classof = __webpack_require__(77);
-var ITERATOR = __webpack_require__(7)('iterator');
+var ITERATOR = __webpack_require__(9)('iterator');
 var Iterators = __webpack_require__(24);
 module.exports = __webpack_require__(6).isIterable = function (it) {
   var O = Object(it);
@@ -31652,7 +31658,7 @@ var _httpStatusCodes = __webpack_require__(81);
 
 var _httpStatusCodes2 = _interopRequireDefault(_httpStatusCodes);
 
-var _const = __webpack_require__(10);
+var _const = __webpack_require__(11);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -32189,7 +32195,7 @@ var _slicedToArray3 = _interopRequireDefault(_slicedToArray2);
 
 var _pluralize = __webpack_require__(82);
 
-var _const = __webpack_require__(10);
+var _const = __webpack_require__(11);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -32483,7 +32489,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.pagesTreeMove = exports.pagesTreeGet = exports.pagesDataUpdate = exports.pagesPropertiesGet = exports.pagesRemove = exports.pagesUpdate = exports.pagesGet = exports.pagesCreate = undefined;
 
-var _const = __webpack_require__(10);
+var _const = __webpack_require__(11);
 
 var _API = __webpack_require__(36);
 
@@ -32580,7 +32586,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.getMe = undefined;
 
-var _const = __webpack_require__(10);
+var _const = __webpack_require__(11);
 
 var _API = __webpack_require__(83);
 
@@ -32620,13 +32626,13 @@ var _Element2 = __webpack_require__(59);
 
 var _Element3 = _interopRequireDefault(_Element2);
 
-var _ConnectedElementMixin = __webpack_require__(11);
+var _ConnectedElementMixin = __webpack_require__(10);
 
-var _store = __webpack_require__(9);
+var _store = __webpack_require__(8);
 
 var _store2 = _interopRequireDefault(_store);
 
-var _actions = __webpack_require__(15);
+var _actions = __webpack_require__(12);
 
 var _actions2 = _interopRequireDefault(_actions);
 
@@ -32710,7 +32716,7 @@ var _possibleConstructorReturn2 = __webpack_require__(2);
 
 var _possibleConstructorReturn3 = _interopRequireDefault(_possibleConstructorReturn2);
 
-var _get2 = __webpack_require__(8);
+var _get2 = __webpack_require__(7);
 
 var _get3 = _interopRequireDefault(_get2);
 
@@ -32728,13 +32734,13 @@ var _app3 = __webpack_require__(197);
 
 var _app4 = _interopRequireDefault(_app3);
 
-var _ConnectedElementMixin = __webpack_require__(11);
+var _ConnectedElementMixin = __webpack_require__(10);
 
-var _store = __webpack_require__(9);
+var _store = __webpack_require__(8);
 
 var _store2 = _interopRequireDefault(_store);
 
-var _actions = __webpack_require__(15);
+var _actions = __webpack_require__(12);
 
 var _actions2 = _interopRequireDefault(_actions);
 
@@ -32842,7 +32848,7 @@ exports.push([module.i, "main {\n  margin-left: 30rem;\n  padding: 4rem; }\n\nze
 
 __webpack_require__(199);
 
-__webpack_require__(246);
+__webpack_require__(208);
 
 /***/ }),
 /* 199 */
@@ -32931,7 +32937,7 @@ var _possibleConstructorReturn2 = __webpack_require__(2);
 
 var _possibleConstructorReturn3 = _interopRequireDefault(_possibleConstructorReturn2);
 
-var _get2 = __webpack_require__(8);
+var _get2 = __webpack_require__(7);
 
 var _get3 = _interopRequireDefault(_get2);
 
@@ -32949,13 +32955,13 @@ var _pagesList3 = __webpack_require__(204);
 
 var _pagesList4 = _interopRequireDefault(_pagesList3);
 
-var _ConnectedElementMixin = __webpack_require__(11);
+var _ConnectedElementMixin = __webpack_require__(10);
 
-var _store = __webpack_require__(9);
+var _store = __webpack_require__(8);
 
 var _store2 = _interopRequireDefault(_store);
 
-var _actions = __webpack_require__(15);
+var _actions = __webpack_require__(12);
 
 var _actions2 = _interopRequireDefault(_actions);
 
@@ -33077,7 +33083,7 @@ var _possibleConstructorReturn2 = __webpack_require__(2);
 
 var _possibleConstructorReturn3 = _interopRequireDefault(_possibleConstructorReturn2);
 
-var _get2 = __webpack_require__(8);
+var _get2 = __webpack_require__(7);
 
 var _get3 = _interopRequireDefault(_get2);
 
@@ -33095,13 +33101,13 @@ var _pageEdit3 = __webpack_require__(207);
 
 var _pageEdit4 = _interopRequireDefault(_pageEdit3);
 
-var _ConnectedElementMixin = __webpack_require__(11);
+var _ConnectedElementMixin = __webpack_require__(10);
 
-var _store = __webpack_require__(9);
+var _store = __webpack_require__(8);
 
 var _store2 = _interopRequireDefault(_store);
 
-var _actions = __webpack_require__(15);
+var _actions = __webpack_require__(12);
 
 var _actions2 = _interopRequireDefault(_actions);
 
@@ -33290,6 +33296,76 @@ var _classCallCheck2 = __webpack_require__(0);
 
 var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
 
+var _possibleConstructorReturn2 = __webpack_require__(2);
+
+var _possibleConstructorReturn3 = _interopRequireDefault(_possibleConstructorReturn2);
+
+var _inherits2 = __webpack_require__(3);
+
+var _inherits3 = _interopRequireDefault(_inherits2);
+
+var _lib = __webpack_require__(5);
+
+var _users = __webpack_require__(209);
+
+var _users2 = _interopRequireDefault(_users);
+
+var _users3 = __webpack_require__(210);
+
+var _users4 = _interopRequireDefault(_users3);
+
+__webpack_require__(211);
+
+__webpack_require__(214);
+
+__webpack_require__(255);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var Users = function (_Element) {
+    (0, _inherits3.default)(Users, _Element);
+
+    function Users() {
+        (0, _classCallCheck3.default)(this, Users);
+        return (0, _possibleConstructorReturn3.default)(this, (Users.__proto__ || Object.getPrototypeOf(Users)).call(this, _users2.default, _users4.default.toString()));
+    }
+
+    return Users;
+}(_lib.Element);
+
+window.customElements.define('page-app-users', Users);
+
+/***/ }),
+/* 209 */
+/***/ (function(module, exports) {
+
+module.exports = "<wc-switch>\n    <wc-route path='/users' exact  element=\"page-app-users-list\"></wc-route>\n    <wc-route path='/users/create' element=\"page-app-user-create\"></wc-route>\n    <wc-route path='/users/:id' element=\"page-app-user-edit\"></wc-route>\n</wc-switch>\n"
+
+/***/ }),
+/* 210 */
+/***/ (function(module, exports, __webpack_require__) {
+
+exports = module.exports = __webpack_require__(4)(undefined);
+// imports
+
+
+// module
+exports.push([module.i, "", ""]);
+
+// exports
+
+
+/***/ }),
+/* 211 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var _classCallCheck2 = __webpack_require__(0);
+
+var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
+
 var _createClass2 = __webpack_require__(1);
 
 var _createClass3 = _interopRequireDefault(_createClass2);
@@ -33298,7 +33374,7 @@ var _possibleConstructorReturn2 = __webpack_require__(2);
 
 var _possibleConstructorReturn3 = _interopRequireDefault(_possibleConstructorReturn2);
 
-var _get2 = __webpack_require__(8);
+var _get2 = __webpack_require__(7);
 
 var _get3 = _interopRequireDefault(_get2);
 
@@ -33308,21 +33384,357 @@ var _inherits3 = _interopRequireDefault(_inherits2);
 
 var _lib = __webpack_require__(5);
 
-var _notFound = __webpack_require__(209);
+var _usersList = __webpack_require__(212);
 
-var _notFound2 = _interopRequireDefault(_notFound);
+var _usersList2 = _interopRequireDefault(_usersList);
 
-var _notFound3 = __webpack_require__(210);
+var _usersList3 = __webpack_require__(213);
 
-var _notFound4 = _interopRequireDefault(_notFound3);
+var _usersList4 = _interopRequireDefault(_usersList3);
 
-var _ConnectedElementMixin = __webpack_require__(11);
+var _ConnectedElementMixin = __webpack_require__(10);
 
-var _store = __webpack_require__(9);
+var _store = __webpack_require__(8);
 
 var _store2 = _interopRequireDefault(_store);
 
-var _actions = __webpack_require__(15);
+var _actions = __webpack_require__(12);
+
+var _actions2 = _interopRequireDefault(_actions);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var UsersList = function (_Element) {
+    (0, _inherits3.default)(UsersList, _Element);
+
+    function UsersList() {
+        (0, _classCallCheck3.default)(this, UsersList);
+
+        var _this = (0, _possibleConstructorReturn3.default)(this, (UsersList.__proto__ || Object.getPrototypeOf(UsersList)).call(this));
+
+        _this.html = _usersList2.default;
+        _this.css = _usersList4.default.toString();
+
+        _this.table = _this.shadowRoot.querySelector('zen-resource-table');
+        return _this;
+    }
+
+    (0, _createClass3.default)(UsersList, [{
+        key: 'connectedCallback',
+        value: function connectedCallback() {
+            (0, _get3.default)(UsersList.prototype.__proto__ || Object.getPrototypeOf(UsersList.prototype), 'connectedCallback', this).call(this);
+            this.trigger('users-get', [null, false]);
+            this.trigger('title-set', ['Users']);
+        }
+    }, {
+        key: 'propertyChangedCallback',
+        value: async function propertyChangedCallback(prop, oldV, newV) {
+            await this.ready();
+            switch (prop) {
+                case 'users':
+                    this.table.data = newV.users;
+            }
+        }
+    }], [{
+        key: 'boundProps',
+        get: function get() {
+            return ['users'];
+        }
+    }]);
+    return UsersList;
+}(_lib.Element);
+
+var ConnectedUsersList = function (_connect) {
+    (0, _inherits3.default)(ConnectedUsersList, _connect);
+
+    function ConnectedUsersList() {
+        (0, _classCallCheck3.default)(this, ConnectedUsersList);
+        return (0, _possibleConstructorReturn3.default)(this, (ConnectedUsersList.__proto__ || Object.getPrototypeOf(ConnectedUsersList)).apply(this, arguments));
+    }
+
+    (0, _createClass3.default)(ConnectedUsersList, [{
+        key: '_mapStateToProps',
+        value: function _mapStateToProps(state) {
+            return {
+                users: state.Users
+            };
+        }
+    }, {
+        key: 'mapDispatchToEvents',
+        get: function get() {
+            return {
+                'users-get': _actions2.default.Users.usersGet,
+                'title-set': _actions2.default.App.titleSet
+            };
+        }
+    }]);
+    return ConnectedUsersList;
+}((0, _ConnectedElementMixin.connect)(_store2.default, UsersList));
+
+window.customElements.define('page-app-users-list', ConnectedUsersList);
+
+/***/ }),
+/* 212 */
+/***/ (function(module, exports) {
+
+module.exports = "<zen-resource-table resource=\"user\">\n    <zen-ui-resource-table-column key=\"fname\"></zen-ui-resource-table-column>\n    <zen-ui-resource-table-column key=\"email\"></zen-ui-resource-table-column>\n</zen-resource-table>\n"
+
+/***/ }),
+/* 213 */
+/***/ (function(module, exports, __webpack_require__) {
+
+exports = module.exports = __webpack_require__(4)(undefined);
+// imports
+
+
+// module
+exports.push([module.i, "", ""]);
+
+// exports
+
+
+/***/ }),
+/* 214 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var _classCallCheck2 = __webpack_require__(0);
+
+var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
+
+var _createClass2 = __webpack_require__(1);
+
+var _createClass3 = _interopRequireDefault(_createClass2);
+
+var _possibleConstructorReturn2 = __webpack_require__(2);
+
+var _possibleConstructorReturn3 = _interopRequireDefault(_possibleConstructorReturn2);
+
+var _get2 = __webpack_require__(7);
+
+var _get3 = _interopRequireDefault(_get2);
+
+var _inherits2 = __webpack_require__(3);
+
+var _inherits3 = _interopRequireDefault(_inherits2);
+
+var _lib = __webpack_require__(5);
+
+var _userEdit = __webpack_require__(215);
+
+var _userEdit2 = _interopRequireDefault(_userEdit);
+
+var _userEdit3 = __webpack_require__(216);
+
+var _userEdit4 = _interopRequireDefault(_userEdit3);
+
+var _ConnectedElementMixin = __webpack_require__(10);
+
+var _store = __webpack_require__(8);
+
+var _store2 = _interopRequireDefault(_store);
+
+var _actions = __webpack_require__(12);
+
+var _actions2 = _interopRequireDefault(_actions);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var UserEdit = function (_Element) {
+    (0, _inherits3.default)(UserEdit, _Element);
+
+    function UserEdit() {
+        (0, _classCallCheck3.default)(this, UserEdit);
+
+        var _this = (0, _possibleConstructorReturn3.default)(this, (UserEdit.__proto__ || Object.getPrototypeOf(UserEdit)).call(this, _userEdit2.default, _userEdit4.default.toString()));
+
+        _this.router = document.querySelector('wc-router');
+
+        _this.form = _this.shadowRoot.querySelector('zen-ui-form');
+        _this.form.fields = _this.constructor.formFields;
+        _this.form.addEventListener('submit', _this.save.bind(_this));
+        return _this;
+    }
+
+    (0, _createClass3.default)(UserEdit, [{
+        key: 'connectedCallback',
+        value: function connectedCallback() {
+            (0, _get3.default)(UserEdit.prototype.__proto__ || Object.getPrototypeOf(UserEdit.prototype), 'connectedCallback', this).call(this);
+            this.trigger('user-get', [this.id]);
+            this.trigger('user-properties-get', [this.id]);
+        }
+    }, {
+        key: 'propertyChangedCallback',
+        value: function propertyChangedCallback(prop, oldV, newV) {
+            switch (prop) {
+                case 'user':
+                    if (newV) {
+                        this.trigger('title-set', [newV.fname]);
+
+                        this.form.values = newV;
+                    }
+                    break;
+
+                case 'errors':
+                    if (newV.get) this.router.push('/404');
+
+            }
+        }
+    }, {
+        key: 'save',
+        value: function save() {
+            var _this2 = this;
+
+            this.form.values.data = {};
+            delete this.form.values.properties;
+
+            Object.keys(this.form.values).filter(function (k) {
+                return (/^data\./.test(k)
+                );
+            }).map(function (k) {
+                return (/^data\.(.+)/.exec(k)[1]
+                );
+            }).forEach(function (k) {
+                _this2.form.values.data[k] = _this2.form.values['data.' + k];
+                delete _this2.form.values['data.' + k];
+            });
+
+            this.trigger('user-update', [this.id, this.form.values]);
+        }
+    }, {
+        key: 'id',
+        get: function get() {
+            if (this.isConnected) return this.router.params.id;else return false;
+        }
+    }], [{
+        key: 'formFields',
+        get: function get() {
+            return [{
+                name: 'fname',
+                placeholder: 'First name',
+                type: 'text'
+            }, {
+                name: 'lname',
+                placeholder: 'Last name',
+                type: 'text'
+            }, {
+                name: 'email',
+                placeholder: 'Email',
+                type: 'text'
+            }, {
+                type: 'submit'
+            }];
+        }
+    }, {
+        key: 'boundProps',
+        get: function get() {
+            return ['user', 'errors'];
+        }
+    }]);
+    return UserEdit;
+}(_lib.Element);
+
+var ConnectedUsersEdit = function (_connect) {
+    (0, _inherits3.default)(ConnectedUsersEdit, _connect);
+
+    function ConnectedUsersEdit() {
+        (0, _classCallCheck3.default)(this, ConnectedUsersEdit);
+        return (0, _possibleConstructorReturn3.default)(this, (ConnectedUsersEdit.__proto__ || Object.getPrototypeOf(ConnectedUsersEdit)).apply(this, arguments));
+    }
+
+    (0, _createClass3.default)(ConnectedUsersEdit, [{
+        key: '_mapStateToProps',
+        value: function _mapStateToProps(state) {
+            var _this4 = this;
+
+            var user = state.Users.users.find(function (p) {
+                return p.id === _this4.id;
+            });
+            if (user) user = user.asMutable({ deep: true });
+
+            return { user: user, errors: state.Users.errors };
+        }
+    }, {
+        key: 'mapDispatchToEvents',
+        get: function get() {
+            return {
+                'user-get': _actions2.default.Users.usersGet,
+                'user-update': _actions2.default.Users.usersUpdate,
+                'title-set': _actions2.default.App.titleSet
+            };
+        }
+    }]);
+    return ConnectedUsersEdit;
+}((0, _ConnectedElementMixin.connect)(_store2.default, UserEdit));
+
+window.customElements.define('page-app-user-edit', ConnectedUsersEdit);
+
+/***/ }),
+/* 215 */
+/***/ (function(module, exports) {
+
+module.exports = "<zen-ui-form class=\"card padding-main\"></zen-ui-form>\n"
+
+/***/ }),
+/* 216 */
+/***/ (function(module, exports, __webpack_require__) {
+
+exports = module.exports = __webpack_require__(4)(undefined);
+// imports
+
+
+// module
+exports.push([module.i, "zen-ui-form {\n  background-color: white; }\n", ""]);
+
+// exports
+
+
+/***/ }),
+/* 217 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var _classCallCheck2 = __webpack_require__(0);
+
+var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
+
+var _createClass2 = __webpack_require__(1);
+
+var _createClass3 = _interopRequireDefault(_createClass2);
+
+var _possibleConstructorReturn2 = __webpack_require__(2);
+
+var _possibleConstructorReturn3 = _interopRequireDefault(_possibleConstructorReturn2);
+
+var _get2 = __webpack_require__(7);
+
+var _get3 = _interopRequireDefault(_get2);
+
+var _inherits2 = __webpack_require__(3);
+
+var _inherits3 = _interopRequireDefault(_inherits2);
+
+var _lib = __webpack_require__(5);
+
+var _notFound = __webpack_require__(218);
+
+var _notFound2 = _interopRequireDefault(_notFound);
+
+var _notFound3 = __webpack_require__(219);
+
+var _notFound4 = _interopRequireDefault(_notFound3);
+
+var _ConnectedElementMixin = __webpack_require__(10);
+
+var _store = __webpack_require__(8);
+
+var _store2 = _interopRequireDefault(_store);
+
+var _actions = __webpack_require__(12);
 
 var _actions2 = _interopRequireDefault(_actions);
 
@@ -33373,13 +33785,13 @@ var ConnectedNotFound = function (_connect) {
 window.customElements.define('page-not-found', ConnectedNotFound);
 
 /***/ }),
-/* 209 */
+/* 218 */
 /***/ (function(module, exports) {
 
 module.exports = "<h2>Whoops! Looks like that page is missing.</h2>\n<wc-link to='/'>Return home</wc-link>\n"
 
 /***/ }),
-/* 210 */
+/* 219 */
 /***/ (function(module, exports, __webpack_require__) {
 
 exports = module.exports = __webpack_require__(4)(undefined);
@@ -33393,26 +33805,26 @@ exports.push([module.i, "", ""]);
 
 
 /***/ }),
-/* 211 */
+/* 220 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-__webpack_require__(212);
+__webpack_require__(221);
 
-__webpack_require__(214);
+__webpack_require__(223);
 
-__webpack_require__(217);
+__webpack_require__(226);
 
-__webpack_require__(222);
+__webpack_require__(231);
 
-__webpack_require__(225);
+__webpack_require__(234);
 
-__webpack_require__(228);
+__webpack_require__(237);
 
 /***/ }),
-/* 212 */
+/* 221 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -33434,7 +33846,7 @@ var _inherits2 = __webpack_require__(3);
 
 var _inherits3 = _interopRequireDefault(_inherits2);
 
-var _svgInlineLoaderIcons = __webpack_require__(213);
+var _svgInlineLoaderIcons = __webpack_require__(222);
 
 var _svgInlineLoaderIcons2 = _interopRequireDefault(_svgInlineLoaderIcons);
 
@@ -33467,13 +33879,13 @@ window.customElements.define('zen-icon-set', function (_CustomElement2) {
 }(_CustomElement));
 
 /***/ }),
-/* 213 */
+/* 222 */
 /***/ (function(module, exports) {
 
 module.exports = "<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\"><defs><style> .sprite-symbol-usage {display: none;} .sprite-symbol-usage:target {display: inline;} </style><symbol viewBox=\"0 0 40 40\" id=\"zen-icon-add\"><path d=\"M30,19h-9v-9c0-0.6-0.4-1-1-1s-1,0.4-1,1v9h-9c-0.6,0-1,0.4-1,1s0.4,1,1,1h9v9c0,0.6,0.4,1,1,1s1-0.4,1-1v-9h9 c0.6,0,1-0.4,1-1S30.6,19,30,19z\"></path></symbol><symbol viewBox=\"0 0 40 40\" id=\"zen-icon-arrow-left\"><path d=\"M25.2,29.7c0.4-0.4,0.4-1,0-1.4L16.9,20l8.3-8.3c0.4-0.4,0.4-1,0-1.4s-1-0.4-1.4,0l-9,9c-0.2,0.2-0.3,0.5-0.3,0.7 s0.1,0.5,0.3,0.7l9,9C24.2,30.1,24.8,30.1,25.2,29.7z\"></path></symbol><symbol viewBox=\"0 0 40 40\" id=\"zen-icon-arrow-down\"><path d=\"M29.7,14.8c-0.4-0.4-1-0.4-1.4,0L20,23.1l-8.3-8.3c-0.4-0.4-1-0.4-1.4,0s-0.4,1,0,1.4l9,9c0.2,0.2,0.5,0.3,0.7,0.3 s0.5-0.1,0.7-0.3l9-9C30.1,15.8,30.1,15.2,29.7,14.8z\"></path></symbol><symbol viewBox=\"0 0 40 40\" id=\"zen-icon-arrow-right\"><path d=\"M14.8,10.3c-0.4,0.4-0.4,1,0,1.4l8.3,8.3l-8.3,8.3c-0.4,0.4-0.4,1,0,1.4s1,0.4,1.4,0l9-9c0.2-0.2,0.3-0.5,0.3-0.7 s-0.1-0.5-0.3-0.7l-9-9C15.8,9.9,15.2,9.9,14.8,10.3z\"></path></symbol><symbol viewBox=\"0 0 40 40\" id=\"zen-icon-app\"><g><path d=\"M20,33c-0.2,0-0.3,0-0.5-0.1l-10.4-6c-0.3-0.2-0.5-0.5-0.5-0.9V14c0-0.4,0.2-0.7,0.5-0.9l10.4-6c0.3-0.2,0.7-0.2,1,0 l10.4,6c0.3,0.2,0.5,0.5,0.5,0.9v12c0,0.4-0.2,0.7-0.5,0.9l-10.4,6C20.3,33,20.2,33,20,33z M10.6,25.4l9.4,5.4l9.4-5.4V14.6L20,9.2 l-9.4,5.4V25.4z\"></path></g></symbol><symbol viewBox=\"0 0 40 40\" id=\"zen-icon-cloud\"><path d=\"M26.2,16.5c-0.3,0-0.6,0-0.9,0.1c-1.1-1.9-3.2-3.2-5.6-3.2c-2.9,0-5.3,1.8-6.2,4.4c-0.1,0-0.2,0-0.4,0c-2.4,0-4.4,2-4.4,4.4 s2,4.4,4.4,4.4h13.1c2.8,0,5-2.2,5-5C31.2,18.8,29,16.5,26.2,16.5z\"></path></symbol><symbol viewBox=\"0 0 40 40\" id=\"zen-icon-brush\"><path d=\"M32.7,12.3l-2.8-2.8c-0.2-0.2-0.4-0.3-0.7-0.3s-0.5,0.1-0.7,0.3L17.3,20.6c-0.7-0.1-1.4-0.2-2.1-0.1 c-0.9,0.1-1.6,0.5-2.2,1.2c-0.6,0.7-0.8,1.6-0.7,2.5c0,0.3,0,0.9-0.4,1.2c-0.6,0.5-2,0.4-3.6-0.2C8,25,7.6,25.1,7.3,25.4 c-0.3,0.3-0.4,0.7-0.2,1.1c0.9,2.1,4,4.3,7,4.3c0.7,0,1.4-0.1,2.1-0.4c2.6-1.1,4.3-3,4.7-4.9l11.8-11.8 C33.1,13.3,33.1,12.7,32.7,12.3z M15.4,28.6c-1.5,0.6-3.3,0-4.6-0.9c1.1,0,1.9-0.4,2.4-0.8c0.9-0.7,1.3-1.8,1.1-3.1 c0-0.3,0.1-0.7,0.3-1c0.2-0.2,0.5-0.4,0.8-0.4c1.7-0.1,3.1,0.4,3.5,1.4C19.5,25.4,17.9,27.5,15.4,28.6z M20.6,23 c-0.3-0.6-0.7-1.1-1.3-1.5l9.8-9.8l1.4,1.4L20.6,23z\"></path></symbol><symbol viewBox=\"0 0 40 40\" id=\"zen-icon-arrow-up\"><path d=\"M29.7,25.2c-0.4,0.4-1,0.4-1.4,0L20,16.9l-8.3,8.3c-0.4,0.4-1,0.4-1.4,0s-0.4-1,0-1.4l9-9c0.2-0.2,0.5-0.3,0.7-0.3 s0.5,0.1,0.7,0.3l9,9C30.1,24.2,30.1,24.8,29.7,25.2z\"></path></symbol><symbol viewBox=\"0 0 40 40\" id=\"zen-icon-code\"><g><path d=\"M14.9,16.6c-0.2-0.5-0.8-0.7-1.3-0.4l-6,3c0,0-0.1,0-0.1,0.1c-0.1,0-0.1,0.1-0.2,0.1c0,0-0.1,0.1-0.1,0.2 c0,0-0.1,0.1-0.1,0.1c0,0,0,0,0,0.1c0,0.1,0,0.1-0.1,0.2c0,0.1,0,0.1,0,0.2c0,0.1,0,0.1,0,0.2c0,0.1,0,0.1,0.1,0.2c0,0,0,0,0,0.1 c0,0.1,0.1,0.1,0.1,0.2c0,0,0,0,0,0.1c0.1,0.1,0.2,0.2,0.3,0.2c0,0,0,0,0,0l6,3C13.7,24,13.8,24,14,24c0.4,0,0.7-0.2,0.9-0.6 c0.2-0.5,0-1.1-0.4-1.3L10.2,20l4.2-2.1C14.9,17.6,15.1,17,14.9,16.6z\"></path><path d=\"M33,20c0-0.1,0-0.1,0-0.2c0-0.1,0-0.1-0.1-0.2c0,0,0,0,0-0.1c0,0,0-0.1-0.1-0.1c0-0.1-0.1-0.1-0.1-0.2c0,0-0.1-0.1-0.2-0.1 c0,0-0.1-0.1-0.1-0.1l-6-3c-0.5-0.2-1.1,0-1.3,0.4c-0.2,0.5,0,1.1,0.4,1.3l4.2,2.1l-4.2,2.1c-0.5,0.2-0.7,0.8-0.4,1.3 c0.2,0.4,0.5,0.6,0.9,0.6c0.2,0,0.3,0,0.4-0.1l6-3c0,0,0,0,0,0c0.1-0.1,0.2-0.1,0.3-0.2c0,0,0,0,0-0.1c0,0,0.1-0.1,0.1-0.2 c0,0,0,0,0-0.1c0-0.1,0-0.1,0.1-0.2C33,20.1,33,20.1,33,20z\"></path><path d=\"M21.7,13c-0.5-0.1-1.1,0.2-1.2,0.7l-3,12c-0.1,0.5,0.2,1.1,0.7,1.2c0.1,0,0.2,0,0.2,0c0.4,0,0.9-0.3,1-0.8l3-12 C22.6,13.7,22.3,13.2,21.7,13z\"></path></g></symbol><symbol viewBox=\"0 0 40 40\" id=\"zen-icon-cross\"><path d=\"M21.4,20l6.3-6.3c0.4-0.4,0.4-1,0-1.4s-1-0.4-1.4,0L20,18.6l-6.3-6.3c-0.4-0.4-1-0.4-1.4,0s-0.4,1,0,1.4l6.3,6.3l-6.3,6.3 c-0.4,0.4-0.4,1,0,1.4c0.2,0.2,0.5,0.3,0.7,0.3s0.5-0.1,0.7-0.3l6.3-6.3l6.3,6.3c0.2,0.2,0.5,0.3,0.7,0.3s0.5-0.1,0.7-0.3 c0.4-0.4,0.4-1,0-1.4L21.4,20z\"></path></symbol><symbol viewBox=\"0 0 40 40\" id=\"zen-icon-dollar\"><g><path d=\"M19.3,28.6c-1.5-0.1-2.8-0.6-3.8-1.3c-0.8-0.6-1.4-1.3-1.9-2.3c-0.2-0.4,0-1,0.4-1.2l0.3-0.1c0.5-0.2,1,0,1.2,0.5 c0.3,0.5,0.6,1,1.1,1.5c0.8,0.7,1.7,1.1,2.7,1.3v-6c-1.1-0.2-2.1-0.5-2.8-0.8c-0.7-0.3-1.4-0.7-1.8-1.3c-0.5-0.6-0.7-1.3-0.7-2.3 c0-0.9,0.2-1.7,0.7-2.4c0.4-0.7,1.1-1.3,1.9-1.8c0.8-0.5,1.8-0.7,2.9-0.8V9.7c0-0.5,0.4-0.9,0.9-0.9h0c0.5,0,0.9,0.4,0.9,0.9v1.8 c1.3,0.1,2.3,0.4,3.2,1c0.6,0.4,1.2,1.1,1.7,1.8c0.3,0.4,0.2,0.9-0.2,1.2l-0.2,0.2c-0.4,0.3-1.1,0.2-1.3-0.3c-0.3-0.5-0.6-1-1-1.3 c-0.6-0.5-1.3-0.8-2.2-0.9v6.1c1.1,0.2,2.1,0.5,2.8,0.8c0.7,0.3,1.4,0.7,1.8,1.3c0.5,0.6,0.7,1.4,0.7,2.4c0,1.3-0.5,2.4-1.5,3.3 c-1,0.8-2.3,1.3-3.9,1.5v1.7c0,0.5-0.4,0.9-0.9,0.9h0c-0.5,0-0.9-0.4-0.9-0.9V28.6z M19.3,13.2c-1.1,0.1-2,0.4-2.5,0.9 c-0.6,0.5-0.9,1.2-0.9,2.1c0,0.8,0.3,1.4,0.9,1.8s1.4,0.7,2.5,1V13.2z M24.5,24c0-0.8-0.3-1.4-0.9-1.8c-0.6-0.4-1.4-0.8-2.5-1v5.7 C23.4,26.7,24.5,25.7,24.5,24z\"></path></g></symbol><symbol viewBox=\"0 0 40 40\" id=\"zen-icon-database\"><g><path d=\"M20,26c-3.3,0-6.2-0.9-8-2.3c0,0.1,0,0.2,0,0.3c0,2.2,3.6,4,8,4s8-1.8,8-4c0-0.1,0-0.2,0-0.3C26.2,25.1,23.3,26,20,26z\"></path><ellipse cx=\"20\" cy=\"16\" rx=\"8\" ry=\"4\"></ellipse><path d=\"M20,22c-3.3,0-6.2-0.9-8-2.3c0,0.1,0,0.2,0,0.3c0,2.2,3.6,4,8,4s8-1.8,8-4c0-0.1,0-0.2,0-0.3C26.2,21.1,23.3,22,20,22z\"></path></g></symbol><symbol viewBox=\"0 0 40 40\" id=\"zen-icon-dashboard\"><g><path d=\"M20,7C12.8,7,7,12.8,7,20c0,7.2,5.8,13,13,13c7.2,0,13-5.8,13-13C33,12.8,27.2,7,20,7z M20,31c-6.1,0-11-4.9-11-11 S13.9,9,20,9s11,4.9,11,11S26.1,31,20,31z\"></path><path d=\"M21,17.2V12c0-0.6-0.4-1-1-1s-1,0.4-1,1v5.2c-1.2,0.4-2,1.5-2,2.8c0,1.7,1.3,3,3,3s3-1.3,3-3C23,18.7,22.2,17.6,21,17.2z M20,21c-0.6,0-1-0.4-1-1s0.4-1,1-1s1,0.4,1,1S20.6,21,20,21z\"></path><path d=\"M15,20c0-0.6-0.4-1-1-1h-2c-0.6,0-1,0.4-1,1s0.4,1,1,1h2C14.6,21,15,20.6,15,20z\"></path><path d=\"M15.1,16.5c0.2,0.2,0.5,0.3,0.7,0.3s0.5-0.1,0.7-0.3c0.4-0.4,0.4-1,0-1.4l-1.4-1.4c-0.4-0.4-1-0.4-1.4,0s-0.4,1,0,1.4 L15.1,16.5z\"></path><path d=\"M24.2,16.8c0.3,0,0.5-0.1,0.7-0.3l1.4-1.4c0.4-0.4,0.4-1,0-1.4s-1-0.4-1.4,0L23.5,15c-0.4,0.4-0.4,1,0,1.4 C23.7,16.7,24,16.8,24.2,16.8z\"></path><path d=\"M28,19h-2c-0.6,0-1,0.4-1,1s0.4,1,1,1h2c0.6,0,1-0.4,1-1S28.6,19,28,19z\"></path><path d=\"M24.9,23.5c-0.4-0.4-1-0.4-1.4,0s-0.4,1,0,1.4l1.4,1.4c0.2,0.2,0.5,0.3,0.7,0.3s0.5-0.1,0.7-0.3c0.4-0.4,0.4-1,0-1.4 L24.9,23.5z\"></path><path d=\"M15,23.5L13.6,25c-0.4,0.4-0.4,1,0,1.4c0.2,0.2,0.5,0.3,0.7,0.3s0.5-0.1,0.7-0.3l1.4-1.4c0.4-0.4,0.4-1,0-1.4 C16.1,23.1,15.4,23.1,15,23.5z\"></path></g></symbol><symbol viewBox=\"0 0 40 40\" id=\"zen-icon-editor-bold\"><path d=\"M21,20c3.5,0,6.4-1.8,6.4-5.5S24.6,8,21,8h-9.5v24H21c4.7,0,7.5-2.9,7.5-6.5S25.7,20,21,20z M16.5,12h3.8 c1.4,0,2.5,1.1,2.5,2.5c0,1.4-1.1,2.5-2.5,2.5h-3.8V12z M21.2,28h-4.7v-5h4.7c1.3,0,2.3,1.1,2.3,2.5C23.5,26.9,22.5,28,21.2,28z\"></path></symbol><symbol viewBox=\"0 0 40 40\" id=\"zen-icon-editor-bullet-ordered\"><g><path d=\"M19.4,11.6h12c0.6,0,1-0.4,1-1s-0.4-1-1-1h-12c-0.6,0-1,0.4-1,1S18.9,11.6,19.4,11.6z\"></path><path d=\"M31.4,19.6h-12c-0.6,0-1,0.4-1,1c0,0.6,0.4,1,1,1h12c0.6,0,1-0.4,1-1C32.4,20.1,32,19.6,31.4,19.6z\"></path><path d=\"M31.4,29.6h-12c-0.6,0-1,0.4-1,1s0.4,1,1,1h12c0.6,0,1-0.4,1-1S32,29.6,31.4,29.6z\"></path><path d=\"M8.9,9v3.5h1.8V7.3H9.2C9.1,7.5,8.9,7.7,8.5,7.8s-0.6,0.3-1,0.3l0.1,1.5C8.1,9.6,8.5,9.4,8.9,9z\"></path><path d=\"M10,21.3L10,21.3c0.6-0.3,1.1-0.7,1.5-1s0.6-0.8,0.6-1.3c0-0.3-0.1-0.5-0.2-0.8c-0.1-0.3-0.4-0.5-0.7-0.7 c-0.3-0.2-0.7-0.3-1.2-0.3c-0.4,0-0.8,0.1-1.2,0.2c-0.3,0.1-0.6,0.4-0.8,0.7c-0.2,0.3-0.3,0.7-0.3,1.1l1.6,0.4c0-0.3,0-0.6,0.1-0.7 c0.1-0.2,0.2-0.2,0.4-0.2c0.1,0,0.3,0,0.3,0.1s0.1,0.2,0.1,0.3c0,0.3-0.2,0.7-0.6,1.1c-0.4,0.4-1,0.8-1.8,1.2v1.1h4.2v-1.4h-0.8 C10.7,21.2,10.3,21.2,10,21.3z\"></path><path d=\"M11.3,30.1C11.2,30,11,30,10.9,30v0c0.1,0,0.2,0,0.4-0.1s0.3-0.2,0.4-0.4c0.1-0.2,0.2-0.4,0.2-0.7c0-0.5-0.2-0.9-0.5-1.2 c-0.4-0.3-0.9-0.4-1.5-0.4c-0.6,0-1.2,0.1-1.5,0.3c-0.4,0.2-0.6,0.6-0.7,1.2l1.6,0.5c0-0.4,0.2-0.7,0.5-0.7c0.1,0,0.2,0,0.3,0.1 c0.1,0.1,0.1,0.2,0.1,0.3c0,0.2,0,0.3-0.1,0.3c-0.1,0.1-0.2,0.1-0.4,0.1H9.4v1.1h0.4c0.2,0,0.3,0,0.4,0.1c0.1,0.1,0.1,0.2,0.1,0.3 c0,0.3-0.2,0.4-0.5,0.4c-0.2,0-0.3,0-0.4-0.1c-0.1-0.1-0.1-0.3-0.1-0.5l-1.7,0.7c0.1,0.5,0.4,0.8,0.7,1c0.4,0.2,0.9,0.3,1.5,0.3 c0.4,0,0.8-0.1,1.1-0.2s0.6-0.3,0.8-0.5c0.2-0.2,0.3-0.5,0.3-0.8c0-0.3-0.1-0.6-0.2-0.8C11.6,30.2,11.5,30.1,11.3,30.1z\"></path></g></symbol><symbol viewBox=\"0 0 40 40\" id=\"zen-icon-editor-indent\"><g><path d=\"M14.5,17.5c-0.2-0.2-0.5-0.3-0.8-0.2c-0.3,0.1-0.4,0.4-0.4,0.7l0,1L8,19c-0.6,0-1,0.4-1,1c0,0.6,0.4,1,1,1h0l5.3,0l0,1 c0,0.3,0.2,0.5,0.4,0.7c0.1,0,0.2,0.1,0.3,0.1c0.2,0,0.4-0.1,0.5-0.2l2-2c0.3-0.3,0.3-0.7,0-1L14.5,17.5z\"></path><path d=\"M20,17L20,17l8,0c0.6,0,1-0.4,1-1s-0.4-1-1-1l-8,0c-0.6,0-1,0.4-1,1S19.4,17,20,17z\"></path><path d=\"M20,13L20,13l12,0c0.6,0,1-0.4,1-1s-0.4-1-1-1l-12,0c-0.6,0-1,0.4-1,1S19.4,13,20,13z\"></path><path d=\"M32,23C32,23,32,23,32,23l-12,0c-0.6,0-1,0.4-1,1c0,0.6,0.4,1,1,1h0l12,0c0.6,0,1-0.4,1-1C33,23.4,32.6,23,32,23z\"></path><path d=\"M32,19l-12,0c-0.6,0-1,0.4-1,1c0,0.6,0.4,1,1,1h0l12,0c0.6,0,1-0.4,1-1S32.6,19,32,19z\"></path><path d=\"M28,27h-8c-0.6,0-1,0.4-1,1s0.4,1,1,1h8c0.6,0,1-0.4,1-1S28.6,27,28,27z\"></path></g></symbol><symbol viewBox=\"0 0 40 40\" id=\"zen-icon-editor-bullet-unordered\"><g><g><path d=\"M10,13c-1.7,0-3-1.3-3-3s1.3-3,3-3s3,1.3,3,3S11.7,13,10,13z M10,9c-0.6,0-1,0.4-1,1s0.4,1,1,1s1-0.4,1-1S10.6,9,10,9z\"></path></g><g><path d=\"M32,11H20c-0.6,0-1-0.4-1-1s0.4-1,1-1h12c0.6,0,1,0.4,1,1S32.6,11,32,11z\"></path></g><g><path d=\"M10,23c-1.7,0-3-1.3-3-3s1.3-3,3-3s3,1.3,3,3S11.7,23,10,23z M10,19c-0.6,0-1,0.4-1,1c0,0.6,0.4,1,1,1s1-0.4,1-1 C11,19.4,10.6,19,10,19z\"></path></g><g><path d=\"M32,21H20c-0.6,0-1-0.4-1-1c0-0.6,0.4-1,1-1h12c0.6,0,1,0.4,1,1C33,20.6,32.6,21,32,21z\"></path></g><g><path d=\"M10,33c-1.7,0-3-1.3-3-3s1.3-3,3-3s3,1.3,3,3S11.7,33,10,33z M10,29c-0.6,0-1,0.4-1,1s0.4,1,1,1s1-0.4,1-1S10.6,29,10,29z \"></path></g><g><path d=\"M32,31H20c-0.6,0-1-0.4-1-1s0.4-1,1-1h12c0.6,0,1,0.4,1,1S32.6,31,32,31z\"></path></g></g></symbol><symbol viewBox=\"0 0 40 40\" id=\"zen-icon-editor-clear\"><g><path d=\"M22.5,18.3l6.6-6.6l1.4,1.4l-6.6,6.6l1.4,1.4l7.4-7.4c0.4-0.4,0.4-1,0-1.4l-2.8-2.8c-0.2-0.2-0.4-0.3-0.7-0.3 c-0.3,0-0.5,0.1-0.7,0.3l-7.4,7.4L22.5,18.3z\"></path><path d=\"M31.5,32.9c0.1,0.1,0.3,0.1,0.5,0.1c0.3,0,0.5-0.1,0.7-0.3c0.3-0.3,0.4-0.8,0.2-1.2L8.5,7.1C8.1,6.9,7.6,7,7.3,7.3 S6.9,8.1,7.1,8.5L31.5,32.9z\"></path><path d=\"M16.3,20.5c-0.4,0-0.7,0-1.1,0c-0.9,0.1-1.6,0.5-2.2,1.2c-0.6,0.7-0.8,1.6-0.7,2.5c0,0.3,0,0.9-0.4,1.2 c-0.6,0.5-2,0.4-3.6-0.2c-0.3-0.2-0.7-0.1-1,0.2c-0.3,0.3-0.4,0.7-0.2,1.1c0.9,2.1,4,4.3,7,4.3c0.7,0,1.4-0.1,2.1-0.4 c2.6-1.1,4.3-3,4.7-4.9l0.2-0.2L16.3,20.5z M15.4,28.6c-1.5,0.6-3.3,0-4.6-0.9c1.1,0,1.9-0.4,2.4-0.8c0.9-0.7,1.3-1.8,1.1-3.1 c0-0.3,0.1-0.7,0.3-1c0.2-0.2,0.5-0.4,0.8-0.4c1.7-0.1,3.1,0.4,3.5,1.4C19.5,25.4,17.9,27.5,15.4,28.6z\"></path></g></symbol><symbol viewBox=\"0 0 40 40\" id=\"zen-icon-editor-justify-center\"><g><path d=\"M25,30h-8c-0.6,0-1-0.4-1-1s0.4-1,1-1h8c0.6,0,1,0.4,1,1S25.6,30,25,30z\"></path></g><g><path d=\"M33,22H9c-0.6,0-1-0.4-1-1c0-0.6,0.4-1,1-1h24c0.6,0,1,0.4,1,1C34,21.6,33.6,22,33,22z\"></path></g><g><path d=\"M33,14H9c-0.6,0-1-0.4-1-1s0.4-1,1-1h24c0.6,0,1,0.4,1,1S33.6,14,33,14z\"></path></g><g><path d=\"M33,18H9c-0.6,0-1-0.4-1-1s0.4-1,1-1h24c0.6,0,1,0.4,1,1S33.6,18,33,18z\"></path></g><g><path d=\"M33,26H9c-0.6,0-1-0.4-1-1s0.4-1,1-1h24c0.6,0,1,0.4,1,1S33.6,26,33,26z\"></path></g></symbol><symbol viewBox=\"0 0 40 40\" id=\"zen-icon-editor-justify-left\"><g><path d=\"M17,30H9c-0.6,0-1-0.4-1-1s0.4-1,1-1h8c0.6,0,1,0.4,1,1S17.6,30,17,30z\"></path></g><g><path d=\"M33,22H9c-0.6,0-1-0.4-1-1c0-0.6,0.4-1,1-1h24c0.6,0,1,0.4,1,1C34,21.6,33.6,22,33,22z\"></path></g><g><path d=\"M33,14H9c-0.6,0-1-0.4-1-1s0.4-1,1-1h24c0.6,0,1,0.4,1,1S33.6,14,33,14z\"></path></g><g><path d=\"M33,18H9c-0.6,0-1-0.4-1-1s0.4-1,1-1h24c0.6,0,1,0.4,1,1S33.6,18,33,18z\"></path></g><g><path d=\"M33,26H9c-0.6,0-1-0.4-1-1s0.4-1,1-1h24c0.6,0,1,0.4,1,1S33.6,26,33,26z\"></path></g></symbol><symbol viewBox=\"0 0 40 40\" id=\"zen-icon-editor-italic\"><path d=\"M28,8H16c-0.6,0-1,0.4-1,1s0.4,1,1,1h4.8l-3.6,20H12c-0.6,0-1,0.4-1,1s0.4,1,1,1h12c0.6,0,1-0.4,1-1s-0.4-1-1-1h-4.8l3.6-20 H28c0.6,0,1-0.4,1-1S28.6,8,28,8z\"></path></symbol><symbol viewBox=\"0 0 40 40\" id=\"zen-icon-editor-justify-right\"><g><path d=\"M25,30h8c0.6,0,1-0.4,1-1s-0.4-1-1-1h-8c-0.6,0-1,0.4-1,1S24.4,30,25,30z\"></path></g><g><path d=\"M9,22h24c0.6,0,1-0.4,1-1c0-0.6-0.4-1-1-1H9c-0.6,0-1,0.4-1,1C8,21.6,8.4,22,9,22z\"></path></g><g><path d=\"M9,14h24c0.6,0,1-0.4,1-1s-0.4-1-1-1H9c-0.6,0-1,0.4-1,1S8.4,14,9,14z\"></path></g><g><path d=\"M9,18h24c0.6,0,1-0.4,1-1s-0.4-1-1-1H9c-0.6,0-1,0.4-1,1S8.4,18,9,18z\"></path></g><g><path d=\"M9,26h24c0.6,0,1-0.4,1-1s-0.4-1-1-1H9c-0.6,0-1,0.4-1,1S8.4,26,9,26z\"></path></g></symbol><symbol viewBox=\"0 0 40 40\" id=\"zen-icon-editor-link\"><g><g><path d=\"M12,33c-1.3,0-2.5-0.5-3.5-1.4c-1-1-1.5-2.2-1.4-3.6c0-1.3,0.6-2.6,1.5-3.6l5.9-5.9c0.4-0.4,1-0.4,1.4,0 c0.4,0.4,0.4,1,0,1.4L10,25.8c-0.6,0.6-0.9,1.4-1,2.2c0,0.8,0.3,1.6,0.8,2.1c1.2,1.2,3.1,1.1,4.4-0.1l5.9-5.9c0.4-0.4,1-0.4,1.4,0 c0.4,0.4,0.4,1,0,1.4l-5.9,5.9C14.6,32.5,13.3,33,12,33z\"></path></g><g><path d=\"M24.8,21.8c-0.3,0-0.5-0.1-0.7-0.3c-0.4-0.4-0.4-1,0-1.4l5.9-5.9c0.6-0.6,0.9-1.4,1-2.2c0-0.8-0.3-1.6-0.8-2.1 C29.6,9.3,28.8,9,28,9c-0.8,0-1.6,0.4-2.2,1l-5.9,5.9c-0.4,0.4-1,0.4-1.4,0c-0.4-0.4-0.4-1,0-1.4l5.9-5.9c1-1,2.2-1.5,3.6-1.5 c1.4,0,2.6,0.5,3.6,1.4c1,0.9,1.5,2.2,1.4,3.6c0,1.3-0.6,2.6-1.5,3.6l-5.9,5.9C25.3,21.7,25.1,21.8,24.8,21.8z\"></path></g><g><path d=\"M16,25c-0.3,0-0.5-0.1-0.7-0.3c-0.4-0.4-0.4-1,0-1.4l8-8c0.4-0.4,1-0.4,1.4,0c0.4,0.4,0.4,1,0,1.4l-8,8 C16.5,24.9,16.3,25,16,25z\"></path></g></g></symbol><symbol viewBox=\"0 0 40 40\" id=\"zen-icon-editor-justify\"><g><path d=\"M9,30h24c0.6,0,1-0.4,1-1s-0.4-1-1-1H9c-0.6,0-1,0.4-1,1S8.4,30,9,30z\"></path></g><g><path d=\"M9,22h24c0.6,0,1-0.4,1-1c0-0.6-0.4-1-1-1H9c-0.6,0-1,0.4-1,1C8,21.6,8.4,22,9,22z\"></path></g><g><path d=\"M9,14h24c0.6,0,1-0.4,1-1s-0.4-1-1-1H9c-0.6,0-1,0.4-1,1S8.4,14,9,14z\"></path></g><g><path d=\"M9,18h24c0.6,0,1-0.4,1-1s-0.4-1-1-1H9c-0.6,0-1,0.4-1,1S8.4,18,9,18z\"></path></g><g><path d=\"M9,26h24c0.6,0,1-0.4,1-1s-0.4-1-1-1H9c-0.6,0-1,0.4-1,1S8.4,26,9,26z\"></path></g></symbol><symbol viewBox=\"0 0 40 40\" id=\"zen-icon-editor-outdent\"><g><path d=\"M9.2,17.5c0.2-0.2,0.5-0.3,0.8-0.2c0.3,0.1,0.4,0.4,0.4,0.7l0,1l5.3,0c0.6,0,1,0.4,1,1c0,0.6-0.4,1-1,1h0l-5.3,0l0,1 c0,0.3-0.2,0.5-0.4,0.7c-0.1,0-0.2,0.1-0.3,0.1c-0.2,0-0.4-0.1-0.5-0.2l-2-2c-0.3-0.3-0.3-0.7,0-1L9.2,17.5z\"></path><path d=\"M20,17L20,17l8,0c0.6,0,1-0.4,1-1s-0.4-1-1-1l-8,0c-0.6,0-1,0.4-1,1S19.4,17,20,17z\"></path><path d=\"M20,13L20,13l12,0c0.6,0,1-0.4,1-1s-0.4-1-1-1l-12,0c-0.6,0-1,0.4-1,1S19.4,13,20,13z\"></path><path d=\"M32,23C32,23,32,23,32,23l-12,0c-0.6,0-1,0.4-1,1c0,0.6,0.4,1,1,1h0l12,0c0.6,0,1-0.4,1-1C33,23.4,32.6,23,32,23z\"></path><path d=\"M32,19l-12,0c-0.6,0-1,0.4-1,1c0,0.6,0.4,1,1,1h0l12,0c0.6,0,1-0.4,1-1S32.6,19,32,19z\"></path><path d=\"M28,27h-8c-0.6,0-1,0.4-1,1s0.4,1,1,1h8c0.6,0,1-0.4,1-1S28.6,27,28,27z\"></path></g></symbol><symbol viewBox=\"0 0 40 40\" id=\"zen-icon-editor-underline\"><g><path d=\"M20,28.5c4.7,0,8.6-3.5,8.6-7.7V8.5c0-0.6-0.4-1-1-1s-1,0.4-1,1v12.3c0,3.1-3,5.7-6.6,5.7c-3.6,0-6.6-2.6-6.6-5.7V8.5 c0-0.6-0.4-1-1-1s-1,0.4-1,1v12.3C11.4,25,15.3,28.5,20,28.5z\"></path><path d=\"M32,30.5H8c-0.6,0-1,0.4-1,1s0.4,1,1,1h24c0.6,0,1-0.4,1-1S32.6,30.5,32,30.5z\"></path></g></symbol><symbol viewBox=\"0 0 40 40\" id=\"zen-icon-editor-strikethrough\"><g><path d=\"M11.6,17h2.3c-0.6-0.7-0.9-1.7-0.9-3c0-2.8,3.1-5,7-5c3.9,0,7,2.2,7,5c0,0.6,0.4,1,1,1s1-0.4,1-1c0-3.9-4-7-9-7 c-5,0-9,3.1-9,7c0,0,0,0,0,0s0,0,0,0C11,15.2,11.2,16.2,11.6,17z\"></path><path d=\"M32,19H19.2h-6.1H8c-0.6,0-1,0.4-1,1s0.4,1,1,1h11.1h7.6H32c0.6,0,1-0.4,1-1S32.6,19,32,19z\"></path><path d=\"M26,23c0.7,0.7,1,1.6,1,3c0,2.8-3.1,5-7,5c-3.9,0-7-2.2-7-5c0-0.6-0.4-1-1-1s-1,0.4-1,1c0,3.9,4,7,9,7c5,0,9-3.1,9-7 c0-1.2-0.2-2.2-0.6-3H26z\"></path></g></symbol><symbol viewBox=\"0 0 40 40\" id=\"zen-icon-editor-unlink\"><g><path d=\"M11.9,33c-1.3,0-2.6-0.5-3.5-1.4C7.5,30.6,7,29.3,7,28c0-1.3,0.6-2.6,1.5-3.6l5.9-5.9c0.4-0.4,1-0.4,1.4,0 c0.4,0.4,0.4,1,0,1.4L10,25.8C9.4,26.4,9,27.2,9,28c0,0.8,0.3,1.6,0.8,2.1c0.6,0.6,1.3,0.9,2.1,0.8c0.8,0,1.6-0.4,2.2-1l5.9-5.9 c0.4-0.4,1-0.4,1.4,0c0.4,0.4,0.4,1,0,1.4l-5.9,5.9c-1,1-2.2,1.5-3.6,1.5C12,33,12,33,11.9,33z\"></path></g><g><path d=\"M27.9,18.7c-0.4,0-0.7,0-1.1-0.1l-8.1-1.7c-0.5-0.1-0.9-0.6-0.8-1.2s0.6-0.9,1.2-0.8l8.1,1.7c1.7,0.4,3.4-0.7,3.7-2.3 c0.3-1.6-0.8-3.2-2.5-3.6L20.3,9c-0.5-0.1-0.9-0.6-0.8-1.2c0.1-0.5,0.6-0.9,1.2-0.8l8.1,1.7c2.8,0.6,4.6,3.3,4,6 C32.4,17.1,30.3,18.7,27.9,18.7z\"></path></g><g><path d=\"M11,12c-0.3,0-0.5-0.1-0.7-0.3l-2-2c-0.4-0.4-0.4-1,0-1.4c0.4-0.4,1-0.4,1.4,0l2,2c0.4,0.4,0.4,1,0,1.4 C11.5,11.9,11.3,12,11,12z\"></path></g><g><path d=\"M16,12c-0.6,0-1-0.4-1-1l0-2c0-0.6,0.4-1,1-1h0c0.6,0,1,0.4,1,1l0,2C17,11.6,16.5,12,16,12L16,12z\"></path></g><g><path d=\"M9,17c-0.6,0-1-0.4-1-1s0.4-1,1-1l2,0h0c0.6,0,1,0.4,1,1s-0.4,1-1,1L9,17L9,17z\"></path></g></symbol><symbol viewBox=\"0 0 40 40\" id=\"zen-icon-image\"><g><path d=\"M32,9H8c-0.6,0-1,0.5-1,1v20c0,0.6,0.5,1,1,1h24c0.6,0,1-0.5,1-1V10C33,9.4,32.6,9,32,9z M31,11v9.5l-6.2-3.1 c-0.5-0.2-1.1-0.1-1.5,0.2l-6.7,6.7c-0.4,0.4-1,0.5-1.5,0.2l-5.3-2.7c-0.3-0.1-0.6-0.2-0.8-0.1V11H31z\"></path><path d=\"M15,22c2.8,0,5-2.3,5-5s-2.3-5-5-5s-5,2.3-5,5S12.2,22,15,22z M15,14c1.6,0,3,1.3,3,3s-1.3,3-3,3s-3-1.3-3-3S13.4,14,15,14 z\"></path></g></symbol><symbol viewBox=\"0 0 40 40\" id=\"zen-icon-error\"><g><path d=\"M30.1,27.5l-9.2-16c-0.4-0.6-1.4-0.6-1.7,0l-9.2,16c-0.2,0.3-0.2,0.7,0,1c0.2,0.3,0.5,0.5,0.9,0.5h18.5 c0.4,0,0.7-0.2,0.9-0.5S30.3,27.8,30.1,27.5z M12.5,27L20,14l7.5,13H12.5z\"></path><path d=\"M19,20v4c0,0.6,0.4,1,1,1s1-0.4,1-1v-4c0-0.6-0.4-1-1-1S19,19.4,19,20z\"></path></g></symbol><symbol viewBox=\"0 0 40 40\" id=\"zen-icon-lock\"><path d=\"M26.2,17.8v-3h0c-0.3-3.1-2.8-5.5-6-5.5c-3.1,0-5.7,2.4-6,5.5h0v3c-1.7,0-3,1.3-3,3v7c0,1.7,1.3,3,3,3h12c1.7,0,3-1.3,3-3 v-7C29.2,19.1,27.8,17.8,26.2,17.8z M21.2,26.2c0,0.6-0.4,1-1,1s-1-0.4-1-1v-4c0-0.6,0.4-1,1-1s1,0.4,1,1V26.2z M24.2,17.8h-8v-2.5 c0-2.2,1.8-4,4-4s4,1.8,4,4V17.8z\"></path></symbol><symbol viewBox=\"0 0 40 40\" id=\"zen-icon-mail\"><g><path d=\"M31.9,13.4l-6.2,5.2l6.3,4.2V14C32,13.8,32,13.6,31.9,13.4z\"></path><path d=\"M8.1,13.4C8,13.6,8,13.8,8,14v8.8l6.3-4.2L8.1,13.4z\"></path><path d=\"M20.6,22.8C20.5,22.9,20.2,23,20,23s-0.5-0.1-0.6-0.2l-3.4-2.9L8,25.2V26c0,1.1,0.9,2,2,2h20c1.1,0,2-0.9,2-2v-0.8 l-7.9-5.3L20.6,22.8z\"></path><path d=\"M30.4,12L30.4,12L30.4,12c-0.1,0-0.3,0-0.4,0H10c-0.1,0-0.3,0-0.4,0L20,20.7L30.4,12z\"></path></g></symbol><symbol viewBox=\"0 0 40 40\" id=\"zen-icon-menu\"><g><path d=\"M40,12c0-0.6-0.4-1-1-1H19c-0.6,0-1,0.4-1,1s0.4,1,1,1h20C39.6,13,40,12.6,40,12z\"></path><path d=\"M39,19H23c-0.6,0-1,0.4-1,1s0.4,1,1,1h16c0.6,0,1-0.4,1-1S39.6,19,39,19z\"></path><path d=\"M39,27H27c-0.6,0-1,0.4-1,1s0.4,1,1,1h12c0.6,0,1-0.4,1-1S39.6,27,39,27z\"></path></g></symbol><symbol viewBox=\"0 0 40 40\" id=\"zen-icon-opensource\"><path d=\"M19.5,8.6C13.4,8.9,8.3,13.9,8,20.1c-0.2,4.8,2.3,9,6.2,11.1c1,0.5,2.3,0,2.6-1l1.4-4.2c0.3-0.8,0-1.6-0.7-2.1 c-1.2-0.9-1.9-2.5-1.4-4.2c0.4-1.4,1.5-2.5,2.9-2.9c2.6-0.6,5,1.4,5,3.9c0,1.3-0.6,2.5-1.6,3.2c-0.6,0.5-0.9,1.3-0.7,2.1l1.4,4.2 c0.4,1.1,1.6,1.6,2.6,1c3.7-2,6.2-6,6.2-10.5C32,13.8,26.4,8.4,19.5,8.6z\"></path></symbol><symbol viewBox=\"0 0 40 40\" id=\"zen-icon-nodejs\"><g><path d=\"M32.6,12.2l-12-6.9c-0.3-0.2-0.7-0.2-1,0l-12,6.9c-0.3,0.2-0.5,0.5-0.5,0.9v13.9c0,0.4,0.2,0.7,0.5,0.9l3.9,2.3 c0,0,0,0,0,0l0,0c1.5,0.9,2.9,0.3,3.7-0.5c0.8-0.8,1.2-1.8,1.2-3.2V14.1H14v11.9c0,0.9-0.2,1.6-0.5,2.1c-0.3,0.4-0.6,0.4-1.3,0 l-3.2-1.8V13.6l11-6.4l11,6.4v12.7l-11,6.4L17.2,31c-0.5-0.3-1.1-0.1-1.4,0.4c-0.3,0.5-0.1,1.1,0.4,1.4l3.4,2 c0.2,0.1,0.3,0.1,0.5,0.1s0.3,0,0.5-0.1l12-6.9c0.3-0.2,0.5-0.5,0.5-0.9V13.1C33.1,12.7,32.9,12.4,32.6,12.2z\"></path><path d=\"M24.9,23.5c-0.4,0.2-0.9,0.3-1.7,0.3c-0.8,0-1.5-0.1-2-0.4c-0.5-0.3-1-0.8-1.5-1.4l-1.4,1.7c0.5,0.7,1.1,1.2,1.9,1.6 c0.8,0.3,1.8,0.5,3.1,0.5c0.9,0,1.7-0.1,2.4-0.4c0.7-0.3,1.3-0.7,1.6-1.2c0.4-0.5,0.6-1.1,0.6-1.8c0-0.6-0.1-1.2-0.4-1.6 c-0.3-0.4-0.7-0.8-1.3-1.1c-0.6-0.3-1.4-0.5-2.4-0.7c-1-0.2-1.7-0.4-2-0.6c-0.4-0.2-0.6-0.5-0.6-0.9c0-0.4,0.2-0.8,0.6-1 c0.4-0.3,0.9-0.4,1.6-0.4c0.8,0,1.4,0.2,1.9,0.5c0.5,0.3,0.9,0.8,1.2,1.4l1.6-1.6c-0.6-0.8-1.2-1.3-2-1.7c-0.8-0.3-1.7-0.5-2.7-0.5 c-0.9,0-1.8,0.2-2.5,0.5s-1.2,0.7-1.6,1.3c-0.4,0.5-0.5,1.2-0.5,1.8c0,0.6,0.1,1.2,0.4,1.6c0.3,0.4,0.7,0.8,1.4,1.1 c0.6,0.3,1.5,0.6,2.5,0.8c0.9,0.2,1.6,0.4,1.9,0.6s0.5,0.5,0.5,0.8C25.5,23,25.3,23.3,24.9,23.5z\"></path></g></symbol><symbol viewBox=\"0 0 40 40\" id=\"zen-icon-page\"><g><g><path d=\"M27.9,13.6l-4.7-4.7c-0.3-0.3-0.9-0.1-0.9,0.4V14c0,0.3,0.2,0.5,0.5,0.5h4.7C27.9,14.5,28.2,14,27.9,13.6z\"></path></g><path d=\"M28,16.5c0-0.3-0.2-0.5-0.5-0.5h-6.4c-0.3,0-0.5-0.2-0.5-0.5l0-6.2c0-0.3-0.2-0.5-0.5-0.5h-5.7c-1.3,0-2.4,1.1-2.4,2.4 v17.6c0,1.3,1.1,2.4,2.4,2.4h11.2c1.3,0,2.4-1.1,2.4-2.4L28,16.5z M16,19.2h4c0.4,0,0.8,0.3,0.8,0.8s-0.3,0.8-0.8,0.8h-4 c-0.4,0-0.8-0.3-0.8-0.8S15.6,19.2,16,19.2z M24,28.8h-8c-0.4,0-0.8-0.3-0.8-0.8s0.3-0.8,0.8-0.8h8c0.4,0,0.8,0.3,0.8,0.8 S24.4,28.8,24,28.8z M24,24.8h-8c-0.4,0-0.8-0.3-0.8-0.8s0.3-0.8,0.8-0.8h8c0.4,0,0.8,0.3,0.8,0.8S24.4,24.8,24,24.8z\"></path></g></symbol><symbol viewBox=\"0 0 40 40\" id=\"zen-icon-pin\"><path d=\"M30.3,20.2l-9.9-9.9c-0.4-0.4-1-0.4-1.4,0c-0.2,0.2-0.3,0.5-0.3,0.7s0.1,0.5,0.3,0.7l1.4,1.4l-7.1,7.1l-1.4-1.4 c-0.4-0.4-1-0.4-1.4,0s-0.4,1,0,1.4l4.2,4.2l-4.9,4.9c-0.4,0.4-0.4,1,0,1.4c0.2,0.2,0.5,0.3,0.7,0.3s0.5-0.1,0.7-0.3l4.9-4.9 l4.2,4.2c0.2,0.2,0.5,0.3,0.7,0.3s0.5-0.1,0.7-0.3c0.4-0.4,0.4-1,0-1.4l-1.4-1.4l7.1-7.1l1.4,1.4c0.2,0.2,0.5,0.3,0.7,0.3 s0.5-0.1,0.7-0.3s0.3-0.5,0.3-0.7S30.5,20.4,30.3,20.2z M19,25.8l-4.2-4.2l7.1-7.1l4.2,4.2L19,25.8z\"></path></symbol><symbol viewBox=\"0 0 40 40\" id=\"zen-icon-search\"><path d=\"M29.7,28.3L26,24.6c1.2-1.5,2-3.5,2-5.6c0-5-4-9-9-9c-5,0-9,4-9,9c0,5,4,9,9,9c2.1,0,4.1-0.7,5.6-2l3.7,3.7 c0.2,0.2,0.5,0.3,0.7,0.3s0.5-0.1,0.7-0.3C30.1,29.3,30.1,28.7,29.7,28.3z M19,26c-3.9,0-7-3.1-7-7c0-3.9,3.1-7,7-7c3.9,0,7,3.1,7,7 C26,22.9,22.9,26,19,26z\"></path></symbol><symbol viewBox=\"0 0 40 40\" id=\"zen-icon-remove\"><g><path d=\"M20,9C13.9,9,9,13.9,9,20s4.9,11,11,11s11-4.9,11-11S26.1,9,20,9z M20,29c-5,0-9-4-9-9c0-5,4-9,9-9c5,0,9,4,9,9 C29,25,25,29,20,29z\"></path><path d=\"M25,19H15c-0.6,0-1,0.4-1,1s0.4,1,1,1h10c0.6,0,1-0.4,1-1S25.6,19,25,19z\"></path></g></symbol><symbol viewBox=\"0 0 40 40\" id=\"zen-icon-reorganise\"><g><path d=\"M17.5,17v-6c0-1.1-0.9-2-2-2h-6c-1.1,0-2,0.9-2,2v6c0,1.1,0.9,2,2,2h6C16.6,19,17.5,18.1,17.5,17z M9.5,11h6l0,6h-6V11z\"></path><path d=\"M31.5,12h-6v-1c0-0.3-0.2-0.7-0.5-0.9s-0.7-0.2-1,0l-4,2c-0.3,0.2-0.6,0.5-0.6,0.9s0.2,0.7,0.6,0.9l4,2 c0.1,0.1,0.3,0.1,0.4,0.1c0.2,0,0.4-0.1,0.5-0.1c0.3-0.2,0.5-0.5,0.5-0.9v-1h5v11h-5v-2c0-1.1-0.9-2-2-2h-6c-1.1,0-2,0.9-2,2v6 c0,1.1,0.9,2,2,2h6c1.1,0,2-0.9,2-2v-2h6c0.6,0,1-0.4,1-1V13C32.5,12.4,32.1,12,31.5,12z M17.5,29v-6h6l0,6H17.5z\"></path></g></symbol><symbol viewBox=\"0 0 40 40\" id=\"zen-icon-server\"><g><path d=\"M16,11h-4c-0.6,0-1,0.4-1,1s0.4,1,1,1h4c0.6,0,1-0.4,1-1S16.6,11,16,11z\"></path><path d=\"M24,11L24,11c-0.6,0-1,0.4-1,1s0.5,1,1,1c0.6,0,1-0.4,1-1S24.6,11,24,11z\"></path><path d=\"M29,12c0-0.6-0.4-1-1-1h0c-0.6,0-1,0.4-1,1s0.5,1,1,1C28.6,13,29,12.6,29,12z\"></path><path d=\"M28,25c2.8,0,5-2.2,5-5c0-1.6-0.8-3.1-2-4c1.2-0.9,2-2.4,2-4c0-2.8-2.2-5-5-5H12c-2.8,0-5,2.2-5,5c0,1.6,0.8,3.1,2,4 c-1.2,0.9-2,2.4-2,4c0,2.8,2.2,5,5,5h7v2.2c-0.8,0.3-1.5,1-1.8,1.8H8c-0.6,0-1,0.4-1,1s0.4,1,1,1h9.2c0.4,1.2,1.5,2,2.8,2 s2.4-0.8,2.8-2H32c0.6,0,1-0.4,1-1s-0.4-1-1-1h-9.2c-0.3-0.8-1-1.5-1.8-1.8V25H28z M20,31c-0.6,0-1-0.4-1-1s0.4-1,1-1s1,0.4,1,1 S20.6,31,20,31z M9,12c0-1.7,1.3-3,3-3h16c1.7,0,3,1.3,3,3s-1.3,3-3,3H12C10.3,15,9,13.7,9,12z M9,20c0-1.7,1.3-3,3-3h16 c1.7,0,3,1.3,3,3s-1.3,3-3,3H12C10.3,23,9,21.7,9,20z\"></path><path d=\"M16,19h-4c-0.6,0-1,0.4-1,1s0.4,1,1,1h4c0.6,0,1-0.4,1-1S16.6,19,16,19z\"></path><path d=\"M24,21c0.6,0,1-0.4,1-1s-0.4-1-1-1h0c-0.6,0-1,0.4-1,1S23.5,21,24,21z\"></path><path d=\"M28,21c0.6,0,1-0.4,1-1s-0.4-1-1-1h0c-0.6,0-1,0.4-1,1S27.5,21,28,21z\"></path></g></symbol><symbol viewBox=\"0 0 40 40\" id=\"zen-icon-spanner\"><path d=\"M31.7,13.2c-0.4-0.4-1.1-0.4-1.5,0l-0.5,0.5c-0.3,0.3-0.7,0.4-1,0.3l-1.5-0.4c-0.4-0.1-0.7-0.4-0.8-0.8L26,11.3 c-0.1-0.4,0-0.8,0.3-1l0.5-0.5c0.4-0.4,0.4-1.1,0-1.5c-0.5-0.5-1.3-0.4-1.7,0.2c-1,1.5-1.3,3.2-0.8,4.6L13.1,24.3 c-1.4-0.4-3.1-0.2-4.6,0.8c-0.6,0.4-0.7,1.2-0.2,1.7c0.4,0.4,1.1,0.4,1.5,0l0.5-0.5c0.3-0.3,0.7-0.4,1-0.3l1.5,0.4 c0.4,0.1,0.7,0.4,0.8,0.8l0.4,1.5c0.1,0.4,0,0.8-0.3,1l-0.5,0.5c-0.4,0.4-0.4,1.1,0,1.5c0.5,0.5,1.3,0.4,1.7-0.2 c1-1.5,1.3-3.2,0.8-4.6l11.2-11.2c1.4,0.4,3.1,0.2,4.6-0.8C32.1,14.5,32.2,13.7,31.7,13.2z\"></path></symbol><symbol viewBox=\"0 0 40 40\" id=\"zen-icon-settings\"><path d=\"M30,18.2h-1.5c-0.2-1-0.6-2-1.2-2.9l1.1-1.1c0.4-0.4,0.4-1,0-1.4l-1.2-1.2c-0.4-0.4-1-0.4-1.4,0l-1.1,1.1 c-0.9-0.6-1.8-1-2.9-1.2V10c0-0.6-0.4-1-1-1h-1.7c-0.6,0-1,0.4-1,1v1.5c-1,0.2-2,0.6-2.9,1.2l-1.1-1.1c-0.4-0.4-1-0.4-1.4,0 l-1.2,1.2c-0.4,0.4-0.4,1,0,1.4l1.1,1.1c-0.6,0.9-1,1.8-1.2,2.9H10c-0.6,0-1,0.4-1,1v1.7c0,0.6,0.4,1,1,1h1.5c0.2,1,0.6,2,1.2,2.9 l-1.1,1.1c-0.4,0.4-0.4,1,0,1.4l1.2,1.2c0.4,0.4,1,0.4,1.4,0l1.1-1.1c0.9,0.6,1.8,1,2.9,1.2V30c0,0.6,0.4,1,1,1h1.7c0.6,0,1-0.4,1-1 v-1.5c1-0.2,2-0.6,2.9-1.2l1.1,1.1c0.4,0.4,1,0.4,1.4,0l1.2-1.2c0.4-0.4,0.4-1,0-1.4l-1.1-1.1c0.6-0.9,1-1.8,1.2-2.9H30 c0.6,0,1-0.4,1-1v-1.7C31,18.6,30.6,18.2,30,18.2z M20,24.4c-2.4,0-4.4-2-4.4-4.4s2-4.4,4.4-4.4s4.4,2,4.4,4.4S22.4,24.4,20,24.4z\"></path></symbol><symbol viewBox=\"0 0 40 40\" id=\"zen-icon-speaker\"><g><path d=\"M20.5,11c-0.9-0.5-1.8-0.6-2.6-0.3c-0.7,0.3-1.3,0.8-1.8,1.6l-8.6,7.4c-1.2,0.6-1.6,2.6-0.9,4.8c0.3,1,0.8,1.9,1.4,2.5 c0.6,0.6,1.2,0.9,1.9,0.9c0.1,0,0.2,0,0.3,0l0.7,0l1.5,4.7c0.1,0.4,0.5,0.7,0.9,0.7l3.2,0.1c0,0,0,0,0,0c0.3,0,0.6-0.1,0.8-0.4 c0.2-0.3,0.2-0.6,0.1-0.9l-1.3-4l4.6,0.1c0.5,0.2,1,0.4,1.5,0.4c0.3,0,0.6-0.1,0.9-0.2c2.6-0.9,3.5-5.5,2-10.4 C24.3,14.6,22.4,12,20.5,11z M21.5,22.6c-0.9,0.3-2-0.9-2.6-2.6c-0.6-1.7-0.3-3.4,0.6-3.6s2,0.9,2.6,2.6S22.4,22.3,21.5,22.6z M8.4,21.5C8.4,21.5,8.4,21.5,8.4,21.5c0.1,0,0.2-0.1,0.3-0.2c0,0,0,0,0,0c0,0,0,0,0,0l6.4-5.5c-0.1,1.6,0.1,3.4,0.7,5.3 c0.6,1.9,1.5,3.6,2.5,4.9l-3.4-0.1c0,0-0.1,0-0.1,0l-3.2-0.1c0,0,0,0,0,0l-1.3,0c0,0-0.1,0-0.1,0l-0.1,0c0,0,0,0,0,0 c0,0-0.1,0-0.1,0c0,0-0.1,0-0.1,0c-0.2,0-0.9-0.6-1.4-2C8.1,22.5,8.3,21.6,8.4,21.5z M15.1,31.2l-1.1,0l-1.1-3.4l1.1,0L15.1,31.2z\"></path><path d=\"M23.3,8.2c-0.4-0.4-1.1-0.3-1.4,0.1c-0.4,0.4-0.3,1.1,0.1,1.4c1.8,1.5,3.5,4.4,4.5,7.6c0.9,3.1,1.2,6.3,0.6,8.7 c-0.1,0.6,0.2,1.1,0.8,1.2c0.1,0,0.2,0,0.2,0c0.5,0,0.9-0.3,1-0.8c0.7-2.7,0.4-6.3-0.6-9.8C27.4,13.1,25.5,10,23.3,8.2z\"></path><path d=\"M32.8,15.6c-1.1-3.7-3-6.9-5.2-8.6c-0.4-0.4-1.1-0.3-1.4,0.1c-0.4,0.4-0.3,1.1,0.1,1.4c1.8,1.5,3.5,4.4,4.5,7.6 c0.9,3.2,1.2,6.3,0.6,8.7c-0.1,0.6,0.2,1.1,0.8,1.2c0.1,0,0.2,0,0.2,0c0.5,0,0.9-0.3,1-0.8C34.1,22.7,33.8,19.1,32.8,15.6z\"></path></g></symbol><symbol viewBox=\"0 0 40 40\" id=\"zen-icon-star-empty\"><path d=\"M30,17.6c-0.1-0.4-0.4-0.6-0.8-0.7l-5.7-0.8l-2.6-5.2c-0.3-0.7-1.5-0.7-1.8,0l-2.6,5.2l-5.7,0.8c-0.4,0.1-0.7,0.3-0.8,0.7 c-0.1,0.4,0,0.8,0.3,1l4.2,4.1l-1,5.7c-0.1,0.4,0.1,0.8,0.4,1c0.2,0.1,0.4,0.2,0.6,0.2c0.2,0,0.3,0,0.5-0.1l5.1-2.7l5.1,2.7 c0.3,0.2,0.7,0.1,1.1-0.1c0.3-0.2,0.5-0.6,0.4-1l-1-5.7l4.2-4C30,18.3,30.1,17.9,30,17.6z M23.8,21.6c-0.2,0.2-0.3,0.6-0.3,0.9 l0.7,4.2l-3.8-2c-0.3-0.2-0.6-0.2-0.9,0l-3.8,2l0.7-4.2c0.1-0.3-0.1-0.7-0.3-0.9l-3.1-3l4.3-0.6c0.3,0,0.6-0.3,0.8-0.5l1.9-3.9 l1.9,3.8c0.1,0.3,0.4,0.5,0.8,0.5l4.3,0.6L23.8,21.6z\"></path></symbol><symbol viewBox=\"0 0 40 40\" id=\"zen-icon-store\"><path d=\"M32,31h-1.1v-3v-8.1c1.2-0.9,2-2.3,2-3.9c0,0,0,0,0,0c0-0.1,0-0.2-0.1-0.3c0-0.1-0.1-0.2-0.2-0.3l-8-8 c-0.1-0.1-0.2-0.2-0.3-0.2c-0.1,0-0.2-0.1-0.3-0.1c0,0,0,0,0,0h-8c0,0,0,0,0,0c-0.1,0-0.2,0-0.3,0.1c-0.1,0-0.2,0.1-0.3,0.2l-8,8 c-0.2,0.2-0.3,0.4-0.3,0.6c0,1.6,0.8,3,2,3.9V31H8c-0.6,0-1,0.4-1,1s0.4,1,1,1h24c0.6,0,1-0.4,1-1S32.6,31,32,31z M29.1,27.1h-4.2 v-7.3c0.8,0.7,1.9,1.1,3.1,1.1c0.4,0,0.7-0.1,1.1-0.1V27.1z M28,19.1c-1.4,0-2.5-0.9-2.9-2.2h5.9C30.5,18.2,29.4,19.1,28,19.1z M23.6,8.9l6.2,6.2h-5.2l-3.1-6.2H23.6z M22.5,15.1h-5l2.5-5L22.5,15.1z M22.9,16.9c-0.4,1.3-1.5,2.2-2.9,2.2s-2.5-0.9-2.9-2.2H22.9 z M16.4,8.9h2.1l-3.1,6.2h-5.2L16.4,8.9z M14.9,16.9c-0.4,1.3-1.6,2.2-2.9,2.2c-1.4,0-2.5-0.9-2.9-2.2H14.9z M10.9,20.8 c0.4,0.1,0.7,0.1,1.1,0.1c1.7,0,3.1-0.8,4-2.1c0.9,1.3,2.3,2.1,4,2.1c1.2,0,2.2-0.4,3.1-1.1V28c0,0.5,0.4,0.9,0.9,0.9h5.1V31h-8.2 v-7c0-0.5-0.4-0.9-0.9-0.9h-5.3c-0.5,0-0.9,0.4-0.9,0.9v7h-2.8V20.8z M15.6,31v-6.1h3.5V31H15.6z\"></path></symbol><symbol viewBox=\"0 0 40 40\" id=\"zen-icon-star\"><path d=\"M30,17.6c-0.1-0.4-0.4-0.6-0.8-0.7l-5.7-0.8l-2.6-5.2c-0.3-0.7-1.5-0.7-1.8,0l-2.6,5.2L10.8,17c-0.4,0.1-0.7,0.3-0.8,0.7 c-0.1,0.4,0,0.8,0.3,1l4.2,4.1l-1,5.7c-0.1,0.4,0.1,0.8,0.4,1c0.3,0.2,0.7,0.3,1.1,0.1l5.1-2.7l5.1,2.7c0.1,0.1,0.3,0.1,0.5,0.1 c0.2,0,0.4-0.1,0.6-0.2c0.3-0.2,0.5-0.6,0.4-1l-1-5.7l4.2-4.1C30,18.4,30.1,18,30,17.6z\"></path></symbol><symbol viewBox=\"0 0 40 40\" id=\"zen-icon-user\"><path d=\"M24.8,22.1C26.2,20.8,27,19,27,17c0-3.9-3.1-7-7-7c-3.9,0-7,3.1-7,7c0,2,0.8,3.8,2.2,5.1C12.8,22.5,11,24.5,11,27v2 c0,0.6,0.4,1,1,1h16c0.6,0,1-0.4,1-1v-2C29,24.5,27.2,22.5,24.8,22.1z M15,17c0-2.8,2.2-5,5-5s5,2.2,5,5s-2.2,5-5,5S15,19.8,15,17z M27,28H13v-1c0-1.7,1.3-3,3-3h8c1.7,0,3,1.3,3,3V28z\"></path></symbol><symbol viewBox=\"0 0 40 40\" id=\"zen-icon-web\"><path d=\"M32,25c0.6-1.5,1-3.2,1-5c0-1.8-0.4-3.5-1-5v0h0c-2-4.7-6.6-8-12-8c-5.4,0-10,3.3-12,8h0v0c-0.6,1.5-1,3.2-1,5 c0,1.8,0.4,3.5,1,5v0h0c2,4.7,6.6,8,12,8C25.4,33,30,29.7,32,25L32,25L32,25z M20,31c-0.7,0-2-2.1-2.6-6h5.3C22,28.9,20.7,31,20,31z M17.1,23C17,22.1,17,21.1,17,20s0-2.1,0.1-3h5.7c0.1,0.9,0.1,1.9,0.1,3s0,2.1-0.1,3H17.1z M9,20c0-1,0.2-2,0.4-3h5.7 C15,18,15,19,15,20s0,2,0.1,3H9.4C9.2,22,9,21,9,20z M20,9c0.7,0,2,2.1,2.6,6h-5.3C18,11.1,19.3,9,20,9z M24.9,17h5.7 c0.3,1,0.4,2,0.4,3s-0.2,2-0.4,3h-5.7c0.1-1,0.1-2,0.1-3S25,18,24.9,17z M29.8,15h-5.1c-0.3-2.2-0.9-4.1-1.6-5.6 C26,10.3,28.4,12.3,29.8,15z M17,9.4c-0.7,1.4-1.3,3.4-1.6,5.6h-5.1C11.6,12.3,14,10.3,17,9.4z M10.2,25h5.1 c0.3,2.2,0.9,4.1,1.6,5.6C14,29.7,11.6,27.7,10.2,25z M23,30.6c0.7-1.4,1.3-3.4,1.6-5.6h5.1C28.4,27.7,26,29.7,23,30.6z\"></path></symbol><symbol viewBox=\"0 0 40 40\" id=\"zen-icon-translate\"><g><path d=\"M11.2,8L8,18h3l0.6-2.1h2.9L15,18H18L14.8,8H11.2z M12,13.9l0.5-2l0.4-1.6h0l0.4,1.6l0.5,2H12z\"></path><path d=\"M23.5,29.3c0-0.2,0-0.6,0-1c0-1.3,0-3.1,0.7-5.7c0.2,0,0.3-0.1,0.3-0.2l-1.8-0.3c-0.3,1.8-0.6,3.6-0.6,5.3 c0,1.6,0.2,3.6,0.5,4.4l1.4-0.1c0-0.2-0.1-0.3-0.1-0.5c0-0.2,0-0.4,0.1-0.6c0.2-0.7,0.7-1.6,1-2.2l-0.8-1 C24,27.8,23.6,28.8,23.5,29.3z\"></path><path d=\"M29.8,28.7c0-0.8-0.1-1.8-0.1-2.9c0.8-0.1,1.6-0.2,2.1-0.3L31.7,24c-0.6,0.2-1.2,0.3-2,0.4l0-2.1c0.2,0,0.3-0.1,0.3-0.3 L28.1,22c0,0.9,0,1.7,0.1,2.6c-0.6,0-1.2,0-1.8,0c-0.2,0-0.5,0-0.7,0l0,1.3h1.6c0.3,0,0.7,0,1,0c0,0.8,0.1,1.8,0.1,2.4 c-0.2,0-0.5-0.1-0.7-0.1c-1.2,0-2.3,0.7-2.3,1.9c0,1.1,0.9,1.9,2.3,1.9c1,0,2.1-0.2,2.2-1.7c0.5,0.3,1,0.7,1.4,1.1L32,30 C31.4,29.5,30.6,29,29.8,28.7z M27.7,30.8c-0.6,0-1.1-0.2-1.1-0.7c0-0.5,0.5-0.7,1.1-0.7c0.3,0,0.6,0.1,0.8,0.1c0,0.1,0,0.2,0,0.3 C28.5,30.4,28.2,30.8,27.7,30.8z\"></path><path d=\"M17,27h-3v-4.3h1c0.3,0,0.5-0.2,0.7-0.4c0.1-0.3,0-0.6-0.2-0.8l-2-2c-0.3-0.3-0.7-0.3-1,0l-2,2c-0.2,0.2-0.3,0.5-0.2,0.8 c0.1,0.3,0.4,0.4,0.7,0.4h1V28c0,0.6,0.4,1,1,1h4c0.6,0,1-0.4,1-1S17.6,27,17,27z\"></path><path d=\"M26,15.3h-1c-0.3,0-0.5,0.2-0.7,0.4c-0.1,0.3,0,0.6,0.2,0.8l2,2c0.1,0.1,0.3,0.2,0.5,0.2s0.4-0.1,0.5-0.2l2-2 c0.2-0.2,0.3-0.5,0.2-0.8c-0.1-0.3-0.4-0.4-0.7-0.4h-1V12c0-0.6-0.4-1-1-1h-7c-0.6,0-1,0.4-1,1s0.4,1,1,1h6V15.3z\"></path></g></symbol><symbol viewBox=\"0 0 40 40\" id=\"zen-icon-tick\"><path d=\"M29.6,11.2c-0.4-0.3-1-0.3-1.4,0.1l-11,11.4l-5.7-3.6c-0.4-0.3-1-0.2-1.3,0.2c-0.3,0.4-0.3,0.9,0,1.3l6.4,8 c0.2,0.2,0.5,0.4,0.8,0.4c0,0,0,0,0,0c0.3,0,0.6-0.2,0.8-0.4l11.6-16C30.1,12.2,30,11.6,29.6,11.2z\"></path></symbol><symbol viewBox=\"0 0 40 40\" id=\"zen-icon-loading\"><style type=\"text/css\"> @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } } #zen-icon-loading .st0{fill:none;stroke:#000000;stroke-miterlimit:10;} #zen-icon-loading g { animation: rotate infinite 2s linear; transform-origin: center; } #zen-icon-loading g.inner { animation-direction: reverse; } </style><g class=\"outer\"><path class=\"st0\" d=\"M6,20c0-7.7,6.3-14,14-14\"></path><path class=\"st0\" d=\"M34,20c0,7.7-6.3,14-14,14\"></path></g><g class=\"inner\"><path class=\"st0\" d=\"M20,29c-5,0-9-4-9-9\"></path><path class=\"st0\" d=\"M20,11c5,0,9,4,9,9\"></path></g></symbol><symbol viewBox=\"0 0 40 40\" id=\"zen-icon-messages\"><style type=\"text/css\"> #zen-icon-messages .st0{fill-rule:evenodd;clip-rule:evenodd;} </style><g><path class=\"st0\" d=\"M30,11.4H17c-1.1,0-2,0.9-2,2v2v6c0,1.1,0.9,2,2,2h7l1,1l0,0l2.1,2.1c0.1,0.1,0.2,0.1,0.4,0.1 c0.3,0,0.5-0.2,0.5-0.5v-2.8h2c1.1,0,2-0.9,2-2v-8C32,12.3,31.1,11.4,30,11.4z\"></path><path class=\"st0\" d=\"M17,24.9c-1.9,0-3.5-1.6-3.5-3.5v-6H10c-1.1,0-2,0.9-2,2v8c0,1.1,0.9,2,2,2h2v2.8c0,0.4,0.5,0.7,0.9,0.4 l3.1-3.1h7c0.8,0,1.4-0.5,1.8-1.1l-1.4-1.4H17z\"></path></g></symbol><symbol viewBox=\"0 0 40 40\" id=\"zen-icon-plugin\"><style type=\"text/css\"> #zen-icon-plugin .st0{fill:none;stroke:#000000;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;} #zen-icon-plugin .st1{stroke:#000000;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;} </style><g><line class=\"st0\" x1=\"250.1\" y1=\"149.9\" x2=\"262.1\" y2=\"137.9\"></line><path class=\"st1\" d=\"M268.2,140.3c-2.3,2.3-6.1,2.3-8.5,0c-2.3-2.3-2.3-6.1,0-8.5L268.2,140.3z\"></path><line class=\"st0\" x1=\"261.9\" y1=\"134.1\" x2=\"265.9\" y2=\"130.1\"></line><line class=\"st0\" x1=\"265.9\" y1=\"138.1\" x2=\"269.9\" y2=\"134.1\"></line></g><path d=\"M30.6,13.4c-0.4-0.4-1-0.4-1.4,0l-3.3,3.3l-2.6-2.6l3.3-3.3c0.4-0.4,0.4-1,0-1.4s-1-0.4-1.4,0l-3.3,3.3l-1.5-1.5 c-0.4-0.4-1-0.4-1.4,0c-1.3,1.3-2.1,3.1-2.1,4.9c0,1.5,0.5,3,1.4,4.2l-8.9,8.9c-0.4,0.4-0.4,1,0,1.4c0.2,0.2,0.5,0.3,0.7,0.3 s0.5-0.1,0.7-0.3l8.9-8.9c1.2,0.9,2.7,1.4,4.2,1.4c1.8,0,3.6-0.7,4.9-2c0.2-0.2,0.3-0.4,0.3-0.7s-0.1-0.5-0.3-0.7l-1.5-1.5l3.3-3.3 C31,14.4,31,13.8,30.6,13.4z\"></path></symbol><symbol viewBox=\"0 0 40 40\" id=\"zen-icon-box\"><path d=\"M31.4,13.9C31.4,13.9,31.4,13.9,31.4,13.9c0-0.2-0.1-0.3-0.1-0.4c0,0,0,0,0,0c0,0,0,0,0,0c-0.1-0.1-0.1-0.2-0.2-0.3 c0,0,0,0-0.1-0.1c0,0,0,0-0.1,0l-10.4-6c-0.3-0.2-0.7-0.2-1,0l-10.4,6c0,0,0,0-0.1,0c0,0,0,0-0.1,0.1c-0.1,0.1-0.2,0.2-0.2,0.3 c0,0,0,0,0,0c0,0,0,0,0,0c-0.1,0.1-0.1,0.2-0.1,0.3c0,0,0,0.1,0,0.1c0,0,0,0.1,0,0.1v12c0,0.4,0.2,0.7,0.5,0.9l10.4,6c0,0,0,0,0.1,0 c0,0,0.1,0,0.1,0c0.1,0,0.2,0.1,0.3,0.1s0.2,0,0.3-0.1c0,0,0.1,0,0.1,0c0,0,0.1,0,0.1,0l10.4-6c0.3-0.2,0.5-0.5,0.5-0.9L31.4,13.9 C31.4,14,31.4,13.9,31.4,13.9z M20,18.8L16.8,17l3.7-2.1c0,0,0,0,0,0l4.7-2.7l3.2,1.8L20,18.8z M20,9.2l3.2,1.8l-8.4,4.8L11.6,14 L20,9.2z M10.6,15.7l3.2,1.8v5.8c0,0.6,0.4,1,1,1s1-0.4,1-1v-4.6l3.2,1.8v9.7l-8.4-4.8V15.7z M21,30.3v-9.7l8.4-4.8v9.7L21,30.3z\"></path></symbol></defs><use id=\"zen-icon-add-usage\" xlink:href=\"#zen-icon-add\" class=\"sprite-symbol-usage\"></use><use id=\"zen-icon-arrow-left-usage\" xlink:href=\"#zen-icon-arrow-left\" class=\"sprite-symbol-usage\"></use><use id=\"zen-icon-arrow-down-usage\" xlink:href=\"#zen-icon-arrow-down\" class=\"sprite-symbol-usage\"></use><use id=\"zen-icon-arrow-right-usage\" xlink:href=\"#zen-icon-arrow-right\" class=\"sprite-symbol-usage\"></use><use id=\"zen-icon-app-usage\" xlink:href=\"#zen-icon-app\" class=\"sprite-symbol-usage\"></use><use id=\"zen-icon-cloud-usage\" xlink:href=\"#zen-icon-cloud\" class=\"sprite-symbol-usage\"></use><use id=\"zen-icon-brush-usage\" xlink:href=\"#zen-icon-brush\" class=\"sprite-symbol-usage\"></use><use id=\"zen-icon-arrow-up-usage\" xlink:href=\"#zen-icon-arrow-up\" class=\"sprite-symbol-usage\"></use><use id=\"zen-icon-code-usage\" xlink:href=\"#zen-icon-code\" class=\"sprite-symbol-usage\"></use><use id=\"zen-icon-cross-usage\" xlink:href=\"#zen-icon-cross\" class=\"sprite-symbol-usage\"></use><use id=\"zen-icon-dollar-usage\" xlink:href=\"#zen-icon-dollar\" class=\"sprite-symbol-usage\"></use><use id=\"zen-icon-database-usage\" xlink:href=\"#zen-icon-database\" class=\"sprite-symbol-usage\"></use><use id=\"zen-icon-dashboard-usage\" xlink:href=\"#zen-icon-dashboard\" class=\"sprite-symbol-usage\"></use><use id=\"zen-icon-editor-bold-usage\" xlink:href=\"#zen-icon-editor-bold\" class=\"sprite-symbol-usage\"></use><use id=\"zen-icon-editor-bullet-ordered-usage\" xlink:href=\"#zen-icon-editor-bullet-ordered\" class=\"sprite-symbol-usage\"></use><use id=\"zen-icon-editor-indent-usage\" xlink:href=\"#zen-icon-editor-indent\" class=\"sprite-symbol-usage\"></use><use id=\"zen-icon-editor-bullet-unordered-usage\" xlink:href=\"#zen-icon-editor-bullet-unordered\" class=\"sprite-symbol-usage\"></use><use id=\"zen-icon-editor-clear-usage\" xlink:href=\"#zen-icon-editor-clear\" class=\"sprite-symbol-usage\"></use><use id=\"zen-icon-editor-justify-center-usage\" xlink:href=\"#zen-icon-editor-justify-center\" class=\"sprite-symbol-usage\"></use><use id=\"zen-icon-editor-justify-left-usage\" xlink:href=\"#zen-icon-editor-justify-left\" class=\"sprite-symbol-usage\"></use><use id=\"zen-icon-editor-italic-usage\" xlink:href=\"#zen-icon-editor-italic\" class=\"sprite-symbol-usage\"></use><use id=\"zen-icon-editor-justify-right-usage\" xlink:href=\"#zen-icon-editor-justify-right\" class=\"sprite-symbol-usage\"></use><use id=\"zen-icon-editor-link-usage\" xlink:href=\"#zen-icon-editor-link\" class=\"sprite-symbol-usage\"></use><use id=\"zen-icon-editor-justify-usage\" xlink:href=\"#zen-icon-editor-justify\" class=\"sprite-symbol-usage\"></use><use id=\"zen-icon-editor-outdent-usage\" xlink:href=\"#zen-icon-editor-outdent\" class=\"sprite-symbol-usage\"></use><use id=\"zen-icon-editor-underline-usage\" xlink:href=\"#zen-icon-editor-underline\" class=\"sprite-symbol-usage\"></use><use id=\"zen-icon-editor-strikethrough-usage\" xlink:href=\"#zen-icon-editor-strikethrough\" class=\"sprite-symbol-usage\"></use><use id=\"zen-icon-editor-unlink-usage\" xlink:href=\"#zen-icon-editor-unlink\" class=\"sprite-symbol-usage\"></use><use id=\"zen-icon-image-usage\" xlink:href=\"#zen-icon-image\" class=\"sprite-symbol-usage\"></use><use id=\"zen-icon-error-usage\" xlink:href=\"#zen-icon-error\" class=\"sprite-symbol-usage\"></use><use id=\"zen-icon-lock-usage\" xlink:href=\"#zen-icon-lock\" class=\"sprite-symbol-usage\"></use><use id=\"zen-icon-mail-usage\" xlink:href=\"#zen-icon-mail\" class=\"sprite-symbol-usage\"></use><use id=\"zen-icon-menu-usage\" xlink:href=\"#zen-icon-menu\" class=\"sprite-symbol-usage\"></use><use id=\"zen-icon-opensource-usage\" xlink:href=\"#zen-icon-opensource\" class=\"sprite-symbol-usage\"></use><use id=\"zen-icon-nodejs-usage\" xlink:href=\"#zen-icon-nodejs\" class=\"sprite-symbol-usage\"></use><use id=\"zen-icon-page-usage\" xlink:href=\"#zen-icon-page\" class=\"sprite-symbol-usage\"></use><use id=\"zen-icon-pin-usage\" xlink:href=\"#zen-icon-pin\" class=\"sprite-symbol-usage\"></use><use id=\"zen-icon-search-usage\" xlink:href=\"#zen-icon-search\" class=\"sprite-symbol-usage\"></use><use id=\"zen-icon-remove-usage\" xlink:href=\"#zen-icon-remove\" class=\"sprite-symbol-usage\"></use><use id=\"zen-icon-reorganise-usage\" xlink:href=\"#zen-icon-reorganise\" class=\"sprite-symbol-usage\"></use><use id=\"zen-icon-server-usage\" xlink:href=\"#zen-icon-server\" class=\"sprite-symbol-usage\"></use><use id=\"zen-icon-spanner-usage\" xlink:href=\"#zen-icon-spanner\" class=\"sprite-symbol-usage\"></use><use id=\"zen-icon-settings-usage\" xlink:href=\"#zen-icon-settings\" class=\"sprite-symbol-usage\"></use><use id=\"zen-icon-speaker-usage\" xlink:href=\"#zen-icon-speaker\" class=\"sprite-symbol-usage\"></use><use id=\"zen-icon-star-empty-usage\" xlink:href=\"#zen-icon-star-empty\" class=\"sprite-symbol-usage\"></use><use id=\"zen-icon-store-usage\" xlink:href=\"#zen-icon-store\" class=\"sprite-symbol-usage\"></use><use id=\"zen-icon-star-usage\" xlink:href=\"#zen-icon-star\" class=\"sprite-symbol-usage\"></use><use id=\"zen-icon-user-usage\" xlink:href=\"#zen-icon-user\" class=\"sprite-symbol-usage\"></use><use id=\"zen-icon-web-usage\" xlink:href=\"#zen-icon-web\" class=\"sprite-symbol-usage\"></use><use id=\"zen-icon-translate-usage\" xlink:href=\"#zen-icon-translate\" class=\"sprite-symbol-usage\"></use><use id=\"zen-icon-tick-usage\" xlink:href=\"#zen-icon-tick\" class=\"sprite-symbol-usage\"></use><use id=\"zen-icon-loading-usage\" xlink:href=\"#zen-icon-loading\" class=\"sprite-symbol-usage\"></use><use id=\"zen-icon-messages-usage\" xlink:href=\"#zen-icon-messages\" class=\"sprite-symbol-usage\"></use><use id=\"zen-icon-plugin-usage\" xlink:href=\"#zen-icon-plugin\" class=\"sprite-symbol-usage\"></use><use id=\"zen-icon-box-usage\" xlink:href=\"#zen-icon-box\" class=\"sprite-symbol-usage\"></use></svg>"
 
 /***/ }),
-/* 214 */
+/* 223 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -33491,7 +33903,7 @@ var _possibleConstructorReturn2 = __webpack_require__(2);
 
 var _possibleConstructorReturn3 = _interopRequireDefault(_possibleConstructorReturn2);
 
-var _get2 = __webpack_require__(8);
+var _get2 = __webpack_require__(7);
 
 var _get3 = _interopRequireDefault(_get2);
 
@@ -33501,11 +33913,11 @@ var _inherits3 = _interopRequireDefault(_inherits2);
 
 var _lib = __webpack_require__(5);
 
-var _icon = __webpack_require__(215);
+var _icon = __webpack_require__(224);
 
 var _icon2 = _interopRequireDefault(_icon);
 
-var _icon3 = __webpack_require__(216);
+var _icon3 = __webpack_require__(225);
 
 var _icon4 = _interopRequireDefault(_icon3);
 
@@ -33611,13 +34023,13 @@ window.customElements.define('zen-ui-icon', function (_Element) {
 }(_lib.Element));
 
 /***/ }),
-/* 215 */
+/* 224 */
 /***/ (function(module, exports) {
 
 module.exports = "<svg>\n    <use xlink:href/>\n</svg>\n"
 
 /***/ }),
-/* 216 */
+/* 225 */
 /***/ (function(module, exports, __webpack_require__) {
 
 exports = module.exports = __webpack_require__(4)(undefined);
@@ -33631,7 +34043,7 @@ exports.push([module.i, ":host {\n  display: inline-block;\n  vertical-align: mi
 
 
 /***/ }),
-/* 217 */
+/* 226 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -33657,7 +34069,7 @@ var _possibleConstructorReturn2 = __webpack_require__(2);
 
 var _possibleConstructorReturn3 = _interopRequireDefault(_possibleConstructorReturn2);
 
-var _get2 = __webpack_require__(8);
+var _get2 = __webpack_require__(7);
 
 var _get3 = _interopRequireDefault(_get2);
 
@@ -33667,15 +34079,15 @@ var _inherits3 = _interopRequireDefault(_inherits2);
 
 var _lib = __webpack_require__(5);
 
-var _form = __webpack_require__(218);
+var _form = __webpack_require__(227);
 
 var _form2 = _interopRequireDefault(_form);
 
-var _form3 = __webpack_require__(219);
+var _form3 = __webpack_require__(228);
 
 var _form4 = _interopRequireDefault(_form3);
 
-__webpack_require__(220);
+__webpack_require__(229);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -33801,6 +34213,7 @@ window.customElements.define('zen-ui-form', function (_Element) {
                 case 'submit':
                     field.type = f.type;
                     field.value = f.value || 'Submit';
+                    if (f.color) field.classList.add(f.color);
                     break;
 
                 default:
@@ -33845,13 +34258,13 @@ window.customElements.define('zen-ui-form', function (_Element) {
 }(_lib.Element));
 
 /***/ }),
-/* 218 */
+/* 227 */
 /***/ (function(module, exports) {
 
 module.exports = "<template id=\"form-row\">\n    <div class=\"form-row\">\n        <zen-ui-icon ></zen-ui-icon>\n        <!-- <span class=\"error\">{{error}}</span> -->\n    </div>\n</template>\n\n<slot name=\"before\"></slot>\n<span class=\"error\">\n    <zen-ui-icon type=\"error\" color=\"error\"></zen-ui-icon>\n    {{error}}\n</span>\n<form novalidate></form>\n<slot name=\"after\"></slot>\n"
 
 /***/ }),
-/* 219 */
+/* 228 */
 /***/ (function(module, exports, __webpack_require__) {
 
 exports = module.exports = __webpack_require__(4)(undefined);
@@ -33865,7 +34278,7 @@ exports.push([module.i, ":host {\n  display: block; }\n\nspan.error {\n  display
 
 
 /***/ }),
-/* 220 */
+/* 229 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -33889,7 +34302,7 @@ var _inherits3 = _interopRequireDefault(_inherits2);
 
 var _lib = __webpack_require__(5);
 
-var _checkbox = __webpack_require__(221);
+var _checkbox = __webpack_require__(230);
 
 var _checkbox2 = _interopRequireDefault(_checkbox);
 
@@ -33953,13 +34366,13 @@ window.customElements.define('zen-ui-checkbox', function (_Element) {
 }(_lib.Element));
 
 /***/ }),
-/* 221 */
+/* 230 */
 /***/ (function(module, exports) {
 
 module.exports = "<label class=\"checkbox\">\n    <input type=\"checkbox\" />\n    <span class=\"check\"></span>\n</label>\n"
 
 /***/ }),
-/* 222 */
+/* 231 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -33983,11 +34396,11 @@ var _inherits3 = _interopRequireDefault(_inherits2);
 
 var _lib = __webpack_require__(5);
 
-var _button = __webpack_require__(223);
+var _button = __webpack_require__(232);
 
 var _button2 = _interopRequireDefault(_button);
 
-var _button3 = __webpack_require__(224);
+var _button3 = __webpack_require__(233);
 
 var _button4 = _interopRequireDefault(_button3);
 
@@ -34072,13 +34485,13 @@ window.customElements.define('zen-ui-button', function (_Element) {
 }(_lib.Element));
 
 /***/ }),
-/* 223 */
+/* 232 */
 /***/ (function(module, exports) {
 
 module.exports = "<button>\n    <zen-ui-icon color=\"white\"></zen-ui-icon>\n    <span class=\"align-middle\"><slot>Submit</slot></span>\n</button>\n"
 
 /***/ }),
-/* 224 */
+/* 233 */
 /***/ (function(module, exports, __webpack_require__) {
 
 exports = module.exports = __webpack_require__(4)(undefined);
@@ -34092,7 +34505,7 @@ exports.push([module.i, ":host zen-ui-icon {\n  vertical-align: top;\n  margin-r
 
 
 /***/ }),
-/* 225 */
+/* 234 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -34110,7 +34523,7 @@ var _possibleConstructorReturn2 = __webpack_require__(2);
 
 var _possibleConstructorReturn3 = _interopRequireDefault(_possibleConstructorReturn2);
 
-var _get2 = __webpack_require__(8);
+var _get2 = __webpack_require__(7);
 
 var _get3 = _interopRequireDefault(_get2);
 
@@ -34120,11 +34533,11 @@ var _inherits3 = _interopRequireDefault(_inherits2);
 
 var _lib = __webpack_require__(5);
 
-var _buttonGroup = __webpack_require__(226);
+var _buttonGroup = __webpack_require__(235);
 
 var _buttonGroup2 = _interopRequireDefault(_buttonGroup);
 
-var _buttonGroup3 = __webpack_require__(227);
+var _buttonGroup3 = __webpack_require__(236);
 
 var _buttonGroup4 = _interopRequireDefault(_buttonGroup3);
 
@@ -34188,13 +34601,13 @@ window.customElements.define('zen-ui-button-group', function (_Element) {
 }(_lib.Element));
 
 /***/ }),
-/* 226 */
+/* 235 */
 /***/ (function(module, exports) {
 
 module.exports = "<div class=\"button-group\">\n</div>\n"
 
 /***/ }),
-/* 227 */
+/* 236 */
 /***/ (function(module, exports, __webpack_require__) {
 
 exports = module.exports = __webpack_require__(4)(undefined);
@@ -34208,7 +34621,7 @@ exports.push([module.i, ":host {\n  display: block; }\n  :host zen-ui-button {\n
 
 
 /***/ }),
-/* 228 */
+/* 237 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -34226,7 +34639,7 @@ var _possibleConstructorReturn2 = __webpack_require__(2);
 
 var _possibleConstructorReturn3 = _interopRequireDefault(_possibleConstructorReturn2);
 
-var _get2 = __webpack_require__(8);
+var _get2 = __webpack_require__(7);
 
 var _get3 = _interopRequireDefault(_get2);
 
@@ -34234,17 +34647,17 @@ var _inherits2 = __webpack_require__(3);
 
 var _inherits3 = _interopRequireDefault(_inherits2);
 
-var _grapesjs = __webpack_require__(229);
+var _grapesjs = __webpack_require__(238);
 
 var _grapesjs2 = _interopRequireDefault(_grapesjs);
 
 var _lib = __webpack_require__(5);
 
-var _editor = __webpack_require__(231);
+var _editor = __webpack_require__(240);
 
 var _editor2 = _interopRequireDefault(_editor);
 
-var _editor3 = __webpack_require__(232);
+var _editor3 = __webpack_require__(241);
 
 var _editor4 = _interopRequireDefault(_editor3);
 
@@ -34409,7 +34822,7 @@ window.customElements.define('zen-ui-editor', function (_Element) {
 }(_lib.Element));
 
 /***/ }),
-/* 229 */
+/* 238 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -34428,7 +34841,7 @@ window.customElements.define('zen-ui-editor', function (_Element) {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(84).setImmediate, __webpack_require__(84).clearImmediate, __webpack_require__(39)(module)))
 
 /***/ }),
-/* 230 */
+/* 239 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(global, process) {(function (global, undefined) {
@@ -34621,13 +35034,13 @@ window.customElements.define('zen-ui-editor', function (_Element) {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(21), __webpack_require__(38)))
 
 /***/ }),
-/* 231 */
+/* 240 */
 /***/ (function(module, exports) {
 
 module.exports = "<link rel=\"stylesheet\" href=\"https://cdnjs.cloudflare.com/ajax/libs/grapesjs/0.12.17/css/grapes.min.css\">\n<div id=\"editor\"></div>\n"
 
 /***/ }),
-/* 232 */
+/* 241 */
 /***/ (function(module, exports, __webpack_require__) {
 
 exports = module.exports = __webpack_require__(4)(undefined);
@@ -34641,20 +35054,20 @@ exports.push([module.i, "", ""]);
 
 
 /***/ }),
-/* 233 */
+/* 242 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-__webpack_require__(234);
+__webpack_require__(243);
 
-__webpack_require__(239);
+__webpack_require__(248);
 
-__webpack_require__(242);
+__webpack_require__(251);
 
 /***/ }),
-/* 234 */
+/* 243 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -34672,7 +35085,7 @@ var _possibleConstructorReturn2 = __webpack_require__(2);
 
 var _possibleConstructorReturn3 = _interopRequireDefault(_possibleConstructorReturn2);
 
-var _get2 = __webpack_require__(8);
+var _get2 = __webpack_require__(7);
 
 var _get3 = _interopRequireDefault(_get2);
 
@@ -34682,29 +35095,29 @@ var _inherits3 = _interopRequireDefault(_inherits2);
 
 var _lib = __webpack_require__(5);
 
-var _sidebar = __webpack_require__(235);
+var _sidebar = __webpack_require__(244);
 
 var _sidebar2 = _interopRequireDefault(_sidebar);
 
-var _sidebar3 = __webpack_require__(236);
+var _sidebar3 = __webpack_require__(245);
 
 var _sidebar4 = _interopRequireDefault(_sidebar3);
 
-var _logoMark = __webpack_require__(237);
+var _logoMark = __webpack_require__(246);
 
 var _logoMark2 = _interopRequireDefault(_logoMark);
 
-var _logoText = __webpack_require__(238);
+var _logoText = __webpack_require__(247);
 
 var _logoText2 = _interopRequireDefault(_logoText);
 
-var _ConnectedElementMixin = __webpack_require__(11);
+var _ConnectedElementMixin = __webpack_require__(10);
 
-var _store = __webpack_require__(9);
+var _store = __webpack_require__(8);
 
 var _store2 = _interopRequireDefault(_store);
 
-var _actions = __webpack_require__(15);
+var _actions = __webpack_require__(12);
 
 var _actions2 = _interopRequireDefault(_actions);
 
@@ -34809,13 +35222,13 @@ var ConnectedSidebar = function (_connect) {
 window.customElements.define('zen-sidebar', ConnectedSidebar);
 
 /***/ }),
-/* 235 */
+/* 244 */
 /***/ (function(module, exports) {
 
 module.exports = "<template id=\"app\">\n    <li class=\"rounded position-r\">\n        <wc-link class=\"cover\">\n            <zen-ui-icon color=\"white\" class=\"center\" size=\"large\"></zen-ui-icon>\n        </wc-link>\n    </li>\n</template>\n\n\n<aside>\n    <wc-link to='/' class=\"top-link display-b\">\n        <img class=\"logo width-large\" />\n    </wc-link>\n\n    <zen-ui-form></zen-ui-form>\n\n    <img class=\"logo-text height-small\" />\n\n    <ul class=\"apps\"></ul>\n</aside>\n"
 
 /***/ }),
-/* 236 */
+/* 245 */
 /***/ (function(module, exports, __webpack_require__) {
 
 exports = module.exports = __webpack_require__(4)(undefined);
@@ -34823,25 +35236,25 @@ exports = module.exports = __webpack_require__(4)(undefined);
 
 
 // module
-exports.push([module.i, ":host {\n  position: fixed;\n  width: 100%;\n  height: 100%;\n  left: 0;\n  width: 30rem;\n  background-color: #ffffff;\n  z-index: 1;\n  padding: 0 4rem; }\n  :host wc-link.top-link {\n    height: 12rem;\n    line-height: 12rem;\n    text-align: center; }\n  :host img.logo {\n    vertical-align: middle; }\n  :host img.logo-text {\n    position: absolute;\n    bottom: 0;\n    left: 50%;\n    transform: translateX(-50%);\n    margin: 4rem auto; }\n  :host ul.apps {\n    margin-top: 3rem;\n    font-size: 0; }\n    :host ul.apps li {\n      display: inline-block;\n      width: calc(50% - 4rem / 2);\n      margin-bottom: 4rem;\n      text-align: center; }\n      :host ul.apps li:nth-child(2n) {\n        margin-left: 4rem; }\n      :host ul.apps li:after {\n        content: '';\n        display: block;\n        padding-bottom: 100%; }\n", ""]);
+exports.push([module.i, ":host {\n  position: fixed;\n  width: 100%;\n  height: 100%;\n  left: 0;\n  width: 30rem;\n  background-color: #ffffff;\n  z-index: 1;\n  padding: 0 4rem; }\n  :host wc-link.top-link {\n    height: 12rem;\n    line-height: 12rem;\n    text-align: center; }\n  :host img.logo {\n    vertical-align: middle; }\n  :host img.logo-text {\n    position: absolute;\n    bottom: 0;\n    left: 50%;\n    transform: translateX(-50%);\n    margin: 4rem auto; }\n  :host ul.apps {\n    margin-top: 3rem;\n    font-size: 0; }\n    :host ul.apps li {\n      display: inline-block;\n      width: calc((100% - 2rem) / 3);\n      margin-bottom: 1rem;\n      text-align: center;\n      margin-left: 1rem; }\n      :host ul.apps li:nth-child(3n + 1) {\n        margin-left: 0; }\n      :host ul.apps li:after {\n        content: '';\n        display: block;\n        padding-bottom: 100%; }\n", ""]);
 
 // exports
 
 
 /***/ }),
-/* 237 */
+/* 246 */
 /***/ (function(module, exports, __webpack_require__) {
 
 module.exports = __webpack_require__.p + "e6cadbe4f35dbcf8241d0b675d4d7391.svg";
 
 /***/ }),
-/* 238 */
+/* 247 */
 /***/ (function(module, exports, __webpack_require__) {
 
 module.exports = __webpack_require__.p + "1c33a7b28bd1a7742fbd3326014d7b64.svg";
 
 /***/ }),
-/* 239 */
+/* 248 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -34865,17 +35278,17 @@ var _inherits3 = _interopRequireDefault(_inherits2);
 
 var _lib = __webpack_require__(5);
 
-var _header = __webpack_require__(240);
+var _header = __webpack_require__(249);
 
 var _header2 = _interopRequireDefault(_header);
 
-var _header3 = __webpack_require__(241);
+var _header3 = __webpack_require__(250);
 
 var _header4 = _interopRequireDefault(_header3);
 
-var _ConnectedElementMixin = __webpack_require__(11);
+var _ConnectedElementMixin = __webpack_require__(10);
 
-var _store = __webpack_require__(9);
+var _store = __webpack_require__(8);
 
 var _store2 = _interopRequireDefault(_store);
 
@@ -34920,13 +35333,13 @@ var ConnectedHeader = function (_connect) {
 window.customElements.define('zen-header', ConnectedHeader);
 
 /***/ }),
-/* 240 */
+/* 249 */
 /***/ (function(module, exports) {
 
 module.exports = "<h1>{{app.page.title}}</h1>\n<zen-header-user></zen-header-user>\n"
 
 /***/ }),
-/* 241 */
+/* 250 */
 /***/ (function(module, exports, __webpack_require__) {
 
 exports = module.exports = __webpack_require__(4)(undefined);
@@ -34940,7 +35353,7 @@ exports.push([module.i, ":host {\n  display: block;\n  height: 12rem;\n  margin-
 
 
 /***/ }),
-/* 242 */
+/* 251 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -34966,7 +35379,7 @@ var _possibleConstructorReturn2 = __webpack_require__(2);
 
 var _possibleConstructorReturn3 = _interopRequireDefault(_possibleConstructorReturn2);
 
-var _get2 = __webpack_require__(8);
+var _get2 = __webpack_require__(7);
 
 var _get3 = _interopRequireDefault(_get2);
 
@@ -34976,11 +35389,11 @@ var _inherits3 = _interopRequireDefault(_inherits2);
 
 var _lib = __webpack_require__(5);
 
-var _resourceTable = __webpack_require__(243);
+var _resourceTable = __webpack_require__(252);
 
 var _resourceTable2 = _interopRequireDefault(_resourceTable);
 
-var _resourceTable3 = __webpack_require__(244);
+var _resourceTable3 = __webpack_require__(253);
 
 var _resourceTable4 = _interopRequireDefault(_resourceTable3);
 
@@ -34990,15 +35403,15 @@ var _pluralize2 = _interopRequireDefault(_pluralize);
 
 var _lodash = __webpack_require__(53);
 
-__webpack_require__(245);
+__webpack_require__(254);
 
-var _ConnectedElementMixin = __webpack_require__(11);
+var _ConnectedElementMixin = __webpack_require__(10);
 
-var _store = __webpack_require__(9);
+var _store = __webpack_require__(8);
 
 var _store2 = _interopRequireDefault(_store);
 
-var _actions = __webpack_require__(15);
+var _actions = __webpack_require__(12);
 
 var _actions2 = _interopRequireDefault(_actions);
 
@@ -35144,7 +35557,9 @@ var ResourceTable = function (_Element) {
         value: function updateButtons() {
             var _this5 = this;
 
-            var buttonCreate = { innerHTML: 'create', color: 'green' };
+            var buttonCreate = { innerHTML: 'create', color: 'green', onclick: function onclick() {
+                    return _this5.actionCreate();
+                } };
             var buttonEdit = { innerHTML: 'edit', color: 'main', onclick: function onclick() {
                     return _this5.actionOpen();
                 } };
@@ -35205,8 +35620,13 @@ var ResourceTable = function (_Element) {
             var _this6 = this;
 
             this.selected.forEach(function (id) {
-                _this6.trigger('pagesRemove', [id]);
+                _this6.trigger(_this6.resPlural + 'Remove', [id]);
             });
+        }
+    }, {
+        key: 'actionCreate',
+        value: function actionCreate() {
+            this.router.push(this.resPlural + '/create');
         }
     }, {
         key: 'resPlural',
@@ -35269,13 +35689,13 @@ var ConnectedResourceTable = function (_connect) {
 window.customElements.define('zen-resource-table', ConnectedResourceTable);
 
 /***/ }),
-/* 243 */
+/* 252 */
 /***/ (function(module, exports) {
 
 module.exports = "<header>\n    <zen-ui-button-group></zen-ui-button-group>\n</header>\n<div class=\"table\"></div>\n"
 
 /***/ }),
-/* 244 */
+/* 253 */
 /***/ (function(module, exports, __webpack_require__) {
 
 exports = module.exports = __webpack_require__(4)(undefined);
@@ -35289,7 +35709,7 @@ exports.push([module.i, ":host .table > div {\n  box-shadow: 0 1rem 2rem rgba(10
 
 
 /***/ }),
-/* 245 */
+/* 254 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -35361,75 +35781,7 @@ window.customElements.define('zen-ui-resource-table-column', function (_Element)
 }(_lib.Element));
 
 /***/ }),
-/* 246 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var _classCallCheck2 = __webpack_require__(0);
-
-var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
-
-var _possibleConstructorReturn2 = __webpack_require__(2);
-
-var _possibleConstructorReturn3 = _interopRequireDefault(_possibleConstructorReturn2);
-
-var _inherits2 = __webpack_require__(3);
-
-var _inherits3 = _interopRequireDefault(_inherits2);
-
-var _lib = __webpack_require__(5);
-
-var _users = __webpack_require__(247);
-
-var _users2 = _interopRequireDefault(_users);
-
-var _users3 = __webpack_require__(248);
-
-var _users4 = _interopRequireDefault(_users3);
-
-__webpack_require__(249);
-
-__webpack_require__(252);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-var Users = function (_Element) {
-    (0, _inherits3.default)(Users, _Element);
-
-    function Users() {
-        (0, _classCallCheck3.default)(this, Users);
-        return (0, _possibleConstructorReturn3.default)(this, (Users.__proto__ || Object.getPrototypeOf(Users)).call(this, _users2.default, _users4.default.toString()));
-    }
-
-    return Users;
-}(_lib.Element);
-
-window.customElements.define('page-app-users', Users);
-
-/***/ }),
-/* 247 */
-/***/ (function(module, exports) {
-
-module.exports = "<wc-switch>\n    <wc-route path='/users' exact  element=\"page-app-users-list\"></wc-route>\n    <wc-route path='/users/:id' element=\"page-app-user-edit\"></wc-route>\n</wc-switch>\n"
-
-/***/ }),
-/* 248 */
-/***/ (function(module, exports, __webpack_require__) {
-
-exports = module.exports = __webpack_require__(4)(undefined);
-// imports
-
-
-// module
-exports.push([module.i, "", ""]);
-
-// exports
-
-
-/***/ }),
-/* 249 */
+/* 255 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -35447,239 +35799,72 @@ var _possibleConstructorReturn2 = __webpack_require__(2);
 
 var _possibleConstructorReturn3 = _interopRequireDefault(_possibleConstructorReturn2);
 
-var _get2 = __webpack_require__(8);
-
-var _get3 = _interopRequireDefault(_get2);
-
 var _inherits2 = __webpack_require__(3);
 
 var _inherits3 = _interopRequireDefault(_inherits2);
 
 var _lib = __webpack_require__(5);
 
-var _usersList = __webpack_require__(250);
+var _userCreate = __webpack_require__(256);
 
-var _usersList2 = _interopRequireDefault(_usersList);
+var _userCreate2 = _interopRequireDefault(_userCreate);
 
-var _usersList3 = __webpack_require__(251);
+var _userCreate3 = __webpack_require__(257);
 
-var _usersList4 = _interopRequireDefault(_usersList3);
+var _userCreate4 = _interopRequireDefault(_userCreate3);
 
-var _ConnectedElementMixin = __webpack_require__(11);
+var _ConnectedElementMixin = __webpack_require__(10);
 
-var _store = __webpack_require__(9);
+var _store = __webpack_require__(8);
 
 var _store2 = _interopRequireDefault(_store);
 
-var _actions = __webpack_require__(15);
+var _actions = __webpack_require__(12);
 
 var _actions2 = _interopRequireDefault(_actions);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var UsersList = function (_Element) {
-    (0, _inherits3.default)(UsersList, _Element);
+var UserCreate = function (_Element) {
+    (0, _inherits3.default)(UserCreate, _Element);
 
-    function UsersList() {
-        (0, _classCallCheck3.default)(this, UsersList);
+    function UserCreate() {
+        (0, _classCallCheck3.default)(this, UserCreate);
 
-        var _this = (0, _possibleConstructorReturn3.default)(this, (UsersList.__proto__ || Object.getPrototypeOf(UsersList)).call(this));
-
-        _this.html = _usersList2.default;
-        _this.css = _usersList4.default.toString();
-
-        _this.table = _this.shadowRoot.querySelector('zen-resource-table');
-        return _this;
-    }
-
-    (0, _createClass3.default)(UsersList, [{
-        key: 'connectedCallback',
-        value: function connectedCallback() {
-            (0, _get3.default)(UsersList.prototype.__proto__ || Object.getPrototypeOf(UsersList.prototype), 'connectedCallback', this).call(this);
-            this.trigger('users-get', [null, false]);
-            this.trigger('title-set', ['Users']);
-        }
-    }, {
-        key: 'propertyChangedCallback',
-        value: async function propertyChangedCallback(prop, oldV, newV) {
-            await this.ready();
-            switch (prop) {
-                case 'users':
-                    this.table.data = newV.users;
-            }
-        }
-    }], [{
-        key: 'boundProps',
-        get: function get() {
-            return ['users'];
-        }
-    }]);
-    return UsersList;
-}(_lib.Element);
-
-var ConnectedUsersList = function (_connect) {
-    (0, _inherits3.default)(ConnectedUsersList, _connect);
-
-    function ConnectedUsersList() {
-        (0, _classCallCheck3.default)(this, ConnectedUsersList);
-        return (0, _possibleConstructorReturn3.default)(this, (ConnectedUsersList.__proto__ || Object.getPrototypeOf(ConnectedUsersList)).apply(this, arguments));
-    }
-
-    (0, _createClass3.default)(ConnectedUsersList, [{
-        key: '_mapStateToProps',
-        value: function _mapStateToProps(state) {
-            return {
-                users: state.Users
-            };
-        }
-    }, {
-        key: 'mapDispatchToEvents',
-        get: function get() {
-            return {
-                'users-get': _actions2.default.Users.usersGet,
-                'title-set': _actions2.default.App.titleSet
-            };
-        }
-    }]);
-    return ConnectedUsersList;
-}((0, _ConnectedElementMixin.connect)(_store2.default, UsersList));
-
-window.customElements.define('page-app-users-list', ConnectedUsersList);
-
-/***/ }),
-/* 250 */
-/***/ (function(module, exports) {
-
-module.exports = "<zen-resource-table resource=\"user\">\n    <zen-ui-resource-table-column key=\"fname\"></zen-ui-resource-table-column>\n    <zen-ui-resource-table-column key=\"email\"></zen-ui-resource-table-column>\n</zen-resource-table>\n"
-
-/***/ }),
-/* 251 */
-/***/ (function(module, exports, __webpack_require__) {
-
-exports = module.exports = __webpack_require__(4)(undefined);
-// imports
-
-
-// module
-exports.push([module.i, "", ""]);
-
-// exports
-
-
-/***/ }),
-/* 252 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var _classCallCheck2 = __webpack_require__(0);
-
-var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
-
-var _createClass2 = __webpack_require__(1);
-
-var _createClass3 = _interopRequireDefault(_createClass2);
-
-var _possibleConstructorReturn2 = __webpack_require__(2);
-
-var _possibleConstructorReturn3 = _interopRequireDefault(_possibleConstructorReturn2);
-
-var _get2 = __webpack_require__(8);
-
-var _get3 = _interopRequireDefault(_get2);
-
-var _inherits2 = __webpack_require__(3);
-
-var _inherits3 = _interopRequireDefault(_inherits2);
-
-var _lib = __webpack_require__(5);
-
-var _userEdit = __webpack_require__(255);
-
-var _userEdit2 = _interopRequireDefault(_userEdit);
-
-var _userEdit3 = __webpack_require__(256);
-
-var _userEdit4 = _interopRequireDefault(_userEdit3);
-
-var _ConnectedElementMixin = __webpack_require__(11);
-
-var _store = __webpack_require__(9);
-
-var _store2 = _interopRequireDefault(_store);
-
-var _actions = __webpack_require__(15);
-
-var _actions2 = _interopRequireDefault(_actions);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-var UserEdit = function (_Element) {
-    (0, _inherits3.default)(UserEdit, _Element);
-
-    function UserEdit() {
-        (0, _classCallCheck3.default)(this, UserEdit);
-
-        var _this = (0, _possibleConstructorReturn3.default)(this, (UserEdit.__proto__ || Object.getPrototypeOf(UserEdit)).call(this, _userEdit2.default, _userEdit4.default.toString()));
+        var _this = (0, _possibleConstructorReturn3.default)(this, (UserCreate.__proto__ || Object.getPrototypeOf(UserCreate)).call(this, _userCreate2.default, _userCreate4.default.toString()));
 
         _this.router = document.querySelector('wc-router');
 
         _this.form = _this.shadowRoot.querySelector('zen-ui-form');
         _this.form.fields = _this.constructor.formFields;
-        _this.form.addEventListener('submit', _this.save.bind(_this));
+        _this.form.addEventListener('submit', _this.submit.bind(_this));
+
+        _this.addEventListener('user-create-done', function (_ref) {
+            var detail = _ref.detail;
+
+            if (detail.id) _this.router.push('/users/' + detail.id);
+        });
         return _this;
     }
 
-    (0, _createClass3.default)(UserEdit, [{
+    (0, _createClass3.default)(UserCreate, [{
         key: 'connectedCallback',
         value: function connectedCallback() {
-            (0, _get3.default)(UserEdit.prototype.__proto__ || Object.getPrototypeOf(UserEdit.prototype), 'connectedCallback', this).call(this);
-            this.trigger('user-get', [this.id]);
-            this.trigger('user-properties-get', [this.id]);
+            this.trigger('title-set', ['Create user']);
         }
     }, {
-        key: 'propertyChangedCallback',
-        value: function propertyChangedCallback(prop, oldV, newV) {
-            switch (prop) {
-                case 'user':
-                    if (newV) {
-                        this.trigger('title-set', [newV.fname]);
+        key: 'submit',
 
-                        this.form.values = newV;
-                    }
-                    break;
 
-                case 'errors':
-                    if (newV.get) this.router.push('/404');
+        // propertyChangedCallback(prop, oldV, newV) {
+        //     switch (prop) {
+        //         case 'errors':
+        //     }
+        // }
 
-            }
-        }
-    }, {
-        key: 'save',
-        value: function save() {
-            var _this2 = this;
 
-            this.form.values.data = {};
-            delete this.form.values.properties;
-
-            Object.keys(this.form.values).filter(function (k) {
-                return (/^data\./.test(k)
-                );
-            }).map(function (k) {
-                return (/^data\.(.+)/.exec(k)[1]
-                );
-            }).forEach(function (k) {
-                _this2.form.values.data[k] = _this2.form.values['data.' + k];
-                delete _this2.form.values['data.' + k];
-            });
-
-            this.trigger('user-update', [this.id, this.form.values]);
-        }
-    }, {
-        key: 'id',
-        get: function get() {
-            if (this.isConnected) return this.router.params.id;else return false;
+        value: function submit() {
+            this.trigger('user-create', [this.form.values]);
         }
     }], [{
         key: 'formFields',
@@ -35697,7 +35882,13 @@ var UserEdit = function (_Element) {
                 placeholder: 'Email',
                 type: 'text'
             }, {
-                type: 'submit'
+                name: 'password',
+                placeholder: 'Password',
+                type: 'password'
+            }, {
+                type: 'submit',
+                value: 'Create',
+                color: 'green'
             }];
         }
     }, {
@@ -35706,24 +35897,24 @@ var UserEdit = function (_Element) {
             return ['user', 'errors'];
         }
     }]);
-    return UserEdit;
+    return UserCreate;
 }(_lib.Element);
 
-var ConnectedUsersEdit = function (_connect) {
-    (0, _inherits3.default)(ConnectedUsersEdit, _connect);
+var ConnectedUsersCreate = function (_connect) {
+    (0, _inherits3.default)(ConnectedUsersCreate, _connect);
 
-    function ConnectedUsersEdit() {
-        (0, _classCallCheck3.default)(this, ConnectedUsersEdit);
-        return (0, _possibleConstructorReturn3.default)(this, (ConnectedUsersEdit.__proto__ || Object.getPrototypeOf(ConnectedUsersEdit)).apply(this, arguments));
+    function ConnectedUsersCreate() {
+        (0, _classCallCheck3.default)(this, ConnectedUsersCreate);
+        return (0, _possibleConstructorReturn3.default)(this, (ConnectedUsersCreate.__proto__ || Object.getPrototypeOf(ConnectedUsersCreate)).apply(this, arguments));
     }
 
-    (0, _createClass3.default)(ConnectedUsersEdit, [{
+    (0, _createClass3.default)(ConnectedUsersCreate, [{
         key: '_mapStateToProps',
         value: function _mapStateToProps(state) {
-            var _this4 = this;
+            var _this3 = this;
 
             var user = state.Users.users.find(function (p) {
-                return p.id === _this4.id;
+                return p.id === _this3.id;
             });
             if (user) user = user.asMutable({ deep: true });
 
@@ -35733,27 +35924,24 @@ var ConnectedUsersEdit = function (_connect) {
         key: 'mapDispatchToEvents',
         get: function get() {
             return {
-                'user-get': _actions2.default.Users.usersGet,
-                'user-update': _actions2.default.Users.usersUpdate,
+                'user-create': _actions2.default.Users.usersCreate,
                 'title-set': _actions2.default.App.titleSet
             };
         }
     }]);
-    return ConnectedUsersEdit;
-}((0, _ConnectedElementMixin.connect)(_store2.default, UserEdit));
+    return ConnectedUsersCreate;
+}((0, _ConnectedElementMixin.connect)(_store2.default, UserCreate));
 
-window.customElements.define('page-app-user-edit', ConnectedUsersEdit);
+window.customElements.define('page-app-user-create', ConnectedUsersCreate);
 
 /***/ }),
-/* 253 */,
-/* 254 */,
-/* 255 */
+/* 256 */
 /***/ (function(module, exports) {
 
 module.exports = "<zen-ui-form class=\"card padding-main\"></zen-ui-form>\n"
 
 /***/ }),
-/* 256 */
+/* 257 */
 /***/ (function(module, exports, __webpack_require__) {
 
 exports = module.exports = __webpack_require__(4)(undefined);
