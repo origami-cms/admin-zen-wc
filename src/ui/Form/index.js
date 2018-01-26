@@ -133,6 +133,7 @@ window.customElements.define('zen-ui-form', class ZenForm extends Element {
             case 'submit':
                 field.type = f.type;
                 field.value = f.value || 'Submit';
+                if (f.color) field.classList.add(f.color);
                 break;
 
             default:
