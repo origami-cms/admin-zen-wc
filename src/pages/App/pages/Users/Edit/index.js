@@ -36,7 +36,8 @@ class UserEdit extends Element {
                 type: 'text'
             },
             {
-                type: 'submit'
+                type: 'submit',
+                value: 'Save'
             }
         ];
     }

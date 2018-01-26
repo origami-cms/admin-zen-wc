@@ -1,6 +1,7 @@
 import {Element} from 'lib';
 import HTML from './form.html';
 import CSS from './form.scss';
+import _ from 'lodash';
 
 import './Checkbox';
 
@@ -59,7 +60,7 @@ window.customElements.define('zen-ui-form', class ZenForm extends Element {
 
     render() {
         super.render();
-        this.fields.map(f => {
+        this.fields.forEach(f => {
             let existing = this.shadowRoot.querySelector(`*[name='${f.name}'`);
             if (!existing && f.type == 'submit') existing = this.shadowRoot.querySelector('*[type="submit"');
             const v = this.values[f.name] || '';
@@ -74,6 +75,7 @@ window.customElements.define('zen-ui-form', class ZenForm extends Element {
                 this.templates['form-row'],
                 true
             ).querySelector('div');
+            row.setAttribute('data-name', f.type == 'submit' ? 'submit' : f.name);
 
             const field = this.createField(f, v);
             if (!field) return;
@@ -87,6 +89,28 @@ window.customElements.define('zen-ui-form', class ZenForm extends Element {
             row.appendChild(field);
             this.form.appendChild(row);
         });
+
+        if (this.form) {
+            const children = Array.from(this.form.children);
+            const order = this.fields.map(f => {
+                if (f.type === 'submit') return 'submit';
+                else return f.name;
+            });
+
+            if (!_.isEqual(order, children.map(el => el.getAttribute('data-name')))) {
+                children
+                    .map(el => [
+                        order.indexOf(el.getAttribute('data-name')),
+                        this.form.removeChild(el)
+                    ])
+                    .sort((prev, next) => {
+                        if (prev[0] < next[0]) return -1;
+                        if (prev[0] > next[0]) return 1;
+                        else return 0;
+                    })
+                    .forEach(el => this.form.appendChild(el[1]));
+            }
+        }
 
         this.updateError();
     }
@@ -102,7 +126,7 @@ window.customElements.define('zen-ui-form', class ZenForm extends Element {
         };
 
         switch (f.type) {
-            // case 'textarea':
+            // Case 'textarea':
             // field = document.createElement('textarea');
             // field.value = v;
             // field.name = f.name;

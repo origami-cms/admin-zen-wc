@@ -31,7 +31,8 @@ class PagedEdit extends Element {
                 type: 'text'
             },
             {
-                type: 'submit'
+                type: 'submit',
+                value: 'save'
             }
         ];
     }
@@ -65,7 +66,7 @@ class PagedEdit extends Element {
 
                     this.form.values = newV;
                     if (newV.properties) {
-                        const slice = -2;
+                        const slice = -1;
                         this.form.fields = [
                             ...this.constructor.formFields.slice(0, slice),
                             ...Object.entries(newV.properties).map(([name, v]) => ({

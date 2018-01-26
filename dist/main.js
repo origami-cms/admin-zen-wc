@@ -33157,7 +33157,7 @@ var PagedEdit = function (_Element) {
 
                         this.form.values = newV;
                         if (newV.properties) {
-                            var slice = -2;
+                            var slice = -1;
                             this.form.fields = [].concat((0, _toConsumableArray3.default)(this.constructor.formFields.slice(0, slice)), (0, _toConsumableArray3.default)(Object.entries(newV.properties).map(function (_ref3) {
                                 var _ref4 = (0, _slicedToArray3.default)(_ref3, 2),
                                     name = _ref4[0],
@@ -33217,7 +33217,8 @@ var PagedEdit = function (_Element) {
                 placeholder: 'URL',
                 type: 'text'
             }, {
-                type: 'submit'
+                type: 'submit',
+                value: 'save'
             }];
         }
     }, {
@@ -33624,7 +33625,8 @@ var UserEdit = function (_Element) {
                 placeholder: 'Email',
                 type: 'text'
             }, {
-                type: 'submit'
+                type: 'submit',
+                value: 'Save'
             }];
         }
     }, {
@@ -34087,6 +34089,10 @@ var _form3 = __webpack_require__(228);
 
 var _form4 = _interopRequireDefault(_form3);
 
+var _lodash = __webpack_require__(53);
+
+var _lodash2 = _interopRequireDefault(_lodash);
+
 __webpack_require__(229);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
@@ -34142,7 +34148,7 @@ window.customElements.define('zen-ui-form', function (_Element) {
             var _this2 = this;
 
             (0, _get3.default)(ZenForm.prototype.__proto__ || Object.getPrototypeOf(ZenForm.prototype), 'render', this).call(this);
-            this.fields.map(function (f) {
+            this.fields.forEach(function (f) {
                 var existing = _this2.shadowRoot.querySelector('*[name=\'' + f.name + '\'');
                 if (!existing && f.type == 'submit') existing = _this2.shadowRoot.querySelector('*[type="submit"');
                 var v = _this2.values[f.name] || '';
@@ -34154,6 +34160,7 @@ window.customElements.define('zen-ui-form', function (_Element) {
                 }
 
                 var row = document.importNode(_this2.templates['form-row'], true).querySelector('div');
+                row.setAttribute('data-name', f.type == 'submit' ? 'submit' : f.name);
 
                 var field = _this2.createField(f, v);
                 if (!field) return;
@@ -34167,6 +34174,26 @@ window.customElements.define('zen-ui-form', function (_Element) {
                 row.appendChild(field);
                 _this2.form.appendChild(row);
             });
+
+            if (this.form) {
+                var children = Array.from(this.form.children);
+                var order = this.fields.map(function (f) {
+                    if (f.type === 'submit') return 'submit';else return f.name;
+                });
+
+                if (!_lodash2.default.isEqual(order, children.map(function (el) {
+                    return el.getAttribute('data-name');
+                }))) {
+                    children.map(function (el) {
+                        return [order.indexOf(el.getAttribute('data-name')), _this2.form.removeChild(el)];
+                    }).sort(function (prev, next) {
+                        if (prev[0] < next[0]) return -1;
+                        if (prev[0] > next[0]) return 1;else return 0;
+                    }).forEach(function (el) {
+                        return _this2.form.appendChild(el[1]);
+                    });
+                }
+            }
 
             this.updateError();
         }
@@ -34182,7 +34209,7 @@ window.customElements.define('zen-ui-form', function (_Element) {
             };
 
             switch (f.type) {
-                // case 'textarea':
+                // Case 'textarea':
                 // field = document.createElement('textarea');
                 // field.value = v;
                 // field.name = f.name;
