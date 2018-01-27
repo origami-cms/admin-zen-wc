@@ -82,6 +82,40 @@ class ResourceTable extends Element {
     }
 
 
+    renderHeader() {
+        let header = this.table.querySelector('div.header');
+
+        if (!header) {
+            header = header = document.createElement('div');
+            this.table.appendChild(header);
+        }
+
+        // TODO: Move to update function instead of replace
+        header.innerHTML = '';
+
+
+        const checkTD = document.createElement('span');
+        checkTD.classList.add('fixed');
+        const check = document.createElement('zen-ui-checkbox');
+        check.checked = this.selected.length === this.data.length;
+
+        check.addEventListener('change', e => {
+            console.log('CHANGING');
+            this.select(e.target.checked);
+        });
+        checkTD.appendChild(check);
+        header.appendChild(checkTD);
+
+
+        header.classList.add('header');
+        Array.from(this.children).forEach(col => {
+            const td = document.createElement('span');
+            td.innerHTML = col.key;
+            header.appendChild(td);
+        });
+    }
+
+
     renderRows() {
         const eles = this._elementMap;
         // Remove any old elements that the data no longer contains
@@ -182,17 +216,23 @@ class ResourceTable extends Element {
         this.buttonGroup.buttons = buttons;
     }
 
-    select(id) {
-        if (this.selected.includes(id)) {
-            this.selected = this.selected.filter(_id => id != _id);
-        } else this.selected = [...this.selected, id];
+    select(idOrBool) {
+        if (idOrBool === true) this.selected = this.data.map(e => e[this.idKey]);
+        else if (idOrBool === false) this.selected = [];
+
+        else if (this.selected.includes(idOrBool)) {
+            this.selected = this.selected.filter(_id => idOrBool != _id);
+        } else this.selected = [...this.selected, idOrBool];
     }
 
 
     async render() {
         super.render();
         await this.ready();
-        if (this.isConnected) this.renderRows();
+        if (this.isConnected) {
+            this.renderHeader();
+            this.renderRows();
+        }
     }
 
 

@@ -16,8 +16,12 @@ window.customElements.define('zen-ui-checkbox', class Icon extends Element {
         };
     }
 
-    static get boundProps() {
-        return ['checked'];
+    get checked() {
+        return this.input.checked;
+    }
+
+    set checked(v) {
+        if (this.input) return this.input.checked = Boolean(v);
     }
 
     static get observedAttributes() {
@@ -27,16 +31,7 @@ window.customElements.define('zen-ui-checkbox', class Icon extends Element {
     attributeChangedCallback(attr, oldV, newV) {
         switch (attr) {
             case 'checked':
-                this[attr] = newV;
-                break;
-        }
-    }
-
-    async propertyChangedCallback(prop, oldV, newV) {
-        switch (prop) {
-            case 'checked':
-                await this.ready();
-                this.input.checked = newV;
+                this.checked = Boolean(newV);
                 break;
         }
     }

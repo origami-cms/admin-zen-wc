@@ -18,11 +18,14 @@
 
 
         & > div.header {
-            display: none;
+            background-color: transparent;
+            box-shadow: none;
 
             & > span {
-                white-space: normal;
-                justify-content: center;
+                text-transform: uppercase;
+                font-weight: 600;
+                letter-spacing: 1px;
+                color: color('shade-2');
             }
         }
 
