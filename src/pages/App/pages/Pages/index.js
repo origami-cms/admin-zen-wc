@@ -5,6 +5,7 @@ import CSS from './pages.scss';
 
 import './List';
 import './Edit';
+import './Create';
 
 
 class Pages extends Element {

@@ -62,7 +62,10 @@ class Sidebar extends Element {
         this.sidebar.items.forEach(a => {
             const _li = li.cloneNode(true);
             _li.querySelector('wc-link').to = a.to;
-            _li.querySelector('zen-ui-icon').type = a.icon;
+            const icon = _li.querySelector('zen-ui-icon');
+            icon.type = a.icon;
+            icon.color = a.iconColor || 'white';
+            _li.querySelector('span.name').innerHTML = a.name;
             _li.classList.add(`gradient-${a.color}`);
             this.appsList.appendChild(_li);
         });

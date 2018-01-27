@@ -618,6 +618,12 @@ table {
 .gradient-blue {
   background: linear-gradient(to bottom right, #008CBA, #6146C8); }
 
+.gradient-white {
+  background: linear-gradient(to bottom right, #f8f8ff, #cacadf); }
+
+.gradient-gold {
+  background: linear-gradient(to bottom right, #f1e35f, #da9124); }
+
 .display-ib {
   display: inline-block; }
 
@@ -1230,6 +1236,10 @@ button, .button, input[type='submit'] {
     background: linear-gradient(to bottom right, #84D59A, #00BED0); }
   button.blue, .button.blue, input[type='submit'].blue {
     background: linear-gradient(to bottom right, #008CBA, #6146C8); }
+  button.white, .button.white, input[type='submit'].white {
+    background: linear-gradient(to bottom right, #f8f8ff, #cacadf); }
+  button.gold, .button.gold, input[type='submit'].gold {
+    background: linear-gradient(to bottom right, #f1e35f, #da9124); }
 
 .button-group button, .button-group .button {
   margin-right: 1rem; }

@@ -100,7 +100,6 @@ class ResourceTable extends Element {
         check.checked = this.selected.length === this.data.length;
 
         check.addEventListener('change', e => {
-            console.log('CHANGING');
             this.select(e.target.checked);
         });
         checkTD.appendChild(check);
@@ -113,6 +112,8 @@ class ResourceTable extends Element {
             td.innerHTML = col.key;
             header.appendChild(td);
         });
+
+        header.appendChild(document.createElement('span'));
     }
 
 

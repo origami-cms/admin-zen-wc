@@ -40,9 +40,16 @@ export const getSidebarItems = dispatch =>
             },
             {
                 icon: 'image',
-                color: 'main',
+                color: 'gold',
                 to: '/images',
                 name: 'Images'
+            },
+            {
+                icon: 'settings',
+                color: 'white',
+                to: '/settings',
+                name: 'Settings',
+                iconColor: 'shade-4'
             }
         ]});
     };
