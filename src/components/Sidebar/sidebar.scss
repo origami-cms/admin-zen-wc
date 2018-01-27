@@ -33,14 +33,14 @@
     }
 
     ul.apps {
-        $padding: 1rem;
+        $padding: 2rem;
         $cols: 3;
         margin-top: 3rem;
         font-size: 0;
         li {
             display: inline-block;
             width: calc((100% - #{($cols - 1) * $padding}) / #{$cols});
-            margin-bottom: $padding;
+            margin-bottom: $padding * 1.5;
             text-align: center;
             margin-left: $padding;
             &:nth-child(#{$cols}n + 1) {
@@ -51,6 +51,20 @@
                 content: '';
                 display: block;
                 padding-bottom: 100%;
+            }
+
+            zen-ui-icon {
+                width: 60%;
+            }
+
+            span.name {
+                display: inline-block;
+                width: 120%;
+                margin-left: -10%;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                margin-top: calc(100% + 0.3rem);
+                font-size: fs('tiny');
             }
         }
     }
