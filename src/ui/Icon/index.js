@@ -59,13 +59,6 @@ window.customElements.define('zen-ui-icon', class Icon extends Element {
                     this.svg.classList.toggle(newV, true);
                 }
                 break;
-
-            case 'size':
-                if (this.svg) {
-                    this.svg.classList.toggle(`size-${oldV}`, false);
-                    this.svg.classList.toggle(`size-${newV}`, true);
-                    break;
-                }
         }
     }
 
@@ -74,7 +67,6 @@ window.customElements.define('zen-ui-icon', class Icon extends Element {
         const {svg} = this;
         if (svg) {
             svg.classList.toggle(this.color, true);
-            svg.classList.toggle(`size-${this.size}`, true);
         }
     }
 });

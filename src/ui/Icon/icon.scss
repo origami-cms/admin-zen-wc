@@ -1,8 +1,10 @@
-@import "/admin/origami.css";
 @import "~origami-css/import";
 @import "~styles/lib/extenders";
 
 :host {
+    width: size('main');
+    height: size('main');
+
     & {
         display: inline-block;
         vertical-align: middle;
@@ -20,4 +22,14 @@
         }
     }
 
+
+
+}
+
+
+@each $size, $val in $sizes {
+    :host-context([size="#{$size}"]) {
+        width: size($size);
+        height: size($size);
+    }
 }
