@@ -8,11 +8,13 @@ import logoText from 'images/logo-text.svg';
 import {connect} from 'lib/ConnectedElement.mixin.js';
 import store from 'store';
 import actions from 'actions';
+import {BASE_URI} from 'const';
 
 
 class Sidebar extends Element {
     constructor() {
         super(HTML, CSS.toString());
+        this.router = document.querySelector('wc-router');
         this.search = [
             {
                 type: 'text',
@@ -22,6 +24,8 @@ class Sidebar extends Element {
                 iconColor: 'shade-3'
             }
         ];
+
+        this.router.history.listen(this._updateApp.bind(this));
     }
 
     connectedCallback() {
@@ -34,6 +38,8 @@ class Sidebar extends Element {
         this.form = this.shadowRoot.querySelector('zen-ui-form');
         this.form.fields = this.search;
         this.appsList = this.shadowRoot.querySelector('ul.apps');
+
+        this.appContainer.querySelector('zen-ui-icon[type=cross]').onclick = () => this.router.push('/');
 
         this.trigger('sidebar-items-get');
     }
@@ -61,7 +67,7 @@ class Sidebar extends Element {
 
         this.sidebar.items.forEach(a => {
             const _li = li.cloneNode(true);
-            _li.querySelector('wc-link').to = a.to;
+            _li.querySelector('wc-link').to = a.path;
             const icon = _li.querySelector('zen-ui-icon');
             icon.type = a.icon;
             icon.color = a.iconColor || 'white';
@@ -69,6 +75,43 @@ class Sidebar extends Element {
             _li.classList.add(`gradient-${a.color}`);
             this.appsList.appendChild(_li);
         });
+    }
+
+
+    get appContainer() {
+        return this.shadowRoot.querySelector('.app');
+    }
+
+    get app() {
+        if (!this.sidebar) return false;
+
+        return this.sidebar.items.find(i => this.router.match(
+            window.location.pathname,
+            `${BASE_URI}${i.path}`
+        ));
+    }
+
+    open(a) {
+        const ac = this.appContainer;
+        // Remove old gradients and colors
+        ac.classList = 'app';
+        ac.classList.add(`gradient-${a.color}`);
+        ac.classList.add(`color-${a.iconColor || 'white'}`);
+        // ac.innerHTML = a;
+        ac.classList.add('show');
+
+        this.render();
+    }
+
+    close() {
+        this.appContainer.classList.remove('show');
+    }
+
+
+    _updateApp() {
+        const {app} = this;
+        if (!app) this.close();
+        else this.open(app);
     }
 
 }

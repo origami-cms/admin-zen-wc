@@ -17,37 +17,37 @@ export const getSidebarItems = dispatch =>
             {
                 icon: 'page',
                 color: 'red',
-                to: '/pages',
+                path: '/pages',
                 name: 'Pages'
             },
             {
                 icon: 'dollar',
                 color: 'green',
-                to: '/app/sales',
+                path: '/app/sales',
                 name: 'Sales'
             },
             {
                 icon: 'messages',
                 color: 'orange',
-                to: '/app/engagement',
+                path: '/app/engagement',
                 name: 'Engagement'
             },
             {
                 icon: 'user',
                 color: 'blue',
-                to: '/users',
+                path: '/users',
                 name: 'Users'
             },
             {
                 icon: 'image',
                 color: 'gold',
-                to: '/images',
+                path: '/images',
                 name: 'Images'
             },
             {
                 icon: 'settings',
                 color: 'white',
-                to: '/settings',
+                path: '/settings',
                 name: 'Settings',
                 iconColor: 'shade-4'
             }
