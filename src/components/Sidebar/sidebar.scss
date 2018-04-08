@@ -1,5 +1,5 @@
-@import "~origami-css/variables";
-@import "~origami-css/helpers";
+@import "~zen-css/variables";
+@import "~zen-css/helpers";
 @import "~styles/lib/extenders";
 
 :host {
@@ -10,12 +10,12 @@
     width: 30rem;
     background-color: color('white');
     z-index: 1;
-    padding: 0 size('main');
+    padding: 0 default('size-main');
 
 
     wc-link.top-link {
-        height: size('super');
-        line-height: size('super');
+        height: default('size-super');
+        line-height: default('size-super');
         text-align: center;
     }
 
@@ -28,7 +28,7 @@
         bottom: 0;
         left: 50%;
         transform: translateX(-50%);
-        margin: size('main') auto;
+        margin: default('size-main') auto;
         // opacity: 0.4;
     }
 
@@ -75,7 +75,7 @@
         background-color: white;
         transform: translateX(-100%);
         transition: all $transition-time;
-        padding: size('small');
+        padding: default('size-small');
 
         &.show {
             transform: translateX(0%);
@@ -110,7 +110,7 @@
     //             display: block;
     //             height: 4rem;
     //             line-height: 4rem;
-    //             padding: 0 size('small');
+    //             padding: 0 default('size-small');
     //         }
     //     }
     // }
@@ -154,16 +154,16 @@
     //     }
     //     a {
     //         display: none;
-    //         width: size('hero');
-    //         height: size('hero');
-    //         line-height: size('hero');
+    //         width: default('size-hero');
+    //         height: default('size-hero');
+    //         line-height: default('size-hero');
     //     }
     //     &.active a {
     //         display: block;
     //     }
     // }
     // .user {
-    //     padding: 0 size('large');
+    //     padding: 0 default('size-large');
     //     height: 4rem;
     //     line-height: 4rem;
     //     border-left: 1px solid color('shade-1');

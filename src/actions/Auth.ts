@@ -1,4 +1,4 @@
-import API from 'lib/API/API';
+import API from 'lib/API';
 import CODES from 'http-status-codes';
 
 

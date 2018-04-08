@@ -1,39 +1,22 @@
-const path = require('path');
-const ExtractTextPlugin = require('extract-text-webpack-plugin');
-const HTMLWebpackPlugin = require('html-webpack-plugin');
-// const ScriptExtHtmlWebpackPlugin = require('script-ext-html-webpack-plugin');
+const PluginHTML = require('html-webpack-plugin');
+const ExtractCSS = require('extract-text-webpack-plugin');
+const BitBarPlugin = require('bitbar-webpack-progress-plugin');
 
-const cssExtract = new ExtractTextPlugin('origami.css');
-
-const PATH_DIST = path.resolve(__dirname, './dist');
-const PATH_SRC = path.resolve(__dirname, './src');
 
 module.exports = {
-    entry: {
-        'main.js': path.resolve('./src/main.js'),
-        'origami.css': path.resolve(__dirname, 'node_modules/origami-css/base.scss')
-    },
+    entry: [
+        './src/polyfills/treeWalker.js',
+        './src/app.ts'
+    ],
     output: {
-        path: PATH_DIST,
-        filename: '[name]',
-        publicPath: '/admin/'
-    },
-    // Devtool: 'eval-source-map',
-    devServer: {
-        contentBase: PATH_SRC,
-        hot: true,
-        open: true,
-        inline: true
+        filename: 'app.js'
     },
     module: {
         rules: [
             {
-                enforce: 'pre',
-                test: /\.js$/,
-                include: [
-                    PATH_SRC
-                ],
-                loader: 'babel-loader'
+                test: /\.ts/,
+                loader: 'ts-loader',
+                exclude: /node_modules/
             },
             {
                 test: /\.html/,
@@ -41,53 +24,44 @@ module.exports = {
             },
             {
                 test: /\.scss/,
-                include: [/origami-css/],
-                loader: cssExtract.extract(['css-loader', 'sass-loader'])
+                exclude: /base\.scss/,
+                loader: 'css-loader!sass-loader'
             },
             {
-                test: /\.scss/,
-                include: [/src\/components/, /src\/pages/, /src\/ui/],
-                loaders: ['css-loader', 'sass-loader']
+                test: /base\.scss/,
+                use: ExtractCSS.extract({
+                    use: 'css-loader!sass-loader'
+                })
             },
             {
-                test: /\.s?css$/,
-                loader: 'style-loader!css-loader!sass-loader',
-                include: [/src\/styles/]
-            },
-            {
-                test: /\.(svg|jpg|png)/,
+                test: /\.(svg|jpe?g|png)/,
+                exclude: [/apps/, /questions/],
                 loader: 'file-loader',
-                exclude: [/loading\.svg/, /node_modules/]
-            }
+                options: {
+                    outputPath: '/images',
+                    name: '[name].[ext]'
+                }
+            },
+            // {
+            //     test: /\.(svg|jpg|png)/,
+            //     loader: 'file-loader',
+            //     exclude: [/loading\.svg/, /node_modules/]
+            // }
         ]
     },
     resolve: {
-        symlinks: false,
+        extensions: ['.ts', '.js'],
         alias: {
-            'bc': path.resolve(__dirname, 'bower_components'),
-            'lib': path.resolve(PATH_SRC, 'lib'),
-            'const': path.resolve(PATH_SRC, 'const'),
-            'styles': path.resolve(PATH_SRC, 'styles'),
-            'images': path.resolve(PATH_SRC, 'images'),
-            'store': path.resolve(PATH_SRC, 'store'),
-            'actions': path.resolve(PATH_SRC, 'actions'),
-            'reducers': path.resolve(PATH_SRC, 'reducers'),
-
-            'icons': path.resolve(__dirname, 'node_modules/origami-icons'),
-            // 'grapejs': path.resolve(__dirname, 'node_modules/grapejs/dist/index.js')
-            // 'origami-css': path.resolve(__dirname, 'node_modules/origami-css')
-
+            'actions': './src/actions',
+            'store': './src/store',
+            'reducers': './src/reducers'
         }
     },
     plugins: [
-        new HTMLWebpackPlugin({
-            template: path.resolve(PATH_SRC, 'app.html'),
-            inject: true
+        new PluginHTML({
+            template: './src/app.html'
         }),
-        cssExtract
-        // new ScriptExtHtmlWebpackPlugin({
-        //     inline: /\.js/
-        // }),
-        // HTMLExtract
+        new ExtractCSS('zen.css'),
+        new BitBarPlugin()
     ]
-};
+}

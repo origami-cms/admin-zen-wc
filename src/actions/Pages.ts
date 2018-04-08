@@ -3,7 +3,7 @@ import {
     PAGE_DATA_SET,
     PAGES_TREE_SET
 } from './const';
-import API from 'lib/API/API';
+import API from '~/lib/api';
 import resource from 'lib/Resource/actions';
 
 

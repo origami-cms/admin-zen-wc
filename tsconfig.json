@@ -1,0 +1,38 @@
+{
+    "include": [
+        "src/app.ts"
+    ],
+    "exclude": [],
+    "compilerOptions": {
+        "target": "ES2015",
+        "module": "commonjs",
+        "baseUrl": "./",
+        "lib": [
+            "es5",
+            "es6",
+            "es2015.promise",
+            "dom",
+            "es2017.object"
+        ],
+        "outDir": "./",
+        "strict": true,
+        "moduleResolution": "node",
+        "allowSyntheticDefaultImports": false,
+        "esModuleInterop": true,
+        "experimentalDecorators": true,
+        "emitDecoratorMetadata": true,
+
+        // "paths": {
+        //     "actions/*": ["./src/actions/*"],
+        //     "store/*": ["./src/store/*"],
+        //     "reducers": ["./src/reducers/*"]
+        // }
+        "paths": {
+            "~/*": [
+                "./src/*"
+            ],
+            "reducers": ["./src/reducers/index.ts"],
+            "~lib/*": ["./src/lib/*"]
+        }
+    }
+}

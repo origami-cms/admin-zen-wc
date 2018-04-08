@@ -1,4 +1,4 @@
-@import '~origami-css/import';
+@import '~zen-css/import';
 
 :host {
     display: block;
@@ -36,7 +36,7 @@
             background-color: color('white');
             height: 5rem;
             line-height: 5rem;
-            margin-bottom: size('tiny');
+            margin-bottom: default('size-tiny');
 
             @extend %shadow-shade-1;
             @extend %rounded;
@@ -51,7 +51,7 @@
                 overflow: hidden;
                 text-overflow: ellipsis;
                 white-space: nowrap;
-                padding: 0 size('small');
+                padding: 0 default('size-small');
                 min-width: 0;
 
                 &.fixed {
