@@ -8,6 +8,3 @@ import 'zen-css';
 import './components';
 import './pages';
 import './router';
-
-import store from './store';
-import {default as AppState, Company} from './store/state';

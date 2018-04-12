@@ -1,54 +1,70 @@
-import {Element} from 'lib';
+import {Element, Checkbox, Button, ButtonGroup} from 'origami-zen';
 import HTML from './resource-table.html';
 import CSS from './resource-table.scss';
 import pluralize from 'pluralize';
 import {upperFirst} from 'lodash';
 
-import './Column';
+import ResourceTableColumn from './Column';
 
 
-import {connect} from 'lib/ConnectedElement.mixin.js';
+import connect from 'wc-redux';
 import store from 'store';
 import actions from 'actions';
+import {Router} from 'wc-router';
+import State from 'store/state';
 
+export interface Data {
+    [key: string]: any;
+}
 
-class ResourceTable extends Element {
+@connect(
+    store,
+    (state: State) => ({
+        me: state.Me,
+        sidebar: state.App.sidebar
+    }),
+    function () {
+        // @ts-ignore this=ResourceTable
+        return actions[upperFirst(this.resPlural)];
+    }
+)
+export default class ResourceTable extends Element {
+    resource?: string;
+    selected: any[] = [];
+    idKey: string = 'id';
+    data: any[] = [];
+
+    private _elementMap: Map<Data, HTMLElement> = new Map();
+    private _buttonGroup?: ButtonGroup;
+    private _table?: HTMLDivElement;
+    private _observer?: MutationObserver;
+    private _router?: Router;
+
     constructor() {
-        super();
-        this.html = HTML;
-        this.css = CSS.toString();
-        this._elementMap = new Map();
+        super(HTML, CSS);
+    }
 
-        this.buttonGroup = this.shadowRoot.querySelector('header zen-ui-button-group');
-        this.table = this.shadowRoot.querySelector('.table');
-        this.observer = new MutationObserver(this.handleMutation.bind(this));
-        this.observer.observe(this, {childList: true});
-        this.router = document.querySelector('wc-router');
+
+    connectedCallback() {
+        super.connectedCallback();
+
+        this._buttonGroup = this._root.querySelector('header zen-ui-button-group') as ButtonGroup;
+        this._table = this._root.querySelector('.table') as HTMLDivElement;
+        this._observer = new MutationObserver(this.handleMutation.bind(this));
+        this._observer.observe(this, {childList: true});
+        this._router = document.querySelector('wc-router') as Router;
     }
 
     disconnectedCallback() {
         super.connectedCallback();
-        this.observer.disconnect();
+        if (this._observer) (this._observer as MutationObserver).disconnect();
     }
 
-    static get boundProps() {
-        return ['data', 'idKey', 'selected', 'resource'];
-    }
+    static boundProps = ['data', 'idKey', 'selected', 'resource'];
 
+    static observedAttributes = ['resource'];
 
-    static get defaultProps() {
-        return {
-            data: [],
-            idKey: 'id',
-            selected: []
-        };
-    }
-
-    static get observedAttributes() {
-        return ['resource'];
-    }
-
-    attributeChangedCallback(attr, oldV, newV) {
+    attributeChangedCallback(attr: string, oldV: string, newV: string) {
         switch (attr) {
             case 'resource':
                 this[attr] = newV;
@@ -57,7 +73,7 @@ class ResourceTable extends Element {
     }
 
 
-    async propertyChangedCallback(prop) {
+    async propertyChangedCallback(prop: keyof ResourceTable, oldV: any, newV: any) {
         await this.ready();
 
         switch (prop) {
@@ -67,7 +83,7 @@ class ResourceTable extends Element {
                 break;
 
             case 'resource':
-                this._bindEventsToDispatch();
+                // this._bindEventsToDispatch();
                 break;
         }
     }
@@ -83,11 +99,13 @@ class ResourceTable extends Element {
 
 
     renderHeader() {
-        let header = this.table.querySelector('div.header');
+        if (!this._table) return this._error('Not initialised');
+
+        let header = this._table.querySelector('div.header') as HTMLElement;
 
         if (!header) {
             header = header = document.createElement('div');
-            this.table.appendChild(header);
+            this._table.appendChild(header);
         }
 
         // TODO: Move to update function instead of replace
@@ -96,11 +114,11 @@ class ResourceTable extends Element {
 
         const checkTD = document.createElement('span');
         checkTD.classList.add('fixed');
-        const check = document.createElement('zen-ui-checkbox');
+        const check = document.createElement('zen-ui-checkbox') as Checkbox;
         check.checked = this.selected.length === this.data.length;
 
         check.addEventListener('change', e => {
-            this.select(e.target.checked);
+            this.select(Boolean((e.target as Checkbox).checked));
         });
         checkTD.appendChild(check);
         header.appendChild(checkTD);
@@ -109,7 +127,7 @@ class ResourceTable extends Element {
         header.classList.add('header');
         Array.from(this.children).forEach(col => {
             const td = document.createElement('span');
-            td.innerHTML = col.key;
+            td.innerHTML = (col as ResourceTableColumn).key as string;
             header.appendChild(td);
         });
 
@@ -118,6 +136,9 @@ class ResourceTable extends Element {
 
 
     renderRows() {
+        const t = this._table;
+        if (!t) return this._error('Not initialised');
+
         const eles = this._elementMap;
         // Remove any old elements that the data no longer contains
         eles.forEach((ele, data) => {
@@ -137,15 +158,15 @@ class ResourceTable extends Element {
         });
 
         eles.forEach(ele => {
-            if (!ele.isConnected) this.table.appendChild(ele);
+            if (!(ele as Element).isConnected) t.appendChild(ele);
         });
     }
 
 
-    renderRow(ele) {
+    renderRow(ele: Data) {
         const tr = document.createElement('div');
         const checkTD = document.createElement('span');
-        const check = document.createElement('zen-ui-checkbox');
+        const check = document.createElement('zen-ui-checkbox') as Checkbox;
 
 
         check.checked = this.selected.includes(ele[this.idKey]);
@@ -160,7 +181,7 @@ class ResourceTable extends Element {
 
         Array.from(this.children).forEach(col => {
             const td = document.createElement('span');
-            td.innerHTML = ele[col.key];
+            td.innerHTML = ele[(col as ResourceTableColumn).key as string];
             tr.appendChild(td);
         });
 
@@ -181,23 +202,35 @@ class ResourceTable extends Element {
     }
 
 
-    updateRow(data, ele) {
-        ele.querySelector('zen-ui-checkbox').checked = this.selected.includes(data[this.idKey]);
+    updateRow(data: Data, ele: HTMLElement) {
+        (ele.querySelector('zen-ui-checkbox') as Checkbox).checked =
+            this.selected.includes(data[this.idKey]);
+
         Array.from(ele.children)
             // Remove 'checkbox'
             // Remove edit button
             .slice(1, -1)
             .forEach((td, i) => {
-                td.innerHTML = data[this.children[i].key];
+                td.innerHTML = data[(this.children[i] as ResourceTableColumn).key as string];
             });
     }
 
     updateButtons() {
-        const buttonCreate = {innerHTML: 'create', color: 'green', onclick: () => this.actionCreate()};
-        const buttonEdit = {innerHTML: 'edit', color: 'main', onclick: () => this.actionOpen()};
-        const buttonRemove = {innerHTML: 'remove', color: 'red', onclick: this.actionRemove.bind(this)};
+        if (!this._buttonGroup) return this._error('Not initialised');
 
-        let buttons = [];
+        type B = {[prop in keyof Button]?: any };
+        let buttons: B[] = [];
+
+        const buttonCreate: B = {
+            innerHTML: 'create', color: 'green', onclick: () => this.actionCreate()
+        };
+        const buttonEdit: B = {
+            innerHTML: 'edit', color: 'main', onclick: () => this.actionOpen()
+        };
+        const buttonRemove: B = {
+            innerHTML: 'remove', color: 'red', onclick: this.actionRemove.bind(this)
+        };
+
 
         switch (this.selected.length) {
             case 0:
@@ -214,15 +247,15 @@ class ResourceTable extends Element {
         }
 
         buttons.forEach(b => b.hollow = true);
-        this.buttonGroup.buttons = buttons;
+        this._buttonGroup.buttons = buttons;
     }
 
-    select(idOrBool) {
+    select(idOrBool: string | boolean) {
         if (idOrBool === true) this.selected = this.data.map(e => e[this.idKey]);
         else if (idOrBool === false) this.selected = [];
 
         else if (this.selected.includes(idOrBool)) {
-            this.selected = this.selected.filter(_id => idOrBool != _id);
+            this.selected = this.selected.filter(_id => idOrBool !== _id);
         } else this.selected = [...this.selected, idOrBool];
     }
 
@@ -237,13 +270,14 @@ class ResourceTable extends Element {
     }
 
 
-    handleMutation(e) {
+    handleMutation(e: MutationRecord) {
         if (e.addedNodes || e.removedNodes) this.render();
     }
 
 
-    actionOpen(res = this.selected[0]) {
-        this.router.push(`${this.resPlural}/${res}`);
+    actionOpen(res?: string) {
+        if (!this._router) return this._error('Not initialised');
+        this._router.push(`${this.resPlural}/${res || this.selected[0]}`);
     }
 
 
@@ -255,21 +289,9 @@ class ResourceTable extends Element {
 
 
     actionCreate() {
-        this.router.push(`${this.resPlural}/create`);
+        if (!this._router) return this._error('Not initialised');
+        this._router.push(`${this.resPlural}/create`);
     }
 }
 
-class ConnectedResourceTable extends connect(store, ResourceTable) {
-    _mapStateToProps(state) {
-        return {
-            me: state.Me,
-            sidebar: state.App.sidebar
-        };
-    }
-    get mapDispatchToEvents() {
-        if (!this.resPlural) return {};
-        else return actions[upperFirst(this.resPlural)];
-    }
-}
-
-window.customElements.define('zen-resource-table', ConnectedResourceTable);
+window.customElements.define('zen-resource-table', ResourceTable);

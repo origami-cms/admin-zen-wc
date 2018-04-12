@@ -1,14 +1,13 @@
-@import "~zen-css/variables";
-@import "~zen-css/helpers";
-@import "~styles/lib/extenders";
+@import "~zen-css/import";
+// @import "~zen-css/helpers";
+// @import "~styles/lib/extenders";
 
-:host {
+zen-sidebar {
     position: fixed;
-    width: 100%;
     height: 100%;
     left: 0;
     width: 30rem;
-    background-color: color('white');
+    background-color: var(--color-white);
     z-index: 1;
     padding: 0 default('size-main');
 
@@ -74,7 +73,7 @@
         @extend %cover;
         background-color: white;
         transform: translateX(-100%);
-        transition: all $transition-time;
+        transition: all var(--transition-time);
         padding: default('size-small');
 
         &.show {

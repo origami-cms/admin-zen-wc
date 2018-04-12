@@ -1,8 +1,9 @@
-import resource from 'lib/Resource/actions';
+import {APIActions} from 'origami-zen';
+import API from 'lib/API';
 
 export const {
     usersCreate,
     usersGet,
     usersUpdate,
     usersRemove
-} = resource('users');
+} = APIActions('users', API);

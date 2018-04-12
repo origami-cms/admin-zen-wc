@@ -1,111 +1,120 @@
-import {Element} from 'lib';
+import actions from 'actions';
+import {Element, Form, Field} from 'origami-zen';
+import store from 'store';
+import State, {User} from 'store/state';
+import connect from 'wc-redux';
+import {Router} from 'wc-router';
 import HTML from './user-edit.html';
 import CSS from './user-edit.scss';
 
 
-import {connect} from 'lib/ConnectedElement.mixin.js';
-import store from 'store';
-import actions from 'actions';
 
+@connect(
+    store,
+    (state: State) => {
+        // @ts-ignore this = UserCreate
+        const user = state.Users.users.find(u => u.id === this.userId);
 
-class UserEdit extends Element {
+        let u: User | false = false;
+        if (user) u = user.asMutable({deep: true});
+
+        return {user: u, errors: state.Users.errors};
+    },
+    {
+        'user-get': actions.Users.usersGet,
+        'user-update': actions.Users.usersUpdate,
+        'title-set': actions.App.titleSet
+    }
+)
+export default class UserEdit extends Element {
+    router: Router | null = null;
+    form: Form | null = null;
+    user?: User;
+    errors?: object;
+
     constructor() {
         super(HTML, CSS.toString());
-        this.router = document.querySelector('wc-router');
-
-        this.form = this.shadowRoot.querySelector('zen-ui-form');
-        this.form.fields = this.constructor.formFields;
-        this.form.addEventListener('submit', this.save.bind(this));
     }
 
-    static get formFields() {
-        return [
-            {
-                name: 'fname',
-                placeholder: 'First name',
-                type: 'text'
-            },
-            {
-                name: 'lname',
-                placeholder: 'Last name',
-                type: 'text'
-            },
-            {
-                name: 'email',
-                placeholder: 'Email',
-                type: 'text'
-            },
-            {
-                type: 'submit',
-                value: 'Save'
-            }
-        ];
-    }
+    static formFields: Field[] = [
+        {
+            name: 'fname',
+            placeholder: 'First name',
+            type: 'text'
+        },
+        {
+            name: 'lname',
+            placeholder: 'Last name',
+            type: 'text'
+        },
+        {
+            name: 'email',
+            placeholder: 'Email',
+            type: 'text'
+        },
+        {
+            type: 'submit',
+            name: '',
+            value: 'Save'
+        }
+    ];
 
 
-    get id() {
+    get userId(): string | false {
+        if (!this.router) return false;
         if (this.isConnected) return this.router.params.id;
-        else return false;
+        return false;
     }
 
     connectedCallback() {
         super.connectedCallback();
-        this.trigger('user-get', [this.id]);
-        this.trigger('user-properties-get', [this.id]);
+        this.trigger('user-get', [this.userId]);
+        this.trigger('user-properties-get', [this.userId]);
+
+        this.router = document.querySelector('wc-router');
+
+        this.form = this._root.querySelector('zen-ui-form') as Form;
+        this.form.fields = (this.constructor as typeof UserEdit).formFields;
+        this.form.addEventListener('submit', this.save.bind(this));
     }
 
     static get boundProps() {
         return ['user', 'errors'];
     }
 
-    propertyChangedCallback(prop, oldV, newV) {
+    async propertyChangedCallback(prop: keyof UserEdit, oldV: any, newV: any) {
         switch (prop) {
             case 'user':
                 if (newV) {
+                    await this.ready();
                     this.trigger('title-set', [newV.fname]);
-
-                    this.form.values = newV;
+                    (this.form as Form).values = newV;
                 }
                 break;
 
             case 'errors':
-                if (newV.get) this.router.push('/404');
+                if (newV.get && this.router) this.router.push('/404');
 
         }
     }
 
 
     save() {
-        this.form.values.data = {};
-        delete this.form.values.properties;
+        const f = this.form;
+        if (!f) return this._error('Not initialised');
+        f.values.data = {};
+        delete f.values.properties;
 
-        Object.keys(this.form.values)
+        Object.keys(f.values)
             .filter(k => (/^data\./).test(k))
-            .map(k => (/^data\.(.+)/).exec(k)[1])
+            .map(k => ((/^data\.(.+)/).exec(k) as RegExpExecArray)[1])
             .forEach(k => {
-                this.form.values.data[k] = this.form.values[`data.${k}`];
-                delete this.form.values[`data.${k}`];
+                f.values.data[k] = f.values[`data.${k}`];
+                delete f.values[`data.${k}`];
             });
 
-        this.trigger('user-update', [this.id, this.form.values]);
+        this.trigger('user-update', [this.userId, f.values]);
     }
 }
 
-
-class ConnectedUsersEdit extends connect(store, UserEdit) {
-    _mapStateToProps(state) {
-        let user = state.Users.users.find(p => p.id === this.id);
-        if (user) user = user.asMutable({deep: true});
-
-        return {user, errors: state.Users.errors};
-    }
-    get mapDispatchToEvents() {
-        return {
-            'user-get': actions.Users.usersGet,
-            'user-update': actions.Users.usersUpdate,
-            'title-set': actions.App.titleSet
-        };
-    }
-}
-
-window.customElements.define('page-app-user-edit', ConnectedUsersEdit);
+window.customElements.define('page-app-user-edit', UserEdit);

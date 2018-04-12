@@ -1,3 +1,4 @@
+import {Dispatch} from 'redux';
 import API from 'lib/API';
 import CODES from 'http-status-codes';
 
@@ -14,10 +15,11 @@ import {
 
     ME_EMAIL_SET
 } from 'actions/const';
+import State from 'store/state';
 
 
-export const login = dispatch =>
-    async(email, password) => {
+export const login = (email: string, password: string) =>
+    async (dispatch: Dispatch<State>) => {
         dispatch({type: ME_EMAIL_SET, email});
         dispatch({type: AUTH_LOADING_SET_LOGGINGIN, loading: true});
         try {
@@ -37,13 +39,13 @@ export const login = dispatch =>
 
     };
 
-export const verify = dispatch =>
-    async() => {
+export const verify = () =>
+    async (dispatch: Dispatch<State>) => {
         try {
             const {data} = await API.get('/auth/verify');
             dispatch({type: AUTH_VERIFIED});
 
-            return data.token;
+            return (data as {token: string}).token;
 
         } catch (e) {
             if (e.code === CODES.UNAUTHORIZED || e.code === CODES.BAD_REQUEST) {
@@ -55,5 +57,6 @@ export const verify = dispatch =>
         }
     };
 
-export const logout = dispatch =>
-    () => dispatch({type: AUTH_LOGOUT});
+
+export const logout = () =>
+    (dispatch: Dispatch<State>) => dispatch({type: AUTH_LOGOUT});

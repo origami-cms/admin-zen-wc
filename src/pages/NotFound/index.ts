@@ -1,19 +1,24 @@
-import {Element} from 'lib';
+import {Element} from 'origami-zen';
 import HTML from './not-found.html';
 import CSS from './not-found.scss';
 
 
-import {connect} from 'lib/ConnectedElement.mixin.js';
+import connect from 'wc-redux';
 import store from 'store';
 import actions from 'actions';
 
-
-class NotFound extends Element {
-    constructor() {
-        super();
-        this.html = HTML;
-        this.css = CSS.toString();
+@connect(
+    store,
+    () => ({}),
+    {
+        'title-set': actions.App.titleSet
     }
+)
+export default class NotFound extends Element {
+    constructor() {
+        super(HTML, CSS);
+    }
+    static get boundProps() {return [];}
 
     connectedCallback() {
         super.connectedCallback();
@@ -21,13 +26,5 @@ class NotFound extends Element {
     }
 }
 
-class ConnectedNotFound extends connect(store, NotFound) {
-    get mapDispatchToEvents() {
-        return {
-            'title-set': actions.App.titleSet
-        };
-    }
-}
 
-
-window.customElements.define('page-not-found', ConnectedNotFound);
+window.customElements.define('page-not-found', NotFound);

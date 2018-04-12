@@ -1,13 +1,15 @@
-import {Element} from 'lib';
+import {Element} from 'origami-zen';
+import store from 'store';
+import connect from 'wc-redux';
 import HTML from './header.html';
 import CSS from './header.scss';
+import State from 'store/state';
 
 
-import {connect} from 'lib/ConnectedElement.mixin.js';
-import store from 'store';
-
-
-class Sidebar extends Element {
+@connect(store, (state: State) => ({
+    app: state.App
+}))
+export class Header extends Element {
     constructor() {
         super(HTML, CSS.toString());
     }
@@ -18,14 +20,5 @@ class Sidebar extends Element {
 }
 
 
-class ConnectedHeader extends connect(store, Sidebar) {
-    _mapStateToProps(state) {
-        return {
-            app: state.App
-        };
-    }
-}
-
-
-window.customElements.define('zen-header', ConnectedHeader);
+window.customElements.define('zen-header', Header);
 

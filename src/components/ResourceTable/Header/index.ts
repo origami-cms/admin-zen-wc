@@ -1,4 +1,4 @@
-import {Element} from 'lib';
+import {Element} from 'origami-zen';
 import {singular, plural} from 'pluralize';
 
 import A from 'actions';

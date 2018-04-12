@@ -1,10 +1,12 @@
-import immutable from 'seamless-immutable';
-import {
-    ME_SET,
-    ME_EMAIL_SET
-} from 'actions/const';
-
+import {ME_EMAIL_SET, ME_SET} from 'actions/const';
 import {LS_EMAIL} from 'const';
+import {AnyAction} from 'redux';
+import immutable, {ImmutableObject} from 'seamless-immutable';
+import {Me} from 'store/state';
+export {ResourceState} from 'origami-zen';
+
+
+
 
 const initialState = immutable({
     fname: null,
@@ -14,7 +16,7 @@ const initialState = immutable({
 });
 
 
-export default (state = initialState, action) => {
+export default (state: ImmutableObject<Me> = initialState, action: AnyAction) => {
     switch (action.type) {
         case ME_SET:
             return state.merge(action.me);
@@ -24,6 +26,7 @@ export default (state = initialState, action) => {
             localStorage.setItem(LS_EMAIL, action.email);
 
             return state.set('email', action.email);
+
 
         default:
             return state;

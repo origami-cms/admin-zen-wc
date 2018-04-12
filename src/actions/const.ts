@@ -18,6 +18,12 @@ export const APP_TABS_CLOSE = 'APP_TABS_CLOSE';
 export const APP_TABS_NAME = 'APP_TABS_NAME';
 export const APP_TITLE_SET = 'APP_TITLE_SET';
 
+// ----------------------------------------------------------------------- Setup
+export const SETUP_LOADING_SET = 'SETUP_LOADING_SET';
+export const SETUP_SET = 'SETUP_SET';
+export const SETUP_USER_ERROR_SET = 'SETUP_USER_ERROR_SET';
+
+
 // -------------------------------------------------------------------------- Me
 export const ME_SET = 'ME_SET';
 export const ME_EMAIL_SET = 'ME_EMAIL_SET';

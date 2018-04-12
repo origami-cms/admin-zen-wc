@@ -1,9 +1,9 @@
-import {Element} from 'lib';
+import {Element} from 'origami-zen';
 import HTML from './sidebar-search.html';
 import CSS from './sidebar-search.scss';
 
 
-import {connect} from 'lib/ConnectedElement.mixin.js';
+import connect from 'wc-redux';
 import store from 'store';
 
 

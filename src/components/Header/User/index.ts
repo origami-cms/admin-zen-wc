@@ -1,9 +1,9 @@
-import {Element} from 'lib';
+import {Element} from 'origami-zen';
 import HTML from './header.html';
 import CSS from './header.scss';
 
 
-import {connect} from 'lib/ConnectedElement.mixin.js';
+import connect from 'wc-redux';
 import store from 'store';
 
 

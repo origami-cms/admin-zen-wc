@@ -1,33 +1,20 @@
-import {Element} from 'lib';
+import {Element} from 'origami-zen';
 
-window.customElements.define('zen-ui-resource-table-column', class ZenResourceTable extends Element {
-    static get defaultProps() {
-        return {
-            data: [],
-            idKey: 'id'
-        };
-    }
+export default class ResourceTableColumn extends Element {
+    key?: string;
+    static defaultProps = {
+        data: [],
+        idKey: 'id'
+    };
 
-    static get observedAttributes() {
-        return ['key'];
-    }
+    static observedAttributes = ['key'];
 
-    attributeChangedCallback(attr, oldV, newV) {
+    attributeChangedCallback(attr: string, oldV: any, newV: any) {
         switch (attr) {
             case 'key':
                 this[attr] = newV;
         }
     }
+}
 
-
-    // propertyChangedCallback(prop, oldV, newV) {
-    //     switch (prop) {
-    //         case 'key':
-    //             this.
-    //             break;
-
-    //         default:
-    //             break;
-    //     }
-    // }
-});
+window.customElements.define('zen-ui-resource-table-column', ResourceTableColumn);

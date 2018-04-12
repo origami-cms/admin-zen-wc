@@ -1,54 +1,53 @@
-import {Element} from 'lib';
+import actions from 'actions';
+import {Element} from 'origami-zen';
+import {ImmutableObject} from 'seamless-immutable';
+import store from 'store';
+import connect from 'wc-redux';
+import State, {Page} from 'store/state';
 import HTML from './pages-list.html';
 import CSS from './pages-list.scss';
 
 
-import {connect} from 'lib/ConnectedElement.mixin.js';
-import store from 'store';
-import actions from 'actions';
 
+@connect(
+    store,
+    (state: State) => ({
+        pages: state.Pages
+    }),
+    {
+        'pages-get': actions.Pages.pagesGet,
+        'title-set': actions.App.titleSet
+    }
+)
+export default class PagesList extends Element {
+    table?: HTMLElement;
+    pages?: ImmutableObject<Page>;
 
-class PagesList extends Element {
     constructor() {
-        super();
-        this.html = HTML;
-        this.css = CSS.toString();
+        super(HTML, CSS);
 
-        this.table = this.shadowRoot.querySelector('zen-resource-table');
     }
 
-    static get boundProps() {
-        return ['pages'];
-    }
+    static boundProps = ['pages'];
 
     connectedCallback() {
         super.connectedCallback();
         this.trigger('pages-get', [null, false]);
         this.trigger('title-set', ['Pages']);
+
+        this.table = this._root.querySelector('zen-resource-table') as HTMLElement;
+
     }
 
-    async propertyChangedCallback(prop, oldV, newV) {
+    async propertyChangedCallback(prop: keyof PagesList, oldV: any, newV: any) {
         await this.ready();
         switch (prop) {
             case 'pages':
+                // TODO: Make type of table
+                // @ts-ignore
                 this.table.data = newV.pages;
         }
     }
 }
 
-
-class ConnectedPagesList extends connect(store, PagesList) {
-    _mapStateToProps(state) {
-        return {
-            pages: state.Pages
-        };
-    }
-    get mapDispatchToEvents() {
-        return {
-            'pages-get': actions.Pages.pagesGet,
-            'title-set': actions.App.titleSet
-        };
-    }
-}
-
-window.customElements.define('page-app-pages-list', ConnectedPagesList);
+window.customElements.define('page-app-pages-list', PagesList);

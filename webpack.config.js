@@ -1,3 +1,4 @@
+const path = require('path');
 const PluginHTML = require('html-webpack-plugin');
 const ExtractCSS = require('extract-text-webpack-plugin');
 const BitBarPlugin = require('bitbar-webpack-progress-plugin');
@@ -9,8 +10,10 @@ module.exports = {
         './src/app.ts'
     ],
     output: {
-        filename: 'app.js'
+        filename: 'app.js',
+        publicPath: '/admin/'
     },
+    devtool: "inline-source-map",
     module: {
         rules: [
             {
@@ -30,12 +33,17 @@ module.exports = {
             {
                 test: /base\.scss/,
                 use: ExtractCSS.extract({
-                    use: 'css-loader!sass-loader'
+                    use: [
+                        'css-loader',
+                        {
+                            loader: 'sass-loader',
+                            // options:
+                        }
+                    ]
                 })
             },
             {
                 test: /\.(svg|jpe?g|png)/,
-                exclude: [/apps/, /questions/],
                 loader: 'file-loader',
                 options: {
                     outputPath: '/images',
@@ -50,11 +58,17 @@ module.exports = {
         ]
     },
     resolve: {
-        extensions: ['.ts', '.js'],
+        extensions: [".ts", ".tsx", ".js"],
         alias: {
-            'actions': './src/actions',
-            'store': './src/store',
-            'reducers': './src/reducers'
+            'const': path.resolve(__dirname, './src/const.ts'),
+            'actions': path.resolve(__dirname, './src/actions'),
+            'store': path.resolve(__dirname, './src/store'),
+            'store/state': path.resolve(__dirname, './src/store/state.ts'),
+            'reducers': path.resolve(__dirname, './src/reducers'),
+            'lib': path.resolve(__dirname, './src/lib'),
+            'styles': path.resolve(__dirname, './src/styles'),
+            'images': path.resolve(__dirname, './src/images')
+            // 'zen-css': path.resolve(__dirname, './node_modules/zen-css/base.scss')
         }
     },
     plugins: [

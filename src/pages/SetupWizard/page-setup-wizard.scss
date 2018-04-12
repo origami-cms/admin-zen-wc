@@ -1,0 +1,88 @@
+@import '~zen-css/import';
+@import '~styles/lib/extenders';
+
+page-setup-wizard {
+    @extend %page;
+    .page {
+        @extend %center;
+        @extend %comp-card;
+    }
+
+    .card {
+        width: 100%;
+        @extend %shadow-main-soft;
+    }
+
+    page-setup-user, page-setup-finish {
+        @extend %center;
+    }
+
+    @keyframes fade-in {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+    @keyframes fade-up {
+        from {
+            transform: translateY(2rem) translateX(-50%);
+            opacity: 0;
+        }
+        to {
+            transform: translateX(-50%);
+            opacity: 1;
+        }
+    }
+    @keyframes slide-up {
+        from {
+            transform: translate(-50%, -50%);
+        }
+        to {
+            transform: translate(-50%, calc(-50% - 4rem));
+        }
+    }
+
+    &:before {
+        content: '';
+        @extend %cover;
+        @extend %bg-waves;
+        opacity: 0;
+        animation: fade-in 1s ease-in-out 2.6s forwards;
+    }
+
+    .logo {
+        width: 40rem;
+    }
+
+
+
+    .page-start {
+        animation: slide-up 1s ease-in-out 2.6s forwards;
+        will-change: margin, transform;
+
+        wc-link {
+            opacity: 0;
+            margin-top: 6rem;
+            animation: fade-up 1s ease-out 2.8s forwards;
+
+
+            zen-ui-icon {
+                transition: all var(--transition-time);
+            }
+            &:hover {
+                zen-ui-icon {
+                    transform: translateX(1rem);
+                }
+            }
+        }
+    }
+
+    .page-finish {
+        wc-link {
+            margin-top: calc(-1 * var(--size-hero));
+        }
+    }
+
+
+    page-setup-user, page-setup-finish {
+        width: 60rem;
+    }
+}

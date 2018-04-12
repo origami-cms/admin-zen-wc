@@ -4,6 +4,7 @@ import * as Users from './Users';
 import * as Pages from './Pages';
 import * as Templates from './Templates';
 import * as Me from './Me';
+import * as Setup from './Setup';
 
 export default {
     Auth,
@@ -11,5 +12,6 @@ export default {
     Users,
     Pages,
     Templates,
-    Me
+    Me,
+    Setup
 };

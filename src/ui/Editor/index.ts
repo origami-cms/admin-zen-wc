@@ -1,5 +1,5 @@
 import grapesjs from './lib/grapesjs.min';
-import {Element} from 'lib';
+import {Element} from 'origami-zen';
 
 import HTML from './editor.html';
 import CSS from './editor.scss';

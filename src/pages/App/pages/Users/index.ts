@@ -1,4 +1,4 @@
-import {Element} from 'lib';
+import {Element} from 'origami-zen';
 import HTML from './users.html';
 import CSS from './users.scss';
 

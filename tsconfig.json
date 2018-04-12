@@ -12,27 +12,29 @@
             "es6",
             "es2015.promise",
             "dom",
-            "es2017.object"
+            "es2017.object",
+            "es2016.array.include"
         ],
+        "declaration": true,
+        "sourceMap": true,
         "outDir": "./",
         "strict": true,
         "moduleResolution": "node",
-        "allowSyntheticDefaultImports": false,
+        "allowSyntheticDefaultImports": true,
         "esModuleInterop": true,
         "experimentalDecorators": true,
-        "emitDecoratorMetadata": true,
 
-        // "paths": {
-        //     "actions/*": ["./src/actions/*"],
-        //     "store/*": ["./src/store/*"],
-        //     "reducers": ["./src/reducers/*"]
-        // }
         "paths": {
             "~/*": [
                 "./src/*"
             ],
+            "const": ["./src/const"],
+            "actions": ["./src/actions/index.ts"],
+            "actions/*": ["./src/actions/*"],
             "reducers": ["./src/reducers/index.ts"],
-            "~lib/*": ["./src/lib/*"]
+            "store": ["./src/store/index.ts"],
+            "store/*": ["./src/store/*"],
+            "lib/*": ["./src/lib/*"],
         }
     }
 }

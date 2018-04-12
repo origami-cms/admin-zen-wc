@@ -1,20 +1,23 @@
-import {combineReducers} from 'redux';
+import {combineReducers, AnyAction} from 'redux';
+export {AnyAction} from 'redux';
 
 
-import resource from 'lib/Resource/reducer';
+import {APIReducer} from 'origami-zen';
 
 
 import Auth from './Auth';
 import App from './App';
 import Me from './Me';
-import Pages from './Pages';
+import Setup from './Setup';
+// import Pages from './Pages';
 
 
 export default combineReducers({
     Auth,
     App,
     Me,
-    Pages,
-    Users: resource('users'),
-    Templates: resource('templates', null, 'name')
+    Setup,
+    // Pages,
+    Users: APIReducer('users'),
+    Templates: APIReducer('templates', null, 'name')
 });

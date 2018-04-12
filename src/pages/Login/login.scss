@@ -1,17 +1,21 @@
 @import "~zen-css/import";
 @import "~styles/lib/extenders";
 
-:host {
+page-login {
     @extend %page;
-    background-color: color('shade-0');
-    background-image: url('~images/patterns/waves.svg');
+    @extend %bg-waves;
 
     .logo, form {
         width: 100%;
     }
     .center {
         text-align: center;
-        background-color: #fff;
-        width: 40rem;
+        background-color: var(--card-bg);
+        width: 48rem;
+        box-shadow: var(--shadow-main-soft);
+
+        zen-ui-form {
+            text-align: left;
+        }
     }
 }

@@ -1,4 +1,5 @@
 import immutable from 'seamless-immutable';
+import {AnyAction} from 'redux';
 
 import {
     AUTH_LOADING_SET_VERIFYING,
@@ -19,6 +20,7 @@ import {
     LS_JWT,
     LS_EMAIL
 } from 'const';
+import api from '~/lib/API';
 
 
 const intitialState = immutable({
@@ -33,7 +35,7 @@ const intitialState = immutable({
     }
 });
 
-export default (state = intitialState, action) => {
+export default (state = intitialState, action: AnyAction) => {
     switch (action.type) {
         case AUTH_LOADING_SET_VERIFYING:
             return state.setIn(['loading', 'verifying'], action.loading);
@@ -57,11 +59,12 @@ export default (state = intitialState, action) => {
                 loggedIn: true,
                 errors: {
                     loggingIn: null
-                }
+                },
+                token: null
             };
 
             if (action.token) {
-                localStorage.setItem(LS_JWT, action.token);
+                localStorage.setItem(LS_JWT, `Bearer ${action.token}`);
                 merging.token = action.token;
             }
             if (action.email) localStorage.setItem(LS_EMAIL, action.email);

@@ -1,36 +1,52 @@
 import HTML from './Login.html';
 import CSS from './login.scss';
-import Element from 'lib/Element';
+import {Element, Field, Form} from 'origami-zen';
 import logo from 'images/logo.svg';
 
-import {connect} from 'lib/ConnectedElement.mixin.js';
+import connect from 'wc-redux';
 import store from 'store';
 import actions from 'actions';
+import State, {Auth} from 'store/state';
+import {Router} from 'wc-router';
+@connect(
+    store,
+    (state: State) => ({
+        email: state.Me.email,
+        auth: state.Auth
+    }),
+    {
+        login: actions.Auth.login,
+        verify: actions.Auth.verify
+    }
+)
+export default class Login extends Element {
+    router?: Router;
+    email?: string;
+    form?: Form;
+    auth?: Auth;
 
+    loginFormFields: Field[] = [
+        {
+            type: 'email',
+            name: 'email',
+            placeholder: 'Email',
+            icon: 'mail'
+        },
+        {
+            name: 'password',
+            type: 'password',
+            placeholder: 'Password',
+            icon: 'lock'
+        },
+        {
+            type: 'submit',
+            value: 'Login',
+            name: ''
+        }
+    ];
 
-class Login extends Element {
     constructor() {
-        super();
-        this.html = HTML;
-        this.css = CSS.toString();
-        this.loginFormFields = [
-            {
-                type: 'email',
-                name: 'email',
-                placeholder: 'Email',
-                icon: 'mail'
-            },
-            {
-                name: 'password',
-                type: 'password',
-                placeholder: 'Password',
-                icon: 'lock'
-            },
-            {
-                type: 'submit',
-                value: 'Login'
-            }
-        ];
+        super(HTML, CSS, 'Login', false);
     }
 
     static get boundProps() {
@@ -39,64 +55,54 @@ class Login extends Element {
 
     async connectedCallback() {
         super.connectedCallback();
-        const form = this.shadowRoot.querySelector('zen-ui-form');
-        const img = this.shadowRoot.querySelector('img.logo');
+        this.router = document.querySelector('wc-router') as Router;
+        let f: Form;
+        this.form = f = this._root.querySelector('zen-ui-form') as Form;
+        const img = this._root.querySelector('img.logo') as HTMLImageElement;
         img.src = logo;
+
         await window.customElements.whenDefined('zen-ui-form');
-        form.fields = this.loginFormFields;
-        form.values = {
+        f.fields = this.loginFormFields;
+        f.values = {
             email: this.email
         };
 
-        form.addEventListener('submit', e => {
-            const {email, password} = e.target.values;
+        (f.shadowRoot as ShadowRoot).addEventListener('submit', e => {
+            const {email, password} = f.values;
             this.login(email, password);
 
             return false;
         });
 
-        if (this.auth.token) this.trigger('verify', this.auth.token);
+        const a = this.auth as Auth;
+        if (a.token) this.trigger('verify', a.token);
     }
 
-    propertyChangedCallback(prop, oldV, newV) {
+    async propertyChangedCallback(prop: keyof Login, oldV: any, newV: any) {
         switch (prop) {
             case 'auth':
                 if (oldV) {
-                    if (!oldV.loggedIn && newV.loggedIn && this.isConnected) {
-                        document.querySelector('wc-router').replace('/');
+                    console.log(newV);
+
+                    if (!oldV.loggedIn && newV.loggedIn && this.isConnected && this.router) {
+                        this.router.replace('/');
                     }
                 }
-                const form = this.shadowRoot.querySelector('zen-ui-form');
 
-                if (newV.errors.loggingIn) form.error = newV.errors.loggingIn;
-                else if (newV.errors.verify) form.error = newV.errors.verify;
+                if (this.form) {
+                    if (newV.errors.loggingIn) this.form.error = newV.errors.loggingIn;
+                    else if (newV.errors.verify) this.form.error = newV.errors.verify;
+                }
 
                 break;
         }
     }
 
-    login(email, password) {
+    login(email: string, password: string) {
         this.trigger('login', [
             email, password
         ]);
     }
 }
 
-
-// Subclass and implement `connect` callbacks
-class ConnectedLogin extends connect(store, Login) {
-    _mapStateToProps(state) {
-        return {
-            email: state.Me.email,
-            auth: state.Auth
-        };
-    }
-    get mapDispatchToEvents() {
-        return {
-            login: actions.Auth.login,
-            verify: actions.Auth.verify
-        };
-    }
-}
-
-window.customElements.define('page-login', ConnectedLogin);
+window.customElements.define('page-login', Login);
