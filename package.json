@@ -10,7 +10,9 @@
     "build": "rm -r dist/; webpack-cli --mode production",
     "lint": "tslint -s node_modules/custom-tslint-formatters/formatters -t grouped src/**/*.ts --fix"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "tasty-treewalker": "^0.3.5"
+  },
   "dependencies": {
     "@types/lodash": "^4.14.106",
     "@types/pluralize": "^0.0.28",

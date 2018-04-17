@@ -6,7 +6,8 @@ const BitBarPlugin = require('bitbar-webpack-progress-plugin');
 
 module.exports = {
     entry: [
-        './src/polyfills/treeWalker.js',
+        './node_modules/tasty-treewalker/src/TreeWalker-polyfill.js',
+        // './src/polyfills/treeWalker.js',
         './src/app.ts'
     ],
     output: {

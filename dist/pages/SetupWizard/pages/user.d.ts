@@ -2,9 +2,9 @@ import { Element, Field } from 'origami-zen';
 export default class PageSetupUser extends Element {
     loading: boolean;
     error?: string;
+    user?: object;
     fields: Field[];
     private _form?;
-    private _router?;
     private _btnNext?;
     static boundProps: string[];
     constructor();

@@ -11,7 +11,8 @@ import actions from 'actions';
     store,
     (state: State) => ({
         loading: state.Setup.loading.user,
-        error: state.Setup.errors.user
+        error: state.Setup.errors.user,
+        user: state.Setup.user
     }),
     {
         setupUser: actions.Setup.setupUser
@@ -20,6 +21,7 @@ import actions from 'actions';
 export default class PageSetupUser extends Element {
     loading: boolean = false;
     error?: string;
+    user?: object;
 
     fields: Field[] = [
         {
@@ -43,11 +45,10 @@ export default class PageSetupUser extends Element {
     ];
 
     private _form?: Form;
-    private _router?: Router;
     private _btnNext?: Button;
 
 
-    static boundProps = ['loading', 'error'];
+    static boundProps = ['loading', 'error', 'user'];
 
 
     constructor() {
@@ -77,6 +78,10 @@ export default class PageSetupUser extends Element {
             case 'error':
                 if (this._form) this._form.error = newV;
                 break;
+
+            case 'user':
+                if (newV) (document.querySelector('wc-router') as Router).push('/setup/finish');
+
         }
     }
 
@@ -88,7 +93,6 @@ export default class PageSetupUser extends Element {
             data.lname = data.name.split(' ').slice(1).join(' ');
             delete data.name;
 
-            console.log('sending', data);
             this.trigger('setupUser', data);
         }
     }

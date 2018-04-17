@@ -253,28 +253,44 @@ input[type="file"] {
       left: 0;
       color: var(--color-main); }
 
-form .form-row {
+form .form-row, form zen-ui-form-row {
   display: block;
   margin-bottom: var(--size-small);
   position: relative; }
-  form .form-row > .i,
-  form .form-row > zen-ui-icon {
+  form .form-row > .i, form zen-ui-form-row > .i,
+  form .form-row > zen-ui-icon,
+  form zen-ui-form-row > zen-ui-icon {
     position: absolute;
+    left: 0;
+    bottom: 0;
     margin: 1rem; }
-    form .form-row > .i + input, form .form-row > .i + select, form .form-row > .i + * + input, form .form-row > .i + * + select,
-    form .form-row > zen-ui-icon + input,
-    form .form-row > zen-ui-icon + select,
-    form .form-row > zen-ui-icon + * + input,
-    form .form-row > zen-ui-icon + * + select {
+    form .form-row > .i:not(.hide) + input, form zen-ui-form-row > .i:not(.hide) + input, form .form-row > .i:not(.hide) + select, form zen-ui-form-row > .i:not(.hide) + select, form .form-row > .i:not(.hide) + * + input, form zen-ui-form-row > .i:not(.hide) + * + input, form .form-row > .i:not(.hide) + * + select, form zen-ui-form-row > .i:not(.hide) + * + select,
+    form .form-row > zen-ui-icon:not(.hide) + input,
+    form zen-ui-form-row > zen-ui-icon:not(.hide) + input,
+    form .form-row > zen-ui-icon:not(.hide) + select,
+    form zen-ui-form-row > zen-ui-icon:not(.hide) + select,
+    form .form-row > zen-ui-icon:not(.hide) + * + input,
+    form zen-ui-form-row > zen-ui-icon:not(.hide) + * + input,
+    form .form-row > zen-ui-icon:not(.hide) + * + select,
+    form zen-ui-form-row > zen-ui-icon:not(.hide) + * + select {
       padding-left: var(--input-height); }
-  form .form-row span.error {
-    color: var(--color-error); }
-  form .form-row button {
+    form .form-row > .i + zen-ui-autocomplete, form zen-ui-form-row > .i + zen-ui-autocomplete,
+    form .form-row > zen-ui-icon + zen-ui-autocomplete,
+    form zen-ui-form-row > zen-ui-icon + zen-ui-autocomplete {
+      --autocomplete-padding-left: var(--input-height); }
+  form .form-row span.error, form zen-ui-form-row span.error {
+    color: var(--color-error);
+    display: block; }
+    form .form-row span.error *, form zen-ui-form-row span.error * {
+      vertical-align: middle; }
+  form .form-row button, form zen-ui-form-row button {
     flex-basis: var(--btn-height);
     padding: 0;
     margin-left: var(--size-small); }
-  form .disabled.form-row .i {
+  form .disabled.form-row .i, form zen-ui-form-row.disabled .i {
     opacity: 0.5; }
+  form .form-row zen-ui-checkbox + span, form zen-ui-form-row zen-ui-checkbox + span {
+    margin-left: var(--size-small); }
 
 form {
   user-select: none; }
@@ -296,8 +312,6 @@ form {
       border-top: var(--border-100); }
   form.input-small input, form.input-small select, form.input-small textarea {
     height: var(--input-height-small); }
-  form zen-ui-checkbox + span {
-    margin-left: var(--size-small); }
 
 @keyframes loading-bounce {
   0% {
@@ -462,7 +476,8 @@ time, mark, audio, video {
   outline: 0;
   font-size: 100%;
   font: inherit;
-  vertical-align: baseline; }
+  vertical-align: baseline;
+  box-sizing: border-box; }
 
 /* HTML5 display-role reset for older browsers */
 article, aside, details, figcaption, figure,

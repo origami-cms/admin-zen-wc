@@ -74,6 +74,7 @@ export interface Auth {
 
 export interface Setup {
     setup: boolean | null;
+    user: null | object;
     errors: {
         user: null | string
     };

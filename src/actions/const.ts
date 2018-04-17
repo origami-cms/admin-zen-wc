@@ -22,6 +22,7 @@ export const APP_TITLE_SET = 'APP_TITLE_SET';
 export const SETUP_LOADING_SET = 'SETUP_LOADING_SET';
 export const SETUP_SET = 'SETUP_SET';
 export const SETUP_USER_ERROR_SET = 'SETUP_USER_ERROR_SET';
+export const SETUP_USER_SET = 'SETUP_USER_SET';
 
 
 // -------------------------------------------------------------------------- Me

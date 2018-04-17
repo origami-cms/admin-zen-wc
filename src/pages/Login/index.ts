@@ -67,8 +67,10 @@ export default class Login extends Element {
             email: this.email
         };
 
-        (f.shadowRoot as ShadowRoot).addEventListener('submit', e => {
+        f.addEventListener('submit', e => {
             const {email, password} = f.values;
+            console.log('submitting', f.validate());
+
             this.login(email, password);
 
             return false;

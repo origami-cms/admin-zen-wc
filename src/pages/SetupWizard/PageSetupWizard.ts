@@ -37,7 +37,7 @@ export default class PageSetupWizard extends Element {
         switch (prop) {
             case 'isSetup':
                 // If Origami is already setup, redirect to dashboard
-                if (newV) (document.querySelector('wc-router') as Router).replace('/admin');
+                if (newV) (document.querySelector('wc-router') as Router).replace('/');
 
                 break;
         }

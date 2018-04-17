@@ -1,7 +1,7 @@
 import {Dispatch} from 'redux';
 import API from 'lib/API';
 import State, {Page} from 'store/state';
-import {SETUP_USER_ERROR_SET, SETUP_LOADING_SET, SETUP_SET} from './const';
+import {SETUP_USER_ERROR_SET, SETUP_LOADING_SET, SETUP_SET, SETUP_USER_SET} from './const';
 
 
 export const isSetup = () =>
@@ -16,12 +16,10 @@ export const setupUser = (user: object) =>
 
         try {
             const {data} = await API.post(`/setup/user`, user);
-            console.log(data);
+            dispatch({type: SETUP_USER_SET, user: data});
         } catch (e) {
             dispatch({type: SETUP_USER_ERROR_SET, error: e.message});
         }
 
-
         dispatch({type: SETUP_LOADING_SET, loading: false});
-        // dispatch({type: PAGE_PROPERTIES_SET, id, properties});
     };

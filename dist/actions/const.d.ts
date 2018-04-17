@@ -14,6 +14,7 @@ export declare const APP_TITLE_SET = "APP_TITLE_SET";
 export declare const SETUP_LOADING_SET = "SETUP_LOADING_SET";
 export declare const SETUP_SET = "SETUP_SET";
 export declare const SETUP_USER_ERROR_SET = "SETUP_USER_ERROR_SET";
+export declare const SETUP_USER_SET = "SETUP_USER_SET";
 export declare const ME_SET = "ME_SET";
 export declare const ME_EMAIL_SET = "ME_EMAIL_SET";
 export declare const PAGES_SET = "PAGES_SET";
