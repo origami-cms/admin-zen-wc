@@ -11,9 +11,8 @@ import CSS from './page-edit.scss';
 
 @connect(
     store,
-    (state: State) => {
-        // @ts-ignore this = UserCreate
-        const page = state.Pages.pages.find(p => p.id === this.pageId);
+    (state: State, el: PageEdit) => {
+        const page = state.Pages.pages.find(p => p.id === el.pageId);
 
         let p: Page | false = false;
         if (page) p = page.asMutable({deep: true});

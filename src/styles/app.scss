@@ -1,8 +1,6 @@
-@import "~zen-css";
-
-@import './lib/import';
+@import "~zen-css/import";
 
 
-body {
-    background-color: var(--color-bg);
+:root {
+    --h1-font-size: var(--font-size-huge);
 }

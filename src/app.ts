@@ -8,3 +8,5 @@ import 'zen-css';
 import './components';
 import './pages';
 import './router';
+
+import './styles/app.scss';

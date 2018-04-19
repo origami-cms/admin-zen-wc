@@ -8,3 +8,6 @@ declare module '*.svg' {
     const svgValue: string;
     export default svgValue;
 }
+
+declare module '*.png' {
+}

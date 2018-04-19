@@ -59,11 +59,6 @@ export default class PageSetupUser extends Element {
         super.connectedCallback();
         this._form = this.querySelector('zen-ui-form') as Form;
         this._form.fields = this.fields;
-        this._form.values = {
-            name: 'Tristan Matthias',
-            email: 't@m.co',
-            password: 'pass'
-        };
         this._btnNext = this._root.querySelector('zen-ui-button.next') as Button;
 
         this._btnNext.addEventListener('click', this._submit.bind(this));

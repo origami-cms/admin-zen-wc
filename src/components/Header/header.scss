@@ -1,15 +1,28 @@
 @import '~zen-css/import';
 
-:host {
-    display: block;
-    height: 12rem;
+zen-header {
+    position: absolute;
+    display: flex;
+    height: default('size-huge');
+    top: 0;
     // Sidebar offset
-    margin-left: 30rem;
+    left: default('size-huge');
+    right: 0;
 
-    padding: 0 default('size-main');
+    padding-left: default('size-main');
+    background-color: default('color-white');
+    border-bottom: default('border-200');
+    border-width: 1px;
 
     h1 {
-        line-height: 12rem;
+        flex: 1;
+        margin: 0;
+        line-height: default('size-huge');
+    }
+
+    zen-header-user, zen-header-notifications {
+        flex-grow: 0;
+        border-left: var(--border-100);
     }
 }
 

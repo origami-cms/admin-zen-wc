@@ -4,10 +4,14 @@ const ExtractCSS = require('extract-text-webpack-plugin');
 const BitBarPlugin = require('bitbar-webpack-progress-plugin');
 
 
+const CSS_FILES = [
+    /styles\/app\.scss/,
+    /base\.scss/
+]
+
 module.exports = {
     entry: [
         './node_modules/tasty-treewalker/src/TreeWalker-polyfill.js',
-        // './src/polyfills/treeWalker.js',
         './src/app.ts'
     ],
     output: {
@@ -28,11 +32,11 @@ module.exports = {
             },
             {
                 test: /\.scss/,
-                exclude: /base\.scss/,
+                exclude: CSS_FILES,
                 loader: 'css-loader!sass-loader'
             },
             {
-                test: /base\.scss/,
+                test: CSS_FILES,
                 use: ExtractCSS.extract({
                     use: [
                         'css-loader',

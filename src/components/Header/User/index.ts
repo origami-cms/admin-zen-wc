@@ -1,31 +1,35 @@
 import {Element} from 'origami-zen';
-import HTML from './header.html';
-import CSS from './header.scss';
-
-
-import connect from 'wc-redux';
 import store from 'store';
+import State, {Me} from 'store/state';
+import connect from 'wc-redux';
+import HTML from './header-user.html';
+import CSS from './header-user.scss';
+
+import profile from '../../../images/profile.png';
 
 
-class HeaderUser extends Element {
+@connect(store, (state: State) => ({
+    me: state.Me
+}))
+export default class HeaderUser extends Element {
+    me?: Me;
     constructor() {
-        super(HTML, CSS.toString());
+        super(HTML, CSS.toString(), 'HeaderUser', false);
     }
 
     static get boundProps() {
-        return ['app'];
+        return ['me'];
+    }
+
+    propertyChangedCallback(prop: keyof HeaderUser, oldV: any, newV: any) {
+        switch (prop) {
+            case 'me':
+                // TODO: Replace with logo
+                (this._root.querySelector('img.profile') as HTMLImageElement).src = profile;
+                break;
+        }
     }
 }
 
-
-class ConnectedHeader extends connect(store, HeaderUser) {
-    _mapStateToProps(state) {
-        return {
-            app: state.App
-        };
-    }
-}
-
-
-window.customElements.define('zen-header', ConnectedHeader);
+window.customElements.define('zen-header-user', HeaderUser);
 

@@ -3,19 +3,27 @@ import store from 'store';
 import connect from 'wc-redux';
 import HTML from './header.html';
 import CSS from './header.scss';
-import State from 'store/state';
+import State, {App} from 'store/state';
 
+
+export * from './User';
+export * from './Notifications';
 
 @connect(store, (state: State) => ({
     app: state.App
 }))
 export class Header extends Element {
+    app?: App;
+
     constructor() {
-        super(HTML, CSS.toString());
+        super(HTML, CSS.toString(), 'Header', false);
     }
 
-    static get boundProps() {
-        return ['app'];
+    static boundProps = ['app'];
+
+    get pageTitle() {
+        if (!this.app) return null;
+        return this.app.page.title || null;
     }
 }
 

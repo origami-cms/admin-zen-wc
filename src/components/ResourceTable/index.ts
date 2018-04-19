@@ -5,6 +5,7 @@ import pluralize from 'pluralize';
 import {upperFirst} from 'lodash';
 
 import ResourceTableColumn from './Column';
+export * from './Column';
 
 
 import connect from 'wc-redux';
@@ -23,9 +24,9 @@ export interface Data {
         me: state.Me,
         sidebar: state.App.sidebar
     }),
-    function () {
-        // @ts-ignore this=ResourceTable
-        return actions[upperFirst(this.resPlural)];
+    el => {
+        // @ts-ignore
+        return actions[upperFirst(el.resPlural)];
     }
 )
 export default class ResourceTable extends Element {
@@ -83,7 +84,8 @@ export default class ResourceTable extends Element {
                 break;
 
             case 'resource':
-                // this._bindEventsToDispatch();
+                // @ts-ignore Provided by wc-redux
+                this._bindEventsToDispatch();
                 break;
         }
     }
@@ -127,6 +129,7 @@ export default class ResourceTable extends Element {
         header.classList.add('header');
         Array.from(this.children).forEach(col => {
             const td = document.createElement('span');
+
             td.innerHTML = (col as ResourceTableColumn).key as string;
             header.appendChild(td);
         });
@@ -188,9 +191,11 @@ export default class ResourceTable extends Element {
 
         const editTD = document.createElement('span');
         editTD.classList.add('text-right');
-        const editButton = document.createElement('zen-ui-button');
+        const editButton = document.createElement('zen-ui-button') as Button;
         editButton.innerHTML = 'Edit';
         editButton.setAttribute('size', 'main');
+        editButton.setAttribute('hollow', 'true');
+
         editButton.addEventListener('click', () => {
             this.actionOpen(ele.id);
         });

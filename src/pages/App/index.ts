@@ -28,7 +28,7 @@ export default class App extends Element {
 
 
     constructor() {
-        super(HTML, CSS);
+        super(HTML, CSS, 'PageApp', false);
     }
 
     static boundProps = ['me', 'auth'];
@@ -39,6 +39,7 @@ export default class App extends Element {
             if (this.auth.token && !this.auth.loggedIn) this.trigger('verify', this.auth.token);
         }
         this.trigger('title-set', ['Home']);
+        this.trigger('getMe');
 
         this.router = document.querySelector('wc-router') as Router;
     }

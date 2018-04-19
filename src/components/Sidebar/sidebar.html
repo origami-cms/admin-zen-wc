@@ -1,8 +1,9 @@
 <template id="app">
-    <li class="rounded position-r">
+    <li class="position-r">
         <wc-link class="cover">
-            <zen-ui-icon color="white" class="center" size="large"></zen-ui-icon>
-            <span class="name"></span>
+            <div class="app rounded">
+                <zen-ui-icon color="white" class="center" size="main"></zen-ui-icon>
+            </div>
         </wc-link>
     </li>
 </template>
@@ -10,26 +11,14 @@
 
 <aside>
     <wc-link to='/' class="top-link display-b">
-        <img class="logo width-large" />
+        <img class="logo width-main" />
     </wc-link>
 
-    <zen-ui-form></zen-ui-form>
+    <div class="search width-huge height-huge position-r">
+        <zen-ui-icon type="search" color="main" size="main" class="center"></zen-ui-icon>
+    </div>
 
     <img class="logo-text height-small" />
 
     <ul class="apps"></ul>
-
-    <div class="app">
-        <zen-ui-icon
-            type="arrow-left"
-            onclick="history.back()"
-            color="white"
-        ></zen-ui-icon>
-        <h2 class="color-white display-ib align-middle"> {{app.name}} </h2>
-        <zen-ui-icon
-            type="cross"
-            color="white"
-            class="float-right"
-        ></zen-ui-icon>
-    </div>
 </aside>

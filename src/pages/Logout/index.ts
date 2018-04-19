@@ -21,7 +21,6 @@ export default class Logout extends Element {
 
     connectedCallback() {
         this.trigger('logout');
-        this.router = document.querySelector('wc-router') as Router;
     }
 
     static get boundProps() {
@@ -31,12 +30,14 @@ export default class Logout extends Element {
     async propertyChangedCallback(prop: keyof Logout, oldV: any, newV: any) {
         switch (prop) {
             case 'auth':
+                const r = document.querySelector('wc-router') as Router;
+
                 if (
                     !newV.loggedIn &&
-                    this.router &&
-                    this.router.history &&
-                    this.router.history.location.pathname === '/logout'
-                ) this.router.replace('/login');
+                    r &&
+                    r.history &&
+                    r.history.location.pathname === '/logout'
+                ) r.replace('/login');
         }
     }
 }

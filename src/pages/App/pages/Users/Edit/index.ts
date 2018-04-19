@@ -11,9 +11,9 @@ import CSS from './user-edit.scss';
 
 @connect(
     store,
-    (state: State) => {
+    (state: State, el: UserEdit) => {
         // @ts-ignore this = UserCreate
-        const user = state.Users.users.find(u => u.id === this.userId);
+        const user = state.Users.users.find(u => u.id === el.userId);
 
         let u: User | false = false;
         if (user) u = user.asMutable({deep: true});
@@ -33,7 +33,7 @@ export default class UserEdit extends Element {
     errors?: object;
 
     constructor() {
-        super(HTML, CSS.toString());
+        super(HTML, CSS.toString(), 'UserEdit', false);
     }
 
     static formFields: Field[] = [
