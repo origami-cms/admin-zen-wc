@@ -8,6 +8,8 @@ import HTML from './user-create.html';
 import CSS from './user-create.scss';
 
 
+import img from 'images/icons/user/create.svg';
+
 
 @connect(
     store,
@@ -33,22 +35,32 @@ export default class UserCreate extends Element {
         {
             name: 'fname',
             placeholder: 'First name',
-            type: 'text'
+            type: 'text',
+            width: 'half',
+            icon: 'user',
+            iconColor: 'grey-300'
         },
         {
             name: 'lname',
             placeholder: 'Last name',
-            type: 'text'
+            type: 'text',
+            width: 'half',
+            icon: 'user',
+            iconColor: 'grey-300'
         },
         {
             name: 'email',
             placeholder: 'Email',
-            type: 'text'
+            type: 'text',
+            icon: 'mail',
+            iconColor: 'grey-300'
         },
         {
             name: 'password',
             placeholder: 'Password',
-            type: 'password'
+            type: 'password',
+            icon: 'lock',
+            iconColor: 'grey-300'
         },
         {
             type: 'submit',
@@ -78,14 +90,22 @@ export default class UserCreate extends Element {
 
         f.fields = (this.constructor as typeof UserCreate).formFields;
         f.addEventListener('submit', this.submit.bind(this));
+        f.addEventListener('change', this.render.bind(this));
 
         this.addEventListener('user-create-done', (e: CustomEventInit) => {
             if (e.detail.id) r.push(`/users/${e.detail.id}`);
         });
+
+        (this.querySelector('img') as HTMLImageElement).src = img;
     }
 
     static get boundProps() {
         return ['user', 'errors'];
+    }
+
+    get firstName() {
+        if (!this.form || !this.form.values.fname) return 'a user';
+        return this.form.values.fname;
     }
 
     // propertyChangedCallback(prop, oldV, newV) {
