@@ -11,14 +11,22 @@ zen-sidebar {
     background-color: var(--color-white);
     z-index: 1;
     box-sizing: border-box;
-    border-right: default('border-200');
-    border-width: 1px;
+    // border-right: default('border-200');
+    // border-width: 1px;
+    box-shadow: 0.5rem 0 2rem var(--color-main-soft);
 
 
     wc-link.top-link {
         height: default('size-huge');
         line-height: default('size-huge');
         text-align: center;
+
+        &.active {
+            background: var(--gradient-main);
+            img {
+                filter: brightness(10);
+            }
+        }
     }
 
     img.logo {
@@ -34,8 +42,7 @@ zen-sidebar {
     }
 
     wc-link.top-link, .search {
-        border-bottom: default('border-200');
-        border-width: 1px;
+        border-bottom: default('border-100');
     }
 
     ul.apps {
@@ -56,12 +63,14 @@ zen-sidebar {
                     width: 100%;
                     height: 100%;
                     transition: all default('transition-time');
+                    opacity: 0.7;
                 }
 
                 &.active {
                     padding: 0;
                     .app {
                         border-radius: 0;
+                        opacity: 1;
                     }
                 }
             }

@@ -1,7 +1,11 @@
 @import '~zen-css/import';
 main {
     // Sidebar offset
-    margin-left: 30rem;
+    position: absolute;
+    left: default('size-huge');
+    top: default('size-huge');
+    bottom: 0;
+    right: 0;
     padding: default('size-main');
 }
 

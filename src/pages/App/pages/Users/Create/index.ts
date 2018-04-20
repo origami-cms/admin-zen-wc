@@ -60,7 +60,7 @@ export default class UserCreate extends Element {
 
 
     constructor() {
-        super(HTML, CSS.toString());
+        super(HTML, CSS.toString(), 'UserCreate', false);
     }
 
 

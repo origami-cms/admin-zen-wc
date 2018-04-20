@@ -10,4 +10,6 @@ declare module '*.svg' {
 }
 
 declare module '*.png' {
+    const pngValue: string;
+    export default pngValue;
 }

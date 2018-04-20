@@ -21,9 +21,10 @@ export default class HeaderUser extends Element {
         return ['me'];
     }
 
-    propertyChangedCallback(prop: keyof HeaderUser, oldV: any, newV: any) {
+    async propertyChangedCallback(prop: keyof HeaderUser, oldV: any, newV: any) {
         switch (prop) {
             case 'me':
+                await this.ready();
                 // TODO: Replace with logo
                 (this._root.querySelector('img.profile') as HTMLImageElement).src = profile;
                 break;

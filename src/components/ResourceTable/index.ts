@@ -42,7 +42,7 @@ export default class ResourceTable extends Element {
     private _router?: Router;
 
     constructor() {
-        super(HTML, CSS);
+        super(HTML, CSS, 'ResourceTable');
     }
 
 
@@ -227,7 +227,7 @@ export default class ResourceTable extends Element {
         let buttons: B[] = [];
 
         const buttonCreate: B = {
-            innerHTML: 'create', color: 'green', onclick: () => this.actionCreate()
+            innerHTML: 'create', icon: 'add', color: 'green', onclick: () => this.actionCreate()
         };
         const buttonEdit: B = {
             innerHTML: 'edit', color: 'main', onclick: () => this.actionOpen()

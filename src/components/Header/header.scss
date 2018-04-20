@@ -11,8 +11,10 @@ zen-header {
 
     padding-left: default('size-main');
     background-color: default('color-white');
-    border-bottom: default('border-200');
+    border-left: default('border-100');
     border-width: 1px;
+    box-shadow: 1rem 0.5rem 2rem var(--color-main-soft);
+    z-index: 100;
 
     h1 {
         flex: 1;
