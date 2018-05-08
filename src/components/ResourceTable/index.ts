@@ -43,6 +43,7 @@ export default class ResourceTable extends Element {
 
     constructor() {
         super(HTML, CSS, 'ResourceTable');
+        console.trace('constructed');
     }
 
 
@@ -51,44 +52,45 @@ export default class ResourceTable extends Element {
 
         this._buttonGroup = this._root.querySelector('header zen-ui-button-group') as ButtonGroup;
         this._table = this._root.querySelector('.table') as HTMLDivElement;
-        this._observer = new MutationObserver(this.handleMutation.bind(this));
-        this._observer.observe(this, {childList: true});
-        this._router = document.querySelector('wc-router') as Router;
+        // this._observer = new MutationObserver(this.handleMutation.bind(this));
+        // this._observer.observe(this, {childList: true});
+        // this._router = document.querySelector('wc-router') as Router;
+        console.log('after');
+
     }
 
     disconnectedCallback() {
-        super.connectedCallback();
         if (this._observer) (this._observer as MutationObserver).disconnect();
     }
 
-    static boundProps = ['data', 'idKey', 'selected', 'resource'];
+    // static boundProps = ['data', 'idKey', 'selected', 'resource'];
 
-    static observedAttributes = ['resource'];
+    // static observedAttributes = ['resource'];
 
-    attributeChangedCallback(attr: string, oldV: string, newV: string) {
-        switch (attr) {
-            case 'resource':
-                this[attr] = newV;
-                break;
-        }
-    }
+    // attributeChangedCallback(attr: string, oldV: string, newV: string) {
+    //     switch (attr) {
+    //         case 'resource':
+    //             this[attr] = newV;
+    //             break;
+    //     }
+    // }
 
 
-    async propertyChangedCallback(prop: keyof ResourceTable, oldV: any, newV: any) {
-        await this.ready();
+    // async propertyChangedCallback(prop: keyof ResourceTable, oldV: any, newV: any) {
+    //     await this.ready();
 
-        switch (prop) {
-            case 'selected':
-                this.updateButtons();
-                this.trigger('change');
-                break;
+    //     switch (prop) {
+    //         case 'selected':
+    //             this.updateButtons();
+    //             this.trigger('change');
+    //             break;
 
-            case 'resource':
-                // @ts-ignore Provided by wc-redux
-                this._bindEventsToDispatch();
-                break;
-        }
-    }
+    //         case 'resource':
+    //             // @ts-ignore Provided by wc-redux
+    //             this._bindEventsToDispatch();
+    //             break;
+    //     }
+    // }
 
 
     get resPlural() {

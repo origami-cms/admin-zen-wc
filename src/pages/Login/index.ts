@@ -69,7 +69,6 @@ export default class Login extends Element {
 
         f.addEventListener('submit', e => {
             const {email, password} = f.values;
-            console.log('submitting', f.validate());
 
             this.login(email, password);
 
@@ -84,8 +83,6 @@ export default class Login extends Element {
         switch (prop) {
             case 'auth':
                 if (oldV) {
-                    console.log(newV);
-
                     if (!oldV.loggedIn && newV.loggedIn && this.isConnected && this.router) {
                         this.router.replace('/');
                     }
