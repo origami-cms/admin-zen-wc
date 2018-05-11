@@ -5,8 +5,6 @@ import connect from 'wc-redux';
 import HTML from './header-user.html';
 import CSS from './header-user.scss';
 
-import profile from '../../../images/profile.png';
-
 
 @connect(store, (state: State) => ({
     me: state.Me
@@ -24,9 +22,10 @@ export default class HeaderUser extends Element {
     async propertyChangedCallback(prop: keyof HeaderUser, oldV: any, newV: any) {
         switch (prop) {
             case 'me':
+                const me = newV as Me;
                 await this.ready();
                 // TODO: Replace with logo
-                (this._root.querySelector('img.profile') as HTMLImageElement).src = profile;
+                (this._root.querySelector('img.profile') as HTMLImageElement).src = `/content/profiles/${me.id}`;
                 break;
         }
     }
