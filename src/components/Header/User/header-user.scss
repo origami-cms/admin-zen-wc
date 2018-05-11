@@ -1,9 +1,14 @@
 zen-header-user {
     display: block;
+    width: var(--sidebar-size);
     height: var(--sidebar-size);
     line-height: var(--sidebar-size);
+    text-align: center;
 
     * {
         vertical-align: middle;
     }
+
+    img {width: 50%;}
+
 }
