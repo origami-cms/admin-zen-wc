@@ -3,13 +3,13 @@
 zen-header {
     position: absolute;
     display: flex;
-    height: default('size-huge');
+    height: var(--sidebar-size);
     top: 0;
     // Sidebar offset
-    left: default('size-huge');
+    left: var(--sidebar-size);
     right: 0;
 
-    padding-left: default('size-main');
+    padding-left: calc(var(--sidebar-size) / 4);
     background-color: default('color-white');
     border-left: default('border-100');
     border-width: 1px;
@@ -19,7 +19,7 @@ zen-header {
     h1 {
         flex: 1;
         margin: 0;
-        line-height: default('size-huge');
+        line-height: var(--sidebar-size);
     }
 
     zen-header-user, zen-header-notifications {

@@ -7,18 +7,16 @@ zen-sidebar {
     height: 100%;
     left: 0;
     top: 0;
-    width: default('size-huge');
+    width: var(--sidebar-size);
     background-color: var(--color-white);
     z-index: 1;
     box-sizing: border-box;
-    // border-right: default('border-200');
-    // border-width: 1px;
     box-shadow: 0.5rem 0 2rem var(--color-main-soft);
 
 
     wc-link.top-link {
-        height: default('size-huge');
-        line-height: default('size-huge');
+        height: var(--sidebar-size);
+        line-height: var(--sidebar-size);
         text-align: center;
 
         &.active {
@@ -33,16 +31,30 @@ zen-sidebar {
         vertical-align: middle;
     }
 
-    img.logo-text {
+    // img.logo-text {
+    //     position: absolute;
+    //     bottom: 0;
+    //     left: 50%;
+    //     transform: translateX(-50%);
+    //     margin: default('size-main') auto;
+    // }
+    .apps-button {
         position: absolute;
         bottom: 0;
-        left: 50%;
-        transform: translateX(-50%);
-        margin: default('size-main') auto;
+        width: var(--sidebar-size);
+        height: var(--sidebar-size);
+        line-height: var(--sidebar-size);
+        text-align: center;
+        border-top: default('border-100');
     }
 
     wc-link.top-link, .search {
         border-bottom: default('border-100');
+    }
+
+    .search {
+        width: var(--sidebar-size);
+        height: var(--sidebar-size);
     }
 
     ul.apps {
@@ -50,7 +62,7 @@ zen-sidebar {
         li {
             display: inline-block;
             width: 100%;
-            height: default('size-huge');
+            height: var(--sidebar-size);
             text-align: center;
             clip-path: url(#sidebar-app-clip);
             border-bottom: default('border-100');

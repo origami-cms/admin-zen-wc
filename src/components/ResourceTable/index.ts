@@ -47,48 +47,50 @@ export default class ResourceTable extends Element {
 
 
     connectedCallback() {
+
         super.connectedCallback();
 
         this._buttonGroup = this._root.querySelector('header zen-ui-button-group') as ButtonGroup;
         this._table = this._root.querySelector('.table') as HTMLDivElement;
-        // this._observer = new MutationObserver(this.handleMutation.bind(this));
-        // this._observer.observe(this, {childList: true});
-        // this._router = document.querySelector('wc-router') as Router;
-
+        this._observer = new MutationObserver(this.handleMutation.bind(this));
+        this._observer.observe(this, {childList: true});
+        this._router = document.querySelector('wc-router') as Router;
     }
 
     disconnectedCallback() {
         if (this._observer) (this._observer as MutationObserver).disconnect();
     }
 
-    // static boundProps = ['data', 'idKey', 'selected', 'resource'];
+    static boundProps = ['data', 'idKey', 'selected', 'resource'];
 
-    // static observedAttributes = ['resource'];
+    static observedAttributes = ['resource'];
 
-    // attributeChangedCallback(attr: string, oldV: string, newV: string) {
-    //     switch (attr) {
-    //         case 'resource':
-    //             this[attr] = newV;
-    //             break;
-    //     }
-    // }
+    attributeChangedCallback(attr: string, oldV: string, newV: string) {
+        switch (attr) {
+            case 'resource':
+                this[attr] = newV;
+                break;
+        }
+    }
 
 
-    // async propertyChangedCallback(prop: keyof ResourceTable, oldV: any, newV: any) {
-    //     await this.ready();
+    async propertyChangedCallback(prop: keyof ResourceTable, oldV: any, newV: any) {
+        await this.ready();
 
-    //     switch (prop) {
-    //         case 'selected':
-    //             this.updateButtons();
-    //             this.trigger('change');
-    //             break;
+        switch (prop) {
+            case 'selected':
+                console.log(this._buttonGroup, this._root.querySelector('header zen-ui-button-group'));
 
-    //         case 'resource':
-    //             // @ts-ignore Provided by wc-redux
-    //             this._bindEventsToDispatch();
-    //             break;
-    //     }
-    // }
+                this.updateButtons();
+                this.trigger('change');
+                break;
+
+            case 'resource':
+                // @ts-ignore Provided by wc-redux
+                this._bindEventsToDispatch();
+                break;
+        }
+    }
 
 
     get resPlural() {
@@ -194,7 +196,7 @@ export default class ResourceTable extends Element {
         const editButton = document.createElement('zen-ui-button') as Button;
         editButton.innerHTML = 'Edit';
         editButton.setAttribute('size', 'main');
-        editButton.setAttribute('hollow', 'true');
+        editButton.hollow = true;
 
         editButton.addEventListener('click', () => {
             this.actionOpen(ele.id);
@@ -251,7 +253,7 @@ export default class ResourceTable extends Element {
                 break;
         }
 
-        buttons.forEach(b => b.hollow = true);
+        // buttons.forEach(b => b.hollow = true);
         this._buttonGroup.buttons = buttons;
     }
 

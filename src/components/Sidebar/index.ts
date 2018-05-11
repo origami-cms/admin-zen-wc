@@ -51,11 +51,6 @@ export default class Sidebar extends Element {
 
         this.logo = this._root.querySelector('img.logo') as HTMLImageElement;
         this.logo.src = logo;
-        this.logoBottom = this._root.querySelector('img.logo-text') as HTMLImageElement;
-        this.logoBottom.src = logoText;
-
-        // this.form = this._root.querySelector('zen-ui-form') as Form;
-        // this.form.fields = this.search;
         this.appsList = this._root.querySelector('ul.apps') as HTMLUListElement;
 
         this.trigger('sidebar-items-get');
