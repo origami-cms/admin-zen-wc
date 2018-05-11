@@ -17,6 +17,7 @@ import {Router} from 'wc-router';
     }),
     {
         login: actions.Auth.login,
+        logout: actions.Auth.logout,
         verify: actions.Auth.verify,
         getMe: actions.Me.getMe,
         'title-set': actions.App.titleSet
@@ -24,7 +25,6 @@ import {Router} from 'wc-router';
 )
 export default class App extends Element {
     auth?: Auth;
-    router?: Router;
 
 
     constructor() {
@@ -35,24 +35,31 @@ export default class App extends Element {
 
     connectedCallback() {
         super.connectedCallback();
-        if (this.auth) {
-            if (this.auth.token && !this.auth.loggedIn) this.trigger('verify', this.auth.token);
-        }
         this.trigger('title-set', ['Home']);
-        this.trigger('getMe');
+    }
 
-        this.router = document.querySelector('wc-router') as Router;
+    get router(): Router {
+        return document.querySelector('wc-router') as Router;
     }
 
     async propertyChangedCallback(prop: keyof App, oldV: any, newV: any) {
         switch (prop) {
             case 'auth':
-                if (
-                    !newV.loggedIn &&
-                    !newV.token &&
+                await this.ready();
+                const a = newV as Auth;
+
+                if (!a.verified &&
+                    a.token &&
+                    !a.loggedIn &&
+                    location.pathname !== '/admin/logout'
+                ) {
+                    this.trigger('verify', a.token);
+
+                } else if (
+                    !a.loggedIn &&
                     location.pathname !== '/admin/login'
-                    && this.router
                 ) this.router.replace('/login');
+                else if (a.verified) this.trigger('getMe');
 
                 break;
         }

@@ -21,9 +21,11 @@ import {
     LS_EMAIL
 } from 'const';
 import api from '~/lib/API';
+import {Auth} from '~/store/state';
 
 
-const intitialState = immutable({
+const intitialState = immutable<Auth>({
+    verified: null,
     loggedIn: false,
     token: localStorage.getItem(LS_JWT),
     loading: {
@@ -31,7 +33,8 @@ const intitialState = immutable({
         loggingIn: false
     },
     errors: {
-        loggingIn: null
+        loggingIn: null,
+        verify: null
     }
 });
 
@@ -60,7 +63,8 @@ export default (state = intitialState, action: AnyAction) => {
                 errors: {
                     loggingIn: null
                 },
-                token: null
+                token: null,
+                verified: true
             };
 
             if (action.token) {
@@ -75,6 +79,7 @@ export default (state = intitialState, action: AnyAction) => {
         case AUTH_LOGIN_FAILED:
             return state.setIn(['errors', 'loggingIn'], action.message);
 
+
         case AUTH_VERIFIED_FAILED:
             let {message} = action;
 
@@ -82,7 +87,14 @@ export default (state = intitialState, action: AnyAction) => {
                 message = 'You were logged out due to inactivity';
             }
 
-            return state.setIn(['errors', 'verify'], message);
+            const mergingVerifiedFailed = {
+                errors: {
+                    verify: message
+                },
+                verified: true
+            };
+
+            return state.merge(mergingVerifiedFailed);
 
 
         default:

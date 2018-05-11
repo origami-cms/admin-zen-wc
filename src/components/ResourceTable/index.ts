@@ -43,7 +43,6 @@ export default class ResourceTable extends Element {
 
     constructor() {
         super(HTML, CSS, 'ResourceTable');
-        console.trace('constructed');
     }
 
 
@@ -55,7 +54,6 @@ export default class ResourceTable extends Element {
         // this._observer = new MutationObserver(this.handleMutation.bind(this));
         // this._observer.observe(this, {childList: true});
         // this._router = document.querySelector('wc-router') as Router;
-        console.log('after');
 
     }
 

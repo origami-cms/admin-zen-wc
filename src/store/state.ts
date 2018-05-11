@@ -60,7 +60,8 @@ export interface Me {
 
 
 export interface Auth {
-    loggedIn: string | false;
+    verified: null | boolean;
+    loggedIn: true | false;
     token: string | null;
     loading: {
         verifying: string | false;
@@ -68,6 +69,7 @@ export interface Auth {
     };
     errors: {
         loggingIn: string | null;
+        verify: string | null;
     };
 }
 
