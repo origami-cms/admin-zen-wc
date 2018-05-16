@@ -9,6 +9,7 @@ export {ResourceState} from 'origami-zen';
 
 
 const initialState = immutable({
+    id: null,
     fname: null,
     lname: null,
     email: localStorage.getItem(LS_EMAIL)

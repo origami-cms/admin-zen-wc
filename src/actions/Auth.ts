@@ -43,6 +43,7 @@ export const verify = () =>
     async (dispatch: Dispatch<State>) => {
         try {
             const {data} = await API.get('/auth/verify');
+
             dispatch({type: AUTH_VERIFIED});
 
             return (data as {token: string}).token;

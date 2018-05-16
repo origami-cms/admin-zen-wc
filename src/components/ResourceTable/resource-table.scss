@@ -37,6 +37,8 @@
             height: 5rem;
             line-height: 5rem;
             margin-bottom: default('size-tiny');
+            box-shadow: var(--shadow-main-soft);
+            border-radius: var(--border-radius);
 
             // @extend %shadow-shade-1;
             // @extend %rounded;
@@ -56,6 +58,8 @@
 
                 &.fixed {
                     flex-grow: 0;
+                    flex-basis: 1rem;
+                    text-overflow: clip;
                 }
             }
         }

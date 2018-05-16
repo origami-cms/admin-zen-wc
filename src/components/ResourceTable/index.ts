@@ -79,8 +79,6 @@ export default class ResourceTable extends Element {
 
         switch (prop) {
             case 'selected':
-                console.log(this._buttonGroup, this._root.querySelector('header zen-ui-button-group'));
-
                 this.updateButtons();
                 this.trigger('change');
                 break;
@@ -120,6 +118,7 @@ export default class ResourceTable extends Element {
         checkTD.classList.add('fixed');
         const check = document.createElement('zen-ui-checkbox') as Checkbox;
         check.checked = this.selected.length === this.data.length;
+        check.size = 'medium';
 
         check.addEventListener('change', e => {
             this.select(Boolean((e.target as Checkbox).checked));
@@ -172,6 +171,7 @@ export default class ResourceTable extends Element {
         const tr = document.createElement('div');
         const checkTD = document.createElement('span');
         const check = document.createElement('zen-ui-checkbox') as Checkbox;
+        check.size = 'medium';
 
 
         check.checked = this.selected.includes(ele[this.idKey]);

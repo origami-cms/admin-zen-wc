@@ -1,4 +1,4 @@
-import {Element, Field, Form, Icon} from 'origami-zen';
+import {Element, Field, Form, Icon, Tooltip} from 'origami-zen';
 import HTML from './sidebar.html';
 import CSS from './sidebar.scss';
 import logo from 'images/logo-mark.svg';
@@ -60,6 +60,10 @@ export default class Sidebar extends Element {
         return ['me', 'sidebar'];
     }
 
+    get tooltip() {
+        return this._root.querySelector('zen-ui-tooltip') as Tooltip;
+    }
+
     async propertyChangedCallback(prop: keyof Sidebar) {
         switch (prop) {
             case 'sidebar':
@@ -85,6 +89,9 @@ export default class Sidebar extends Element {
             icon.type = a.icon;
             icon.color = a.iconColor || 'white';
             (_li.querySelector('.app') as HTMLElement).classList.add(`gradient-${a.color}`);
+
+            _li.addEventListener('mouseenter', () => this._updateTooltip(a, _li));
+            _li.addEventListener('mouseleave', () => this.tooltip.for = null);
             al.appendChild(_li);
         });
     }
@@ -99,6 +106,11 @@ export default class Sidebar extends Element {
         )));
     }
 
+
+    private _updateTooltip(app: SidebarItem, li: HTMLElement) {
+        this.tooltip.innerHTML = app.name;
+        this.tooltip.for = li;
+    }
 }
 
 window.customElements.define('zen-sidebar', Sidebar);

@@ -11,7 +11,7 @@ const CSS_FILES = [
 
 module.exports = {
     entry: [
-        './node_modules/tasty-treewalker/src/TreeWalker-polyfill.js',
+        // './node_modules/tasty-treewalker/src/TreeWalker-polyfill.js',
         './src/app.ts'
     ],
     output: {
