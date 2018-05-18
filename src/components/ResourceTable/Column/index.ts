@@ -9,9 +9,15 @@ export default class ResourceTableColumn extends Element {
     attributeChangedCallback(attr: string, oldV: any, newV: any) {
         switch (attr) {
             case 'key':
-
                 this[attr] = newV;
         }
+    }
+
+    content(data: {[key: string]: any}): string {
+        const existing = this.innerHTML.trim();
+
+        if (existing) return this._renderTemplateString(existing, data) || data[this.key];
+        return data[this.key];
     }
 }
 

@@ -1,11 +1,12 @@
 import actions from 'actions';
-import {Element, Form, Field} from 'origami-zen';
+import {Element, Form, Field, FormValues} from 'origami-zen';
 import store from 'store';
 import State, {User} from 'store/state';
 import connect from 'wc-redux';
 import {Router} from 'wc-router';
 import HTML from './user-edit.html';
 import CSS from './user-edit.scss';
+import UserAvatar from '~/components/UserAvatar';
 
 
 
@@ -27,10 +28,11 @@ import CSS from './user-edit.scss';
     }
 )
 export default class UserEdit extends Element {
-    router: Router | null = null;
+    router?: Router;
     form: Form | null = null;
     user?: User;
     errors?: object;
+    userId?: string;
 
     constructor() {
         super(HTML, CSS.toString(), 'UserEdit', false);
@@ -59,23 +61,22 @@ export default class UserEdit extends Element {
         }
     ];
 
-
-    get userId(): string | false {
-        if (!this.router) return false;
-        if (this.isConnected) return this.router.params.id;
-        return false;
-    }
-
     connectedCallback() {
         super.connectedCallback();
+        this.router = document.querySelector('wc-router') as Router;
+        this.userId = this.router.params.id;
+
         this.trigger('user-get', [this.userId]);
         this.trigger('user-properties-get', [this.userId]);
 
-        this.router = document.querySelector('wc-router');
 
         this.form = this._root.querySelector('zen-ui-form') as Form;
         this.form.fields = (this.constructor as typeof UserEdit).formFields;
         this.form.addEventListener('submit', this.save.bind(this));
+
+
+        this.form.values = this.user as FormValues;
+        (this.querySelector('user-avatar') as UserAvatar).user = this.userId;
     }
 
     static get boundProps() {

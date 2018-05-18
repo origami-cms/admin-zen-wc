@@ -1,4 +1,4 @@
-import {Element, Checkbox, Button, ButtonGroup} from 'origami-zen';
+import {Element, Checkbox, Button, ButtonGroup, Icon, Tooltip} from 'origami-zen';
 import HTML from './resource-table.html';
 import CSS from './resource-table.scss';
 import pluralize from 'pluralize';
@@ -115,7 +115,7 @@ export default class ResourceTable extends Element {
 
 
         const checkTD = document.createElement('span');
-        checkTD.classList.add('fixed');
+        checkTD.classList.add('icon');
         const check = document.createElement('zen-ui-checkbox') as Checkbox;
         check.checked = this.selected.length === this.data.length;
         check.size = 'medium';
@@ -130,12 +130,15 @@ export default class ResourceTable extends Element {
         header.classList.add('header');
         Array.from(this.children).forEach(col => {
             const td = document.createElement('span');
+            if (col.hasAttribute('icon')) td.classList.add('icon');
 
             td.innerHTML = (col as ResourceTableColumn).key as string;
             header.appendChild(td);
         });
 
-        header.appendChild(document.createElement('span'));
+        const editCol = document.createElement('span');
+        editCol.classList.add('icon');
+        header.appendChild(editCol);
     }
 
 
@@ -176,7 +179,7 @@ export default class ResourceTable extends Element {
 
         check.checked = this.selected.includes(ele[this.idKey]);
         checkTD.appendChild(check);
-        checkTD.classList.add('fixed');
+        checkTD.classList.add('icon');
         checkTD.addEventListener('change', e => {
             e.stopPropagation();
             this.select(ele[this.idKey]);
@@ -184,24 +187,29 @@ export default class ResourceTable extends Element {
         tr.appendChild(checkTD);
 
 
-        Array.from(this.children).forEach(col => {
+        Array.from(this.children).forEach((col, i) => {
             const td = document.createElement('span');
-            td.innerHTML = ele[(col as ResourceTableColumn).key as string];
+
+            const c = this.children[i] as ResourceTableColumn;
+            if (c.hasAttribute('icon')) td.classList.add('icon');
+
+            td.innerHTML = c.content(ele);
+
             tr.appendChild(td);
         });
 
 
         const editTD = document.createElement('span');
-        editTD.classList.add('text-right');
-        const editButton = document.createElement('zen-ui-button') as Button;
-        editButton.innerHTML = 'Edit';
-        editButton.setAttribute('size', 'main');
-        editButton.hollow = true;
+        editTD.classList.add('icon');
+        const editIcon = document.createElement('zen-ui-icon') as Icon;
+        editIcon.type = 'menu';
+        editIcon.color = 'grey-500';
+        editIcon.setAttribute('size', 'medium');
 
-        editButton.addEventListener('click', () => {
-            this.actionOpen(ele.id);
+        editIcon.addEventListener('click', () => {
+            this.openMenu(ele, tr);
         });
-        editTD.appendChild(editButton);
+        editTD.appendChild(editIcon);
         tr.appendChild(editTD);
 
 
@@ -210,15 +218,16 @@ export default class ResourceTable extends Element {
 
 
     updateRow(data: Data, ele: HTMLElement) {
-        (ele.querySelector('zen-ui-checkbox') as Checkbox).checked =
-            this.selected.includes(data[this.idKey]);
+        const selected = this.selected.includes(data[this.idKey]);
+        (ele.querySelector('zen-ui-checkbox') as Checkbox).checked = selected;
+        ele.classList.toggle('selected', selected);
 
         Array.from(ele.children)
             // Remove 'checkbox'
             // Remove edit button
             .slice(1, -1)
             .forEach((td, i) => {
-                td.innerHTML = data[(this.children[i] as ResourceTableColumn).key as string];
+                td.innerHTML = (this.children[i] as ResourceTableColumn).content(data);
             });
     }
 
@@ -284,7 +293,7 @@ export default class ResourceTable extends Element {
 
     actionOpen(res?: string) {
         if (!this._router) return this._error('Not initialised');
-        this._router.push(`${this.resPlural}/${res || this.selected[0]}`);
+        this._router.push(`/${this.resPlural}/${res || this.selected[0]}`);
     }
 
 
@@ -298,6 +307,14 @@ export default class ResourceTable extends Element {
     actionCreate() {
         if (!this._router) return this._error('Not initialised');
         this._router.push(`${this.resPlural}/create`);
+    }
+
+
+    openMenu(data: Data, row: HTMLElement) {
+        const tt = document.createElement('zen-ui-tooltip') as Tooltip;
+        tt.innerHTML = 'hello';
+        row.appendChild(tt);
+
     }
 }
 

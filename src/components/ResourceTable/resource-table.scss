@@ -29,6 +29,7 @@
             }
         }
 
+        // Row
         & > div {
             width: 100%;
             display: flex;
@@ -39,6 +40,7 @@
             margin-bottom: default('size-tiny');
             box-shadow: var(--shadow-main-soft);
             border-radius: var(--border-radius);
+            border: 2px solid transparent;
 
             // @extend %shadow-shade-1;
             // @extend %rounded;
@@ -56,13 +58,31 @@
                 padding: 0 default('size-small');
                 min-width: 0;
 
-                &.fixed {
+                &.icon {
                     flex-grow: 0;
-                    flex-basis: 1rem;
+                    flex-basis: 5rem;
+                    text-align: center;
                     text-overflow: clip;
+                    padding: 0;
+
+                    zen-ui-button {
+                        padding: 0;
+                    }
+                }
+
+                .icon {
+                    height: var(--size-medium);
+                    width: var(--size-medium);
+                    vertical-align: middle;
+
                 }
             }
+
+            &.selected {
+                border-color: var(--color-main-faint);
+            }
         }
+
     }
 
 
