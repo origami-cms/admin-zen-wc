@@ -19,6 +19,10 @@ export default class ResourceTableColumn extends Element {
         if (existing) return this._renderTemplateString(existing, data) || data[this.key];
         return data[this.key];
     }
+
+    get header() {
+        return this.hasAttribute('header') ? this.getAttribute('header') : this.key;
+    }
 }
 
 window.customElements.define('zen-ui-resource-table-column', ResourceTableColumn);

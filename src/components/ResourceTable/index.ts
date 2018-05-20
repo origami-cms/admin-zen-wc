@@ -1,4 +1,4 @@
-import {Element, Checkbox, Button, ButtonGroup, Icon, Tooltip} from 'origami-zen';
+import {Element, Checkbox, Button, ButtonGroup, Icon, Tooltip, VerticalMenu} from 'origami-zen';
 import HTML from './resource-table.html';
 import CSS from './resource-table.scss';
 import pluralize from 'pluralize';
@@ -132,7 +132,7 @@ export default class ResourceTable extends Element {
             const td = document.createElement('span');
             if (col.hasAttribute('icon')) td.classList.add('icon');
 
-            td.innerHTML = (col as ResourceTableColumn).key as string;
+            td.innerHTML = (col as ResourceTableColumn).header as string;
             header.appendChild(td);
         });
 
@@ -292,8 +292,14 @@ export default class ResourceTable extends Element {
 
 
     actionOpen(res?: string) {
-        if (!this._router) return this._error('Not initialised');
-        this._router.push(`/${this.resPlural}/${res || this.selected[0]}`);
+        const modal = this._renderTemplate('edit-resource').firstElementChild as Element;
+        modal.id = `modal-edit-${this.resource}`;
+        const edit = document.createElement(`${this.resource}-edit`);
+        edit.setAttribute('resource', res || this.selected[0]);
+        modal.appendChild(edit);
+        document.body.appendChild(modal);
+        // if (!this._router) return this._error('Not initialised');
+        // this._router.push(`/${this.resPlural}/${res || this.selected[0]}`);
     }
 
 
@@ -311,10 +317,19 @@ export default class ResourceTable extends Element {
 
 
     openMenu(data: Data, row: HTMLElement) {
-        const tt = document.createElement('zen-ui-tooltip') as Tooltip;
-        tt.innerHTML = 'hello';
+        const tt = this._renderTemplate('menu').firstElementChild as Tooltip;
+        tt.for = row.querySelector('zen-ui-icon') as HTMLElement;
+        tt.removeable = true;
+        const menu = tt.querySelector('zen-ui-vertical-menu') as VerticalMenu;
+        menu.items = [
+            {
+                icon: 'edit',
+                content: 'Edit',
+                color: 'alt',
+                action: () => this.actionOpen(data.id)
+            }
+        ];
         row.appendChild(tt);
-
     }
 }
 

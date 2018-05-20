@@ -6,6 +6,7 @@ import './imports';
 import 'zen-css';
 
 import './components';
+import './resources';
 import './pages';
 import './router';
 

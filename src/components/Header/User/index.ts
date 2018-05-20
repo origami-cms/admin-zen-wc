@@ -24,8 +24,8 @@ export default class HeaderUser extends Element {
             case 'me':
                 const me = newV as Me;
                 await this.ready();
-                // TODO: Replace with logo
-                (this._root.querySelector('img.profile') as HTMLImageElement).src = `/content/profiles/${me.id}`;
+                (this._root.querySelector('img.profile') as HTMLImageElement)
+                    .src = `/content/profiles/${me.id}`;
                 break;
         }
     }
