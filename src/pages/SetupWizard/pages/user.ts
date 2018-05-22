@@ -52,7 +52,7 @@ export default class PageSetupUser extends Element {
 
 
     constructor() {
-        super(HTML, false, 'page-setup-user', false);
+        super(HTML, false, false);
     }
 
     connectedCallback() {

@@ -3,7 +3,7 @@ import HTML from './page-setup-finish.html';
 import 'images/placeholders/dashboard.svg';
 export default class PageSetupFinish extends Element {
     constructor() {
-        super(HTML, false, 'page-setup-finish', false);
+        super(HTML, false, false);
     }
 }
 

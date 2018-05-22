@@ -40,7 +40,7 @@ export default class Sidebar extends Element {
         }
     ];
     constructor() {
-        super(HTML, CSS, 'Sidebar', false);
+        super(HTML, CSS, false);
     }
 
     connectedCallback() {

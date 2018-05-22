@@ -12,7 +12,7 @@ import CSS from './header-user.scss';
 export default class HeaderUser extends Element {
     me?: Me;
     constructor() {
-        super(HTML, CSS.toString(), 'HeaderUser', false);
+        super(HTML, CSS.toString(), false);
     }
 
     static get boundProps() {

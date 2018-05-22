@@ -6,7 +6,7 @@ import logoAnimated from 'images/logo-animated.svg';
 
 export default class PageSetupStart extends Element {
     constructor() {
-        super(HTML, false, 'page-setup-start', false);
+        super(HTML, false, false);
         const logo = logoAnimated;
     }
 }

@@ -23,7 +23,7 @@ export default class PageSetupWizard extends Element {
     isSetup?: boolean;
 
     constructor() {
-        super(HTML, CSS, 'page-setup-wizard', false);
+        super(HTML, CSS, false);
     }
 
     static boundProps = ['isSetup'];

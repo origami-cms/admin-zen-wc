@@ -10,7 +10,7 @@ import './Create';
 
 class Users extends Element {
     constructor() {
-        super(HTML, CSS.toString(), 'Users', false);
+        super(HTML, CSS.toString(), false);
     }
 }
 

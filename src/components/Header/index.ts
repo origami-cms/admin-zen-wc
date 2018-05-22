@@ -16,7 +16,7 @@ export class Header extends Element {
     app?: App;
 
     constructor() {
-        super(HTML, CSS.toString(), 'Header', false);
+        super(HTML, CSS.toString(), false);
     }
 
     static boundProps = ['app'];

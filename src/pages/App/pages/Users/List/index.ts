@@ -23,7 +23,7 @@ export default class UsersList extends Element {
     users?: ImmutableObject<User>;
     table?: HTMLElement;
     constructor() {
-        super(HTML, CSS, 'UsersList', false);
+        super(HTML, CSS, false);
     }
 
     static get boundProps() {

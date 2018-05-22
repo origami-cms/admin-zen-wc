@@ -65,7 +65,7 @@ export default class UserEdit extends Element {
 
 
     constructor() {
-        super(HTML, CSS, 'user-edit', false);
+        super(HTML, CSS, false);
     }
 
 

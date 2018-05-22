@@ -10,7 +10,7 @@ export default class UserAvatar extends Element {
 
 
     constructor() {
-        super(HTML, CSS, 'user-avatar');
+        super(HTML, CSS);
     }
 
     private get _img(): HTMLImageElement {

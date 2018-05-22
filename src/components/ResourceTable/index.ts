@@ -42,7 +42,7 @@ export default class ResourceTable extends Element {
     private _router?: Router;
 
     constructor() {
-        super(HTML, CSS, 'ResourceTable');
+        super(HTML, CSS);
     }
 
 

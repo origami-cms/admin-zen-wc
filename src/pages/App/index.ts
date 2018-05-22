@@ -28,7 +28,7 @@ export default class App extends Element {
 
 
     constructor() {
-        super(HTML, CSS, 'PageApp', false);
+        super(HTML, CSS, false);
     }
 
     static boundProps = ['me', 'auth'];

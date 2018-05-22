@@ -46,7 +46,7 @@ export default class Login extends Element {
     ];
 
     constructor() {
-        super(HTML, CSS, 'Login', false);
+        super(HTML, CSS, false);
     }
 
     static get boundProps() {

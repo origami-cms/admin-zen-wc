@@ -35,7 +35,7 @@ export default class UserEdit extends Element {
     userId?: string;
 
     constructor() {
-        super(HTML, CSS.toString(), 'UserEdit', false);
+        super(HTML, CSS.toString(), false);
     }
 
     static formFields: Field[] = [
