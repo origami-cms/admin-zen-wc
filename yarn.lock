@@ -4871,9 +4871,9 @@ origami-icons@^0.0.10:
   version "0.0.10"
   resolved "https://registry.yarnpkg.com/origami-icons/-/origami-icons-0.0.10.tgz#4653b6fc9a2e2a348a1b18331ccf8731fa951cfa"
 
-origami-zen@^0.3.6:
-  version "0.3.6"
-  resolved "https://registry.yarnpkg.com/origami-zen/-/origami-zen-0.3.6.tgz#4c649e4dc10edc4af2e23b464fe9808e48c7878a"
+origami-zen@^0.3.8-alpha.0:
+  version "0.3.8-alpha.0"
+  resolved "https://registry.yarnpkg.com/origami-zen/-/origami-zen-0.3.8-alpha.0.tgz#035ddb9a83f462675f2d919e3af4e1d387d5d491"
   dependencies:
     "@types/seamless-immutable" "^7.1.1"
     zen-css "^1.1.5"
