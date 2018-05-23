@@ -36,13 +36,14 @@ export default class ResourceTable extends Element {
     data: any[] = [];
 
     private _elementMap: Map<Data, HTMLElement> = new Map();
-    private _buttonGroup?: ButtonGroup;
     private _table?: HTMLDivElement;
     private _observer?: MutationObserver;
     private _router?: Router;
 
     constructor() {
         super(HTML, CSS);
+
+        console.log('creating ersource table');
     }
 
 
@@ -50,7 +51,6 @@ export default class ResourceTable extends Element {
 
         super.connectedCallback();
 
-        this._buttonGroup = this._root.querySelector('header zen-ui-button-group') as ButtonGroup;
         this._table = this._root.querySelector('.table') as HTMLDivElement;
         this._observer = new MutationObserver(this.handleMutation.bind(this));
         this._observer.observe(this, {childList: true});
@@ -97,6 +97,10 @@ export default class ResourceTable extends Element {
 
     get resSingular() {
         return this.resource ? pluralize.singular(this.resource) : false;
+    }
+
+    private get _buttonGroup() {
+        return this._root.querySelector('header zen-ui-button-group') as ButtonGroup;
     }
 
 
@@ -232,6 +236,8 @@ export default class ResourceTable extends Element {
     }
 
     updateButtons() {
+        console.log(this._buttonGroup, this._root.querySelector('header zen-ui-button-group'));
+
         if (!this._buttonGroup) return this._error('Not initialised');
 
         type B = {[prop in keyof Button]?: any };

@@ -19,5 +19,6 @@ export default combineReducers({
     Setup,
     // Pages,
     Users: APIReducer('users'),
+    Brokers: APIReducer('brokers'),
     Templates: APIReducer('templates', null, 'name')
 });

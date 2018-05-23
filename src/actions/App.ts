@@ -17,6 +17,12 @@ export const getSidebarItems = () =>
         // TODO: Convert to endpoint
         dispatch({type: APP_SIDEBAR_ITEMS_SET, items: [
             {
+                icon: 'home',
+                color: 'red',
+                path: '/brokers',
+                name: 'Brokers'
+            },
+            {
                 icon: 'page',
                 color: 'red',
                 path: '/pages',

@@ -5,6 +5,7 @@ export default interface State {
     App: App;
     Pages: ResourceStateMixin<{ pages: ImmutableObject<Page>[] }>;
     Users: ResourceStateMixin<{ users: ImmutableObject<User>[] }>;
+    Brokers: ResourceStateMixin<{ brokers: ImmutableObject<Broker>[] }>;
     Me: Me;
     Auth: Auth;
     Setup: Setup;
@@ -16,6 +17,15 @@ export type User = {
     lname: string;
     email: string;
     password: string;
+};
+
+export type Broker = {
+    id: string,
+    name: string,
+    logo: string,
+    colorMain: string,
+    colorSecondary: string,
+    colorNeutral: string,
 };
 
 export type Page = {
